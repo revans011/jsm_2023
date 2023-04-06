@@ -28,6 +28,7 @@ rio,        # to import data
        ggplot2, #for plotting
         hrbrthemes, #themes fore ggplot2
         kableExtra,
+        caret,
         MASS #bivariate normal
    ) 
 
