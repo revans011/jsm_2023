@@ -1,0 +1,239 @@
+---
+title: "R Notebook"
+output: pdf_document
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{amsthm}
+  - \usepackage{amsmath}
+  - \usepackage{amsfonts}
+  - \usepackage{amscd}
+  - \usepackage{amssymb}
+---
+
+```{r echo=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+rio,        # to import data
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       here,       #path for importing 
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       skimr, #for data summaries
+       ggplot2, #for plotting
+        hrbrthemes, #themes fore ggplot2
+        kableExtra,
+        MASS #bivariate normal
+   ) 
+
+options(digits = 4)
+```
+
+
+
+
+# ------Now make a simple dataset to test the method-------------
+
+it has columns:
+1. labelz
+2. two columns of features
+
+Note that half are always true positive
+```{r}
+
+#FUNCTION TO MAKE DATA  
+
+#half are positive and half are negative
+#prop_pos_labeled is the proprtion of the positives that are labeled (ie correctly labeled). The rest are unlabeled (naive negative)
+
+make_my_data<-function(total_N=1000
+                       , prop_pos_labeled=0.5
+                       , diff_means=2.5
+                       , variance_labeled=0.05
+                       , variance_unlabeled=0.05){
+
+  num_pos <- round(total_N/2) #number of true positives, always half the dataset
+  
+  num_labeled <- round(num_pos * prop_pos_labeled) #number of true positives labeled positive
+  num_unlabeled <- total_N - num_labeled           #number unlabled. has some positive and all the negative
+  
+  data.frame(labelz=as.factor(
+                 c(rep(1,num_labeled)
+                   ,rep(0,(num_unlabeled))))
+                ,feat=bind_rows(
+                   data.frame(mvrnorm(n=num_pos, mu=c(diff_means, diff_means), # true positives
+                Sigma=matrix(c(variance_labeled=0.05, 0, 0, variance_labeled=0.05), ncol=2)))
+              
+               ,data.frame(mvrnorm(n=(total_N-num_pos), mu=c(0, 0),
+               Sigma=matrix(c(variance_unlabeled, 0.01, 0.01, variance_unlabeled), ncol=2)))))  #unlabeleds
+
+}
+
+```
+
+
+# ------Now make a another simple dataset to test the method-------------
+
+it has columns:
+1. labelz
+2. true 0, 1 
+2. two columns of features
+
+half are labeled positive and half are unlabeled
+a certain percent of the unlabeled are positive
+```{r}
+
+#This is not smooth because it takes cases with negative features and calls them positive
+#
+
+
+
+make_data_not_smooth<-function(number_labeled_positive=300
+                       , number_unlabeled=300
+                       , prop_unlabeled_positive=0.05
+                       , diff_mean_feat1=2.5
+                       , diff_mean_feat2=0
+                       , variance_positive=1
+                       , variance_negative=1){
+
+ 
+  number_negative <- round(number_unlabeled*(1-prop_unlabeled_positive))       
+  number_positive <- number_labeled_positive + (number_unlabeled - number_negative)
+    
+  #class=positive
+  positives<-mvrnorm(n=number_positive, mu=c(diff_mean_feat1, diff_mean_feat2), # true positives
+                Sigma=matrix(c(variance_positive, -0.5, -0.5, variance_positive), ncol=2))
+  
+  
+  #class=negative
+  negatives<-mvrnorm(n=round(number_negative), mu=c(0,0),
+               Sigma=matrix(c(variance_negative, -0.5, -0.5, variance_negative), ncol=2))
+  
+  return(
+  data.frame(
+    labelz=as.factor(
+                 c(rep(1,number_labeled_positive)
+                 ,rep(0,(number_unlabeled))))
+    ,truth=as.factor(c(rep(1,number_positive)
+                 ,rep(0,(number_negative))))
+          ,feat=bind_rows(
+                   data.frame(positives)
+                  ,data.frame(negatives)))
+)
+}
+
+```
+
+
+# ------Now make a another simple dataset to test the method-------------
+
+it has columns:
+1. labelz
+2. true 0, 1 
+2. two columns of features
+
+two random clouds of data but the unlabeled positives are bad only on one dimension
+
+```{r}
+
+
+
+make_data_fail_one_dimension<-function(
+                         number_positive=300
+                       , number_unlabeled=270
+                       , number_unlabeled_pos=30
+                       , diff_mean_feat1=2.5
+                       , diff_mean_feat2=0
+                       , variance_positive=1
+                       , variance_negative=1){
+
+
+  #class=positive
+  positives<-mvrnorm(n=number_positive, mu=c(diff_mean_feat1, diff_mean_feat2), # true positives
+                Sigma=matrix(c(variance_positive, -0.5, -0.5, variance_positive), ncol=2))
+  
+    #class=positive
+  positives_unlabeled<-mvrnorm(n=number_unlabeled_pos, mu=c(-1, -1), # true positives
+                Sigma=matrix(c(.001, 0, 0, variance_positive), ncol=2))
+ 
+  
+  #class=negative
+  negatives<-mvrnorm(n=number_unlabeled, mu=c(0,0),
+               Sigma=matrix(c(variance_negative, -0.5, -0.5, variance_negative), ncol=2))
+  
+  return(
+  data.frame(
+    labelz=as.factor(
+                 c(rep(1,number_positive)
+                 ,rep(0,(number_unlabeled+number_unlabeled_pos))))
+    ,truth=as.factor(c(rep(1,(number_positive+number_unlabeled_pos))
+                 ,rep(0,(number_unlabeled))))
+          ,feat=bind_rows(
+                   data.frame(positives)
+                   ,data.frame(positives_unlabeled)
+                  ,data.frame(negatives)))
+)
+}
+
+```
+
+
+
+plot the data
+```{r}
+
+#df<-make_data_not_smooth(diff_mean_feat1 = .5,diff_mean_feat2=0, variance_negative=2)
+df<-make_data_fail_one_dimension(diff_mean_feat1 = 3.5,diff_mean_feat2=0, variance_negative=1)
+
+ggplot(df,aes(x =feat.X1, y = feat.X2, color=truth, shape=labelz)) + 
+  geom_point() +
+  ggtitle("") +
+  xlab("") +      #fill in the quotes for a labels, title, etc.
+  ylab("")  + 
+  scale_shape_manual(values=c(20,3))+
+  scale_color_manual(name="Truth",values = c("blue","red"),labels = c("Negative","Positive"))
+
+
+# Fit the model
+m1 <- glm(labelz ~ feat.X1+feat.X2, data = df, family = binomial)
+m2 <- glm(truth ~ feat.X1+feat.X2, data = df, family = binomial)
+# Summarize the model
+#summary(model)
+
+
+m1 %>% 
+  tbl_regression(exponentiate = TRUE, intercept = TRUE) %>% 
+  as_gt() %>%
+  gt::tab_source_note(gt::md("*This data is true class label*"))
+
+
+m2 %>% 
+  tbl_regression(exponentiate = TRUE, intercept = TRUE) %>% 
+  as_gt() %>%
+  gt::tab_source_note(gt::md("*This data is labelz*"))
+```
+
+
+```{r}
+
+# Make predictions
+m1.preds <- m1 %>% predict(df[,-1],type = "response")
+
+binary_predictions <- ifelse(m1.preds >0.5,1,0)
+
+
+```
+
+
+make a confusion matrix just to see if everything works
+```{r}
+confusionMatrix(data = as.factor(binary_predictions), reference =as.factor(df$labelz))
+```
+
+
+
