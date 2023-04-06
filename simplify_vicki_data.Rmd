@@ -1,0 +1,91 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+#install.packages("pacman")
+pacman::p_load(
+rio,        # to import data
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       here,       #path for importing 
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       skimr, #for data summaries
+       ggplot2, #for plotting
+        hrbrthemes, #themes fore ggplot2
+        kableExtra,
+        caret,
+        arsenal,  #tableby
+        sjmisc, #make dummies with dplyr
+        MASS #bivariate normal
+   ) 
+
+options(digits = 4)
+```
+
+
+
+```{r}
+df <- readxl::read_excel(here("FileForRich.xlsx"))
+```
+
+```{r}
+#glimpse(df)
+```
+
+for removing rows with NA, several choices
+https://stackoverflow.com/questions/4862178/remove-rows-with-all-or-some-nas-missing-values-in-data-frame
+
+```{r }
+
+df <- readxl::read_excel(here("FileForRich.xlsx"))
+
+#df<- df[,1:30]
+
+df <- df %>% dplyr::select(-SamplePlateName
+                    ,-SamplePlateWell
+                    ,-breed
+                    ,-SAMPLEID)
+
+df <- df %>% dplyr::select(where(~n_distinct(.) > 1)) # only one unique
+#df <- df %>% select(-rs8377602) #one factor has only one
+
+df <- na.omit(df)
+
+# cols <- colnames(df[,-ncol(df)])
+# df <- lapply(df, factor)  ## as.factor() could also be used
+```
+
+```{r}
+glimpse(df)
+```
+```{r}
+mycontrols  <- tableby.control(test=TRUE, total=TRUE,
+                               numeric.test="kwt", cat.test="chisq",
+                               numeric.stats=c("N", "median", "q1q3"),
+                               # numeric.stats=c("N", "meansd"),
+                               cat.stats=c("countpct"),
+                               stats.labels=list(N='Count', median='Median', q1q3='Q1,Q3'))
+
+tab2 <- tableby(status ~ ., data=df, control=mycontrols)
+summary(tab2)
+```
+
+
+
+```{r}
+df1<-df %>% dplyr::select(-status) %>% to_dummy() 
+df1<-bind_cols(df[,1],df1)
+df1<-df1 %>% mutate_if(is.numeric,as.factor)
+```
+
+
+```{r}
+tab2 <- tableby(status ~ ., data=df1, control=mycontrols)
+summary(tab2)
+```
+
