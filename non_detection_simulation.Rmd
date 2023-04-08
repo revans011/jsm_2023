@@ -1,0 +1,78 @@
+---
+title: "R Notebook"
+output: pdf_document
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{amsthm}
+  - \usepackage{amsmath}
+  - \usepackage{amsfonts}
+  - \usepackage{amscd}
+  - \usepackage{amssymb}
+---
+
+```{r echo=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+rio,        # to import data
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       here,       #path for importing 
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       skimr, #for data summaries
+       ggplot2, #for plotting
+        hrbrthemes, #themes fore ggplot2
+        kableExtra,
+        caret
+   ) 
+
+options(digits = 4)
+```
+
+```{r}
+
+
+predisposition.naive <- c(runif(200,min=0.55,max=1)
+                    ,runif(100,min=0.45,max=0.55)
+                    ,runif(200,min=0,max=0.45))
+
+# the number to change from low disposition to high
+proportion.detection.error<-0.4 #1-SE
+trim.predisp<-round(length(predisposition.naive)*
+                      proportion.detection.error)
+
+
+predisposition <- head(predisposition.naive,-trim.predisp)
+predisposition <- c(predisposition,runif(trim.predisp,min=0.55,max=1))
+
+df<-data.frame(predisposition.naive = predisposition.naive
+               ,predisposition = predisposition
+               ,observed_rupture=c(rep(1,200)
+                     ,sample(c(0,1), replace=TRUE, size=100)
+                     ,rep(0,200)))
+```
+
+```{r}
+m.naive<- glm(observed_rupture ~ predisposition.naive, family="binomial",data=df)
+summary(m.naive)
+
+
+m2<- glm(observed_rupture ~ predisposition, family="binomial",data=df)
+summary(m2)
+
+print("diff in coeff, closer to 1 is more different")
+print((m.naive$coefficients - m2$coefficients)/abs(m.naive$coefficients))
+```
+
+
+```{r}
+ggplot(df, aes(x=predisposition, y=observed_rupture)) + geom_point() +
+      stat_smooth(method="glm", color="green", se=FALSE,
+                method.args = list(family=binomial))
+```
+
