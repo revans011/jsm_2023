@@ -42,7 +42,7 @@ predisposition.naive <- c(runif(200,min=0.55,max=1)
                     ,runif(200,min=0,max=0.45))
 
 # the number to change from low disposition to high
-proportion.detection.error<-0.4 #1-SE
+proportion.detection.error<-0.05 #1-SE
 trim.predisp<-round(length(predisposition.naive)*
                       proportion.detection.error)
 
@@ -57,21 +57,41 @@ df<-data.frame(predisposition.naive = predisposition.naive
                      ,rep(0,200)))
 ```
 
+
+
 ```{r}
-m.naive<- glm(observed_rupture ~ predisposition.naive, family="binomial",data=df)
-summary(m.naive)
+predisposition=rbeta(500,2,2)  #upsidedown U
+predisposition=rbeta(500,.5,.5) #u shape
+predisposition=rbeta(500,1,1) #uniform
+
+naive.rupture<-rbinom(length(predisposition),size=1,predisposition)
+
+observed.rupture<-naive.rupture
+
+observed.rupture[sample(which(naive.rupture==1)
+                                       ,25)]<-0
+
+df<-data.frame(predisposition=predisposition
+               ,naive.rupture=naive.rupture
+               ,observed.rupture=observed.rupture)
+
+m.naive<- glm(naive.rupture ~ predisposition, family="binomial",data=df)
+#summary(m.naive)
 
 
-m2<- glm(observed_rupture ~ predisposition, family="binomial",data=df)
-summary(m2)
+m2<- glm(observed.rupture ~ predisposition, family="binomial",data=df)
+#summary(m2)
 
 print("diff in coeff, closer to 1 is more different")
 print((m.naive$coefficients - m2$coefficients)/abs(m.naive$coefficients))
 ```
+```{r}
+hist(predisposition)
+```
 
 
 ```{r}
-ggplot(df, aes(x=predisposition, y=observed_rupture)) + geom_point() +
+ggplot(df, aes(x=predisposition, y=naive.rupture)) + geom_point() +
       stat_smooth(method="glm", color="green", se=FALSE,
                 method.args = list(family=binomial))
 ```
