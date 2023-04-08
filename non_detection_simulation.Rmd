@@ -60,16 +60,22 @@ df<-data.frame(predisposition.naive = predisposition.naive
 
 
 ```{r}
+
+fisher.b<-NULL
+coef.pvalues<-NULL
+
+for(i in 1:300){
+
 predisposition=rbeta(500,2,2)  #upsidedown U
-predisposition=rbeta(500,.5,.5) #u shape
-predisposition=rbeta(500,1,1) #uniform
+#predisposition=rbeta(500,.5,.5) #u shape
+#predisposition=rbeta(500,1,1) #uniform
 
 naive.rupture<-rbinom(length(predisposition),size=1,predisposition)
 
 observed.rupture<-naive.rupture
 
 observed.rupture[sample(which(naive.rupture==1)
-                                       ,25)]<-0
+                                       ,100)]<-0
 
 df<-data.frame(predisposition=predisposition
                ,naive.rupture=naive.rupture
@@ -77,14 +83,41 @@ df<-data.frame(predisposition=predisposition
 
 m.naive<- glm(naive.rupture ~ predisposition, family="binomial",data=df)
 #summary(m.naive)
-
+#print(coef(summary(m.naive))[,4])
 
 m2<- glm(observed.rupture ~ predisposition, family="binomial",data=df)
 #summary(m2)
 
-print("diff in coeff, closer to 1 is more different")
-print((m.naive$coefficients - m2$coefficients)/abs(m.naive$coefficients))
+#print("diff in coeff, closer to 1 is more different")
+#print((m.naive$coefficients - m2$coefficients)/abs(m.naive$coefficients))
+
+fisher.b<-c(fisher.b,(coef(summary(m2))[,1] - coef(summary(m.naive))[,1])/abs(coef(summary(m.naive))[,1]))
+
+coef.pvalues<-c(coef.pvalues,coef(summary(m.naive))[,4],coef(summary(m2))[,4])
+
+  }
+
+foo<-data.frame(fisher.b=t(matrix(fisher.b,nrow=2))
+           ,pvalues=t(matrix(coef.pvalues,nrow=4))) %>% 
+  rename(fisher.b.intercept=fisher.b.1
+         ,fisher.b.coef=fisher.b.2
+         ,naive.p.intercept=pvalues.1
+         ,naive.p.coef=pvalues.2
+         ,observed.m.p.intercept=pvalues.3
+         ,observed.m.p.coef=pvalues.4) %>% 
+  mutate(naive.signif=ifelse(naive.p.coef>0.05,0,1)) %>% 
+  mutate(observed.m.signif=ifelse(observed.m.p.coef>0.05,0,1)) %>% 
+  mutate(diff.inference=ifelse(observed.m.signif==naive.signif,0,1))
+
+
 ```
+
+
+```{r}
+tbl_summary(foo)
+```
+
+
 ```{r}
 hist(predisposition)
 ```
