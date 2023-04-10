@@ -37,22 +37,27 @@ cor(goo,(1+exp(-(-2+.001*goo)))^(-1))
 Above, Clearly the predictions would be bad for models with the slope near 0 (OR near 1) However, the inferences still seem OK. Changing a few 1s to 0s must weaken the model fit but not change the value of the slope much.
 
 ```{r}
-
-loop_fun<-function(num_iter=1000,num_wrong=15,b0=1,b1=1,randomly.rupture=FALSE){
+b0<- 1   #intercept exp(bb0) is the baseline rupture rate more or less
+b1<- 1  #slope
+num_wrong<-15
 
 fisher.b<-NULL
 coef.pvalues<-NULL
+naive.coef<-NULL
+m2.coef<-NULL
 
-for(i in 1:num_iter){
+for(i in 1:1000){
 
 #predisposition<-rbeta(500,2,2)  #upsidedown U
 #predisposition<-rbeta(500,.5,.5) #u shape
 #predisposition.orig<-runif(500) #uniform
-predisposition.orig<-c(runif(250,0,0.6),runif(250,0.4,1))
+predisposition.orig<-c(runif(250,0,0.95),runif(250,0.05,1))
 
-predisposition<-(1+exp(-(b0+b1*predisposition.orig)))^(-1)
+predisposition<-predisposition.orig
+#predisposition<-(1+exp(-(b0+b1*predisposition.orig)))^(-1)
+
 # 
-# naive.rupture<-rbinom(length(predisposition),size=1,predisposition)
+ #naive.rupture<-rbinom(length(predisposition),size=1,predisposition)
 #
 
 #naive.rupture<-as.integer(predisposition>runif(500))
@@ -60,22 +65,12 @@ naive.rupture<-c(rep(0,250),rep(1,250))
 
 observed.rupture<-naive.rupture
 
-if (randomly.rupture){
-#this randomly samples cases that ruptured ("1") and assigns them 0, even with low predisposition.orig
-observed.rupture[sample(which(observed.rupture==1)
-                         ,num_wrong)]<-0
 
-} else
-{
-# this randomly samples cases that ruptured ("1") between(predisposition.orig,0.5,0.7)
-# and assigns them 0.
+ observed.rupture[
+   sample(which(observed.rupture==1 & predisposition>0.4),num_wrong)
+   ]<-0
 
 
- observed.rupture[sample(observed.rupture[observed.rupture==1 &
-                                 predisposition>0.4]
-                          ,num_wrong)]<-0
-
- }
 
 
 df<-data.frame(predisposition=predisposition
@@ -92,10 +87,15 @@ fisher.b<-c(fisher.b,(coef(summary(m2))[,1] - coef(summary(m.naive))[,1])/abs(co
 
 coef.pvalues<-c(coef.pvalues,coef(summary(m.naive))[,4],coef(summary(m2))[,4])
 
-  }
+naive.coef<-c(naive.coef,coef(summary(m.naive))[,1][2])
+m2.coef<-c(m2.coef,coef(summary(m2))[,1][2])
+
+  } #end loop
 
 foo<-data.frame(fisher.b=t(matrix(fisher.b,nrow=2))
-           ,pvalues=t(matrix(coef.pvalues,nrow=4))) %>% 
+           ,pvalues=t(matrix(coef.pvalues,nrow=4))
+           ,naive.coef=naive.coef
+           ,m2.coef=m2.coef) %>% 
   rename(fisher.b.intercept=fisher.b.1
          ,fisher.b.coef=fisher.b.2
          ,naive.p.intercept=pvalues.1
@@ -112,8 +112,6 @@ foo<-data.frame(fisher.b=t(matrix(fisher.b,nrow=2))
 #                              ,observed.m.p.coef
 #                              ,opposite.inference
 #                              ,naive.p.smaller))
-return(foo)
-}
 
 ```
 
@@ -126,15 +124,8 @@ https://www.graphpad.com/guides/prism/latest/curve-fitting/reg_simple_logistic_c
 #this should be 5% and 10% of 250, the "0" cases, not 5% of 500 observations
 #BE CAREFUL these fisher B's are only for cases with at least one p<0.05.
 
-bb0<- -2   #intercept exp(bb0) is the baseline rupture rate more or less
-bb1<- 5  #slope
 
-set2<-loop_fun(num_iter=5,b0=bb0,b1=bb1,num_wrong=15,randomly.rupture=FALSE)
-set4<-loop_fun(b0=bb0,b1=bb1,num_wrong=30,randomly.rupture=FALSE)
-
-
-
-t2<-set2 %>% 
+foo %>% 
   filter(naive.p.coef<0.05|observed.m.p.coef<0.05) %>% 
    dplyr::select(opposite.inference,naive.p.smaller) %>% 
   tbl_summary(statistic = list(
@@ -142,46 +133,14 @@ t2<-set2 %>%
       all_categorical() ~ "{n} / {N} ({p}%)"))
 
 
-t4<-set4 %>%
-  filter(naive.p.coef<0.05|observed.m.p.coef<0.05) %>%
-   dplyr::select(opposite.inference,naive.p.smaller) %>% 
-  tbl_summary(statistic = list(
-      all_continuous() ~ "{median} ({IQR})",
-      all_categorical() ~ "{n} / {N} ({p}%)"))
 
-#this should be 5% and 10% of 250, not 500
-
-tbl_merge(list(t2,t4),
-          tab_spanner = c("**not random 5%**"
-                          ,"**not random 10%**"
-                          ))
-
-
-
-head(set2 %>% dplyr::select(naive.p.coef,observed.m.p.coef))
-
-
-
-t2<-set2 %>% 
+foo %>% 
    dplyr::select(fisher.b.coef) %>% 
   tbl_summary(statistic = list(
       all_continuous() ~ "{median} ({IQR})",
       all_categorical() ~ "{n} / {N} ({p}%)"))
 
 
-t4<-set4 %>%
-   dplyr::select(fisher.b.coef) %>% 
-  tbl_summary(statistic = list(
-      all_continuous() ~ "{median} ({IQR})",
-      all_categorical() ~ "{n} / {N} ({p}%)"))
-
-#this should be 5% and 10% of 250, not 500
-
-tbl_merge(list(t2,t4),
-          tab_spanner = c("**not random 5%**"
-                          ,"**not random 10%**"))
-
-
-head(set2 %>% dplyr::select(fisher.b.coef),100) 
+foo %>% tbl_summary()
 ```
 
