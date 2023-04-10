@@ -1,16 +1,7 @@
 ---
 title: "R Notebook"
 output: pdf_document
-header-includes:
-  - \usepackage{booktabs}
-  - \usepackage{longtable}
-  - \usepackage{array}
-  - \usepackage{multirow}
-  - \usepackage{amsthm}
-  - \usepackage{amsmath}
-  - \usepackage{amsfonts}
-  - \usepackage{amscd}
-  - \usepackage{amssymb}
+
 ---
 
 ```{r echo=FALSE}
@@ -124,18 +115,10 @@ https://www.graphpad.com/guides/prism/latest/curve-fitting/reg_simple_logistic_c
 bb0<- -1   #intercept
 bb1<-2  #slope
 
-#set1<-loop_fun(b0=bb0,b1=bb1,num_wrong=15,randomly.rupture=TRUE)
 set2<-loop_fun(b0=bb0,b1=bb1,num_wrong=15,randomly.rupture=FALSE)
-#set3<-loop_fun(b0=bb0,b1=bb1,num_wrong=30,randomly.rupture=TRUE)
 set4<-loop_fun(b0=bb0,b1=bb1,num_wrong=30,randomly.rupture=FALSE)
 
 
-# t1<-set1 %>% 
-#   filter(naive.p.coef<0.05|observed.m.p.coef<0.05) %>% 
-#   dplyr::select(opposite.inference,naive.p.smaller) %>% 
-#   tbl_summary(statistic = list(
-#       all_continuous() ~ "{median} ({IQR})",
-#       all_categorical() ~ "{n} / {N} ({p}%)"))
 
 t2<-set2 %>% 
   filter(naive.p.coef<0.05|observed.m.p.coef<0.05) %>% 
@@ -144,12 +127,6 @@ t2<-set2 %>%
       all_continuous() ~ "{median} ({IQR})",
       all_categorical() ~ "{n} / {N} ({p}%)"))
 
-# t3<-set3 %>%
-#   filter(naive.p.coef<0.05|observed.m.p.coef<0.05) %>%
-#    dplyr::select(opposite.inference,naive.p.smaller) %>% 
-#   tbl_summary(statistic = list(
-#       all_continuous() ~ "{median} ({IQR})",
-#       all_categorical() ~ "{n} / {N} ({p}%)"))
 
 t4<-set4 %>%
   filter(naive.p.coef<0.05|observed.m.p.coef<0.05) %>%
@@ -172,12 +149,6 @@ head(set2 %>% dplyr::select(naive.p.coef,observed.m.p.coef))
 
 ```{r}
 
-t1<-set1 %>% 
-  dplyr::select(fisher.b.coef) %>% 
-  tbl_summary(statistic = list(
-      all_continuous() ~ "{median} ({IQR})",
-      all_categorical() ~ "{n} / {N} ({p}%)"),
-      digits = everything()~ 5)
 
 t2<-set2 %>% 
    dplyr::select(fisher.b.coef) %>% 
@@ -185,11 +156,6 @@ t2<-set2 %>%
       all_continuous() ~ "{median} ({IQR})",
       all_categorical() ~ "{n} / {N} ({p}%)"))
 
-t3<-set3 %>%
-   dplyr::select(fisher.b.coef) %>% 
-  tbl_summary(statistic = list(
-      all_continuous() ~ "{median} ({IQR})",
-      all_categorical() ~ "{n} / {N} ({p}%)"))
 
 t4<-set4 %>%
    dplyr::select(fisher.b.coef) %>% 
@@ -199,11 +165,9 @@ t4<-set4 %>%
 
 #this should be 5% and 10% of 250, not 500
 
-tbl_merge(list(t2,t4,t1,t3),
+tbl_merge(list(t2,t4),
           tab_spanner = c("**not random 5%**"
-                          ,"**not random 10%**"
-                          ,"**random 5%**"
-                          ,"**random 10%**"))
+                          ,"**not random 10%**"))
 
 
 
