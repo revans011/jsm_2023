@@ -25,6 +25,13 @@ rio,        # to import data
 options(digits = 4)
 ```
 
+```{r}
+#goo<-runif(10)
+goo<-c(.01,.5,.99)
+(1+exp(-(-2+.1*goo)))^(-1)
+(1+exp(-(-2+1*goo)))^(-1)
+(1+exp(-(-2+5*goo)))^(-1)
+```
 
 
 ```{r}
@@ -37,8 +44,8 @@ coef.pvalues<-NULL
 for(i in 1:num_iter){
 
 #predisposition<-rbeta(500,2,2)  #upsidedown U
-#predisposition=rbeta(500,.5,.5) #u shape
-predisposition.orig=rbeta(500,1,1) #uniform
+#predisposition<-rbeta(500,.5,.5) #u shape
+predisposition.orig<-runif(500) #uniform
 
 predisposition<-(1+exp(-(b0+b1*predisposition.orig)))^(-1)
 
@@ -58,7 +65,7 @@ observed.rupture[sample(which(observed.rupture==1)
 
 
  observed.rupture[sample(observed.rupture[observed.rupture==1 &
-                                 predisposition.orig>0.4]
+                                 predisposition.orig>0.1]
                           ,num_wrong)]<-0
 
  }
@@ -112,8 +119,8 @@ https://www.graphpad.com/guides/prism/latest/curve-fitting/reg_simple_logistic_c
 #this should be 5% and 10% of 250, the "0" cases, not 5% of 500 observations
 #BE CAREFUL these fisher B's are only for cases with at least one p<0.05.
 
-bb0<- -1   #intercept
-bb1<-2  #slope
+bb0<- -2   #intercept
+bb1<-5  #slope
 
 set2<-loop_fun(b0=bb0,b1=bb1,num_wrong=15,randomly.rupture=FALSE)
 set4<-loop_fun(b0=bb0,b1=bb1,num_wrong=30,randomly.rupture=FALSE)
@@ -145,9 +152,7 @@ tbl_merge(list(t2,t4),
 
 
 head(set2 %>% dplyr::select(naive.p.coef,observed.m.p.coef))
-```
 
-```{r}
 
 
 t2<-set2 %>% 
@@ -170,9 +175,6 @@ tbl_merge(list(t2,t4),
                           ,"**not random 10%**"))
 
 
-
-```
-```{r}
-head(set1 %>% dplyr::select(fisher.b.coef),100)
+head(set2 %>% dplyr::select(fisher.b.coef),100) 
 ```
 
