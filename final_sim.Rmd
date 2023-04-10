@@ -1,0 +1,118 @@
+---
+title: "R Notebook"
+output: pdf_document
+
+---
+
+```{r echo=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+rio,        # to import data
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       here,       #path for importing 
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       skimr, #for data summaries
+       ggplot2, #for plotting
+        hrbrthemes, #themes fore ggplot2
+        kableExtra,
+        caret
+   ) 
+
+options(digits = 4)
+```
+
+Above, Clearly the predictions would be bad for models with the slope near 0 (OR near 1) However, the inferences still seem OK. Changing a few 1s to 0s must weaken the model fit but not change the value of the slope much.
+
+```{r}
+
+num_wrong<-15 # 5 percent of naive rupture =0 dogs
+
+##control the overlap of the pos and unlabeled cases
+#larger is less overlap
+var.importance<-0.01
+
+##cutoff for relabeling
+#larger makes 
+label.cut<-0.5
+#--------------------------------------
+fisher.b<-NULL
+coef.pvalues<-NULL
+naive.coef<-NULL
+labeled.coef<-NULL
+
+for(i in 1:5000){
+
+##this is how the dogs are predisposed to CCLR
+#the first 250 will have rupture=0 (for the naive model)
+#the second 250 will have rupture=1
+predisposition<-c(runif(300,0,(1-var.importance)),runif(300,var.importance,1))
+
+naive.rupture<-c(rep(0,300),rep(1,300))
+
+
+labeled.rupture<-naive.rupture
+
+##this converts naive model to labeled model
+#the key part is the cutoff. Smaller makes naive vs labeled more different
+labeled.rupture[
+   sample(which(labeled.rupture==1 & predisposition>label.cut),num_wrong)
+   ]<-0
+
+
+df<-data.frame(predisposition=predisposition
+               ,naive.rupture=naive.rupture
+               ,labeled.rupture=labeled.rupture)
+
+m.naive<- glm(naive.rupture ~ predisposition, family="binomial",data=df)
+
+
+m.labeled<- glm(labeled.rupture ~ predisposition, family="binomial",data=df)
+
+
+fisher.b<-c(fisher.b,(coef(summary(m.labeled))[,1] - coef(summary(m.naive))[,1])/abs(coef(summary(m.naive))[,1]))
+
+coef.pvalues<-c(coef.pvalues,coef(summary(m.naive))[,4],coef(summary(m.labeled))[,4])
+
+naive.coef<-c(naive.coef,coef(summary(m.naive))[,1][2])
+labeled.coef<-c(labeled.coef,coef(summary(m.labeled))[,1][2])
+
+  } #end loop
+
+foo<-data.frame(fisher.b=t(matrix(fisher.b,nrow=2))
+           ,pvalues=t(matrix(coef.pvalues,nrow=4))
+           ,naive.coef=naive.coef
+           ,labeled.coef=labeled.coef) %>% 
+  rename(fisher.b.intercept=fisher.b.1
+         ,fisher.b.coef=fisher.b.2
+         ,naive.p.intercept=pvalues.1
+         ,naive.p.coef=pvalues.2
+         ,labeled.p.intercept=pvalues.3
+         ,labeled.p.coef=pvalues.4) %>% 
+  mutate(naive.p.smaller=ifelse(naive.p.coef<labeled.p.coef,1,0)) %>% 
+  mutate(naive.signif=ifelse(naive.p.coef>0.05,0,1)) %>% 
+  mutate(labeled.m.signif=ifelse(labeled.p.coef>0.05,0,1)) %>% 
+  mutate(opposite.inference=ifelse(labeled.m.signif==naive.signif,0,1)) %>% 
+  mutate(OR.naive.coef=exp(naive.coef)) %>% 
+  mutate(OR.labeled.coef=exp(labeled.coef))
+
+
+
+
+t1<-foo %>% 
+  filter(naive.p.coef<0.05|labeled.p.coef<0.05) %>% 
+   dplyr::select(opposite.inference,naive.p.smaller) %>% 
+  tbl_summary(statistic = list(
+      all_continuous() ~ "{median} ({IQR})",
+      all_categorical() ~ "{n} / {N} ({p}%)"))
+
+t2<-foo %>% tbl_summary
+
+tbl_merge(list(t1,t2)
+          ,tab_spanner = c("**at least one p<0.05**","**all**")) %>% as_gt() %>%
+  gt::tab_options(table.font.size = "10") %>% gt::tab_options(table.font.names = "courier")
+```
+
