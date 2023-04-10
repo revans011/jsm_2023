@@ -1,0 +1,147 @@
+---
+title: "R Notebook"
+output: pdf_document
+
+---
+
+```{r echo=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+rio,        # to import data
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       here,       #path for importing 
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       skimr, #for data summaries
+       ggplot2, #for plotting
+        hrbrthemes, #themes fore ggplot2
+        kableExtra,
+        caret
+   ) 
+
+options(digits = 4)
+```
+
+```{r}
+#goo<-runif(10)
+goo<-c(.01,.5,.999999)
+(1+exp(-(-2+.001*goo)))^(-1)
+(1+exp(-(-2+1*goo)))^(-1)
+(1+exp(-(-2+5*goo)))^(-1)
+
+cor(goo,(1+exp(-(-2+.001*goo)))^(-1))
+```
+Above, Clearly the predictions would be bad for models with the slope near 0 (OR near 1) However, the inferences still seem OK. Changing a few 1s to 0s must weaken the model fit but not change the value of the slope much.
+
+```{r}
+b0<- 1   #intercept exp(bb0) is the baseline rupture rate more or less
+b1<- 1  #slope
+num_wrong<-15
+
+fisher.b<-NULL
+coef.pvalues<-NULL
+naive.coef<-NULL
+m2.coef<-NULL
+
+for(i in 1:1000){
+
+#predisposition<-rbeta(500,2,2)  #upsidedown U
+#predisposition<-rbeta(500,.5,.5) #u shape
+predisposition.orig<-runif(500) #uniform
+#predisposition.orig<-c(runif(250,0,0.95),runif(250,0.05,1))
+
+predisposition<-predisposition.orig
+#predisposition<-(1+exp(-(b0+b1*predisposition.orig)))^(-1)
+
+# 
+
+#naive.rupture<-rbinom(length(predisposition),size=1,predisposition)
+#
+
+#naive.rupture<-as.integer(predisposition>runif(500))
+naive.rupture<-c(rep(0,250),rep(1,250))
+
+observed.rupture<-naive.rupture
+
+
+ observed.rupture[
+   sample(which(observed.rupture==1 & predisposition>0.4),num_wrong)
+   ]<-0
+
+
+
+
+df<-data.frame(predisposition=predisposition
+               ,naive.rupture=naive.rupture
+               ,observed.rupture=observed.rupture)
+
+m.naive<- glm(naive.rupture ~ predisposition, family="binomial",data=df)
+
+
+m2<- glm(observed.rupture ~ predisposition, family="binomial",data=df)
+
+
+fisher.b<-c(fisher.b,(coef(summary(m2))[,1] - coef(summary(m.naive))[,1])/abs(coef(summary(m.naive))[,1]))
+
+coef.pvalues<-c(coef.pvalues,coef(summary(m.naive))[,4],coef(summary(m2))[,4])
+
+naive.coef<-c(naive.coef,coef(summary(m.naive))[,1][2])
+m2.coef<-c(m2.coef,coef(summary(m2))[,1][2])
+
+  } #end loop
+
+foo<-data.frame(fisher.b=t(matrix(fisher.b,nrow=2))
+           ,pvalues=t(matrix(coef.pvalues,nrow=4))
+           ,naive.coef=naive.coef
+           ,m2.coef=m2.coef) %>% 
+  rename(fisher.b.intercept=fisher.b.1
+         ,fisher.b.coef=fisher.b.2
+         ,naive.p.intercept=pvalues.1
+         ,naive.p.coef=pvalues.2
+         ,observed.m.p.intercept=pvalues.3
+         ,observed.m.p.coef=pvalues.4) %>% 
+  mutate(naive.p.smaller=ifelse(naive.p.coef<observed.m.p.coef,1,0)) %>% 
+  mutate(naive.signif=ifelse(naive.p.coef>0.05,0,1)) %>% 
+  mutate(observed.m.signif=ifelse(observed.m.p.coef>0.05,0,1)) %>% 
+  mutate(opposite.inference=ifelse(observed.m.signif==naive.signif,0,1)) 
+
+# return(foo %>% dplyr::select(fisher.b.coef
+#                              ,naive.p.coef
+#                              ,observed.m.p.coef
+#                              ,opposite.inference
+#                              ,naive.p.smaller))
+
+```
+
+
+https://www.graphpad.com/guides/prism/latest/curve-fitting/reg_simple_logistic_coefficients.htm
+
+```{r}
+
+
+#this should be 5% and 10% of 250, the "0" cases, not 5% of 500 observations
+#BE CAREFUL these fisher B's are only for cases with at least one p<0.05.
+
+
+foo %>% 
+  filter(naive.p.coef<0.05|observed.m.p.coef<0.05) %>% 
+   dplyr::select(opposite.inference,naive.p.smaller) %>% 
+  tbl_summary(statistic = list(
+      all_continuous() ~ "{median} ({IQR})",
+      all_categorical() ~ "{n} / {N} ({p}%)"))
+
+
+
+foo %>% 
+   dplyr::select(fisher.b.coef) %>% 
+  tbl_summary(statistic = list(
+      all_continuous() ~ "{median} ({IQR})",
+      all_categorical() ~ "{n} / {N} ({p}%)"))
+
+
+foo %>% tbl_summary
+```
+
