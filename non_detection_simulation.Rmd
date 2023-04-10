@@ -27,12 +27,14 @@ options(digits = 4)
 
 ```{r}
 #goo<-runif(10)
-goo<-c(.01,.5,.99)
-(1+exp(-(-2+.1*goo)))^(-1)
+goo<-c(.01,.5,.999999)
+(1+exp(-(-2+.001*goo)))^(-1)
 (1+exp(-(-2+1*goo)))^(-1)
 (1+exp(-(-2+5*goo)))^(-1)
-```
 
+cor(goo,(1+exp(-(-2+.001*goo)))^(-1))
+```
+Above, Clearly the predictions would be bad for models with the slope near 0 (OR near 1) However, the inferences still seem OK. Changing a few 1s to 0s must weaken the model fit but not change the value of the slope much.
 
 ```{r}
 
