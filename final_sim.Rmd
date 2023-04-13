@@ -49,7 +49,18 @@ for(i in 1:5000){
 ##this is how the dogs are predisposed to CCLR
 #the first 250 will have rupture=0 (for the naive model)
 #the second 250 will have rupture=1
-predisposition<-c(runif(300,0,(1-var.importance)),runif(300,var.importance,1))
+
+  
+##I can do predisposition two ways
+# as a (0,1) variable summarizing the importance of a set of genes
+#but that makes the paper harder to write becuase importance confuses with the
+#importance from the logistic regression coefficent
+predisposition<-c(runif(300,0,(1-var.importance)) #runif below 0.95 or somethng like that
+                  ,runif(300,var.importance,1))   #runif > 0.05
+
+## or I can make it a single gene, binary, with 1 if the dog as a SNP at that loci
+predisposition<-ifelse(predisposition<0.5,0,1)
+
 
 naive.rupture<-c(rep(0,300),rep(1,300))
 
