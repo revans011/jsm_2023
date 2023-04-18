@@ -1,0 +1,223 @@
+jsm2023 paper
+
+
+
+
+To Do
+
+
+1. R code a three gene simulation
+2. Lit searches, see in the text below
+Intro
+- what the study is
+- more background
+- what the study is some more
+- the objective of this study is to describe how inferences about genes change when assuming the naïve model over the correct model.
+- Although the correct model cannot be kown
+-
+1. Non-detection is a wildlife biology term for when a trap or camera fails to detect a species in a habitat, but in fact the species is there. 
+
+2. In other words, non-detection is the false negative rate.
+
+3. The usefulness of case-control studies hinges on their very definition: the cases must be affected and the controls must not be 
+
+4. RICH search mislabeled case-control
+
+5. GWAS studies are sometimes not perfect case control studies. The controls 
+6. 7. GW association studies (GWAS) are important exploratory tools in the process of finding genomic variants that predispose subjects to disease. GWAS usually use a case-control design with an affected group compared to a non-affected control group. The idea is to scan the genome to identify SNPs that occur more frequently in the affected group than in the control group.
+8. A common assumption of GWAS is that all of the affected subjects have the disease, that is, there are no false positive cases in the affected group, and all the control subjects do not have the disease nor should they have a predisposition for the disease, subdiagnostic disease, or preclinical disease, because those cases could have the same genomic variants as the affected cases. 
+9. The non-detection rate is the proportion of controls that should have been included in the positive group, but were not detected by the diagnostic test and decision process used to classify subjects as disease or control.
+10.  
+11. That can make finding controls a challenge. For example, CCLD in dogs is diagnosed by physical exam which can miss subdiagnostic disease. Moreover, CCLD in Labrador Retrievers may happen any time in a dog's lifetime. The control group would certainly contain some dogs with the genetic variants that predispose for CCLD.
+12. Including affected subjects in the control group in a noted concer, there is an established recored of In a GWAS study of diabetes, the was a 2% non-detection rate
+13. Rich give percentage of possible mislabeling to show the importance of this work.
+14. However, there has been limited investigation into the impact of non-detection in GWAS[a]. 
+15. The objective of this paper is consider the impact of non-detection on inferences about SNPs. Non-detection can occur randomly in the controls or it can occur as a function of a SNP. For example, if a SNP predisposes for a disease, then that SNP might also affect detection[b].
+16. Need and arrangement of snps/genes that make it like easier to be diagnoses. Possibly joint laxity?? Suppose there are three genes. One is joint laxity, one is tendon strength, and the third is a nerve gene that senses stability. A snp on the first gene makes it less stable and possible easier to detect by an astute surgeon.
+17. Non-detection can change depending on the diagnostic test. For example, A force platform can detect subtle changes in gait that might change a dog’s group assignment.
+18. That is, the disease status is labeled correctly. If the labels are not correct, and some diseased subjects are analyzed as disease free, or some control subjects are analyzed as diseased subjects, then the impact of important genes may be minimized.
+
+
+Methods for analyzing mislabeled or unlabeled data has been widely investigated by data scientists, statisticians, and wildlife biologists. To assess where particular wild species are predisposed to live, wildlife biologists set traps in a grid pattern, and features of the habitat around the trap constitutes the covariates that might predispose a species to live in that area (e.g., tall trees, long grass). If a species is caught in the trap, then that grid square is positive for that species. However, if the trap is empty then either the species is not predisposed to live in the grid habitat or the species is there but was not trapped.
+
+
+So, the biologists are certain of the positive traps, but the empty traps may be positive or negative.
+
+
+With GWAS study, the disease group is usually postive for the disease: not only have the patients been diagnosed, but they have often been treated as well. However, the control group may be like the empty traps. It's possible that the patient has an unmanifested case of the genetic disease.
+
+
+Treating the empty traps as negative is called the naive model. The naive model is used in GWAS of CCLD, where the control dogs, often older dogs, sometimes acquire CCLD. So, the naive model is wrong but may be sufficient.
+
+
+This simulation study investigates conditions under which the naive model gives inferences similar to the true model. That way GWAS investigators can
+
+
+
+
+materials and methods
+The real examples
+This simulation is based on three real examples
+
+
+A hypothetical GWAS was constructed using 600 Labradors.
+
+
+Based on the real examples, there is no clear way to determine the collective effect of individual genes on the predisposition to CCLD. For the sake of simplicity, each dog's CCL is characterized by a single ligament gene.
+The objective of the hypothetical GWAS is to determine if a SNP on ligament gene is associated with CCLD.
+
+
+We define a variable X is 1 if the dog has a SNP on the gene, and 0 otherwise.
+
+
+
+
+In terms of logistic regression, let P represent the probability of a dog getting CCLD sometime in it's life.
+
+
+In terms of logistic regression,
+ logit(p)=b0+b1X . If b1 is close to zero, then X (ie, snps on gene X) plays little role in CCLD. If b1 is different from 0, then there is an association between a snp the ligament gene and CCLD.
+
+
+However, it's possible that some dogs are predisposed to CCLD but simply haven't ruptured yet. We don't know those dogs because the diagnostic tests for CCLD only detect acute cases, not predisposed cases or preclinical cases. In other words, the SE of the test is less than 1, ie there is detection error.
+
+
+Let p=prob of acute CCLD ie observed CCLD
+p=dP
+the probabilyt of observig CCLD is the probabilt of getting it somethime x the probability of obserivg
+
+
+Accounting for dection error
+p=prob of observing predisposed (meaning has or will have CCLD)
+P= pr(D=1)=prob is predispoed (meaning has or will have CCLD)
+d= probability of detection, ie SE,
+so
+p=prob of detection x prob of predisposed=dP
+
+
+
+
+pr(T=+) = pr(T=+|D=1) x pr(D=1) + pr(T=+|D=0) x pr(D=0)
+
+
+
+
+But we assume the second half of the equation is zero because there are no false positives. 
+
+
+Giving
+pr(T=+) = pr(T=+|D=1) x pr(D=1)
+
+
+And since we assume no non-detection, ie perfect SE, then we have
+pr(T=+) = pr(D=1)
+
+
+But if in fact there is some non-detection, then we are back to 
+pr(T=+) = pr(T=+|D=1) x pr(D=1)
+
+
+We would like to model 
+
+
+pr(D=1) eg logit(pr(D=1)) = genes, 
+
+
+but instead use
+pr(T=+) eg logit(pr(D=1)) = genes, 
+
+
+So we are really doing
+
+
+logit(pr(T=+|D=1) x pr(D=1))=genes
+—-----------------------------------
+we would like P, but see p
+
+
+Then logit(p)=b0+b1X . If b1 is close to zero, then X (ie, snps on gene X) plays little role in CCLD. If b1 is different from 0, then there is an association between a snp the ligament gene and CCLD.
+
+
+However, we can't use p directly
+
+
+However,
+pr(observe,snp) = the probability of observing CCLD=pr(observing CCLD | has SNP) x pr(dog i has SNP)
+
+
+assumes that you can't observe without the snp
+
+
+[rich seguay to formula from Absent or undetected? Effects of non-detection of speciesoccurrence on wildlife–habitat models Weidong Gu*, Robert K.Swihart]
+
+
+The goal of the simulation is to show the effect on b1 of including predisposed dogs in the control group. In other words, comparing the inferences for b1 under the naive model and true model.
+
+
+The case group is three hundred Labradors have CCLD confirmed by surgery and DNA collected from blood samples. Saliva DNA samples from the other 300 were collected from dogs older than five years, with no history of CCLD, and negative physical exam.
+
+
+Depending on the
+
+
+The goal of the simulation is to show how mislabeling the control group affects inference for X.
+
+
+Through a random process, described below, dogs were assigned and X and and
+
+
+The naive model assumes the 300 surgical dogs are labeled positive and other 300 are labeled negative.
+
+
+
+
+We compared the naive model to other models
+
+
+—----------------------------------
+The simulation
+Like doing 3000 GWAS studies. For each study, 315 dogs were affected, and 285 were unaffected. 
+
+
+Three probabilities were randomly assigned to each of the dogs corresponding to the probability they had snps on each of the three genes. 
+
+
+Snps were assigned to dogs in two steps. 
+The variable Xi indicates the presence or absence of a snp. In other words, X1i=1 means that dog i has an snp on gene 1 
+
+
+Values for X were assigned to dogs using the binomial formula
+
+
+x ~ binomial(p) where p ~ uniform(a, 1) or
+x ~ binomial(p) where p ~ uniform(0, (1-a)) for
+Control dogs, where a was a simulation parameter using to increase the association between the gene and the disease. 
+
+
+For a concrete example, an affected dog would have three probabilities independently drawn from [a,1]. Then, those probabilities would be used to sample 0 or 1. 
+
+
+Each dog was three probabilites corresponding to the probability of a snp on each of the three genes. 
+
+
+===============================
+There were 3 sets of six simulations
+
+
+The six simulations varied on the non-detection rate
+The sample sizes were 300 affected, 285 controls, 15 positive, non-dectect controls
+
+
+Affected | controls | positive, non-detected | percent non-de
+300      | 285      | 15
+
+
+The first set of six were assumed the random non-detection. The second set assumed that non-detection was associated with the joint stability covariate. 
+
+
+Non-dectection is function of the the diagnostic test. A force plate might detect joint stability 
+
+
+results
+[a]search on non-detection for more references
+[b]need a clear example here
