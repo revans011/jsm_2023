@@ -139,7 +139,7 @@ coef.pvalues<-NULL
 naive.coef<-NULL
 labeled.coef<-NULL
 
-for(i in 1:1){
+for(i in 1:50){
 
 
 naive.rupture<-c(rep(0,300),rep(1,300))
@@ -161,31 +161,44 @@ m.naive<- glm(naive.rupture ~ predisposition, family="binomial",data=df)
 m.labeled<- glm(labeled.rupture ~ predisposition, family="binomial",data=df)
 
 
-fisher.b<-c(fisher.b,(coef(summary(m.labeled))[,1] - coef(summary(m.naive))[,1])/abs(coef(summary(m.naive))[,1]))
+# fisher.b<-c(fisher.b,(coef(summary(m.labeled))[,1] - coef(summary(m.naive))[,1])/abs(coef(summary(m.naive))[,1]))
 
 coef.pvalues<-c(coef.pvalues,coef(summary(m.naive))[,4],coef(summary(m.labeled))[,4])
 
-naive.coef<-c(naive.coef,coef(summary(m.naive))[,1][2])
-labeled.coef<-c(labeled.coef,coef(summary(m.labeled))[,1][2])
-
+# naive.coef<-c(naive.coef,coef(summary(m.naive))[,1][2])
+# labeled.coef<-c(labeled.coef,coef(summary(m.labeled))[,1][2])
+print(length(coef.pvalues))
   } #end loop
 
-goo<-data.frame(fisher.b=t(matrix(fisher.b,nrow=2))
-           ,pvalues=t(matrix(coef.pvalues,nrow=4))
-           ,naive.coef=naive.coef
-           ,labeled.coef=labeled.coef) %>% 
-  rename(fisher.b.intercept=fisher.b.1
-         ,fisher.b.coef=fisher.b.2
-         ,naive.p.intercept=pvalues.1
-         ,naive.p.coef=pvalues.2
-         ,labeled.p.intercept=pvalues.3
-         ,labeled.p.coef=pvalues.4) %>% 
+goo<-(matrix(coef.pvalues,ncol=100))
+
+goo<-data.frame(pvalues=t(matrix(coef.pvalues,nrow=4))) %>% 
+  rename(naive.p.intercept=pvalues.1
+         ,naive.p.coef=pvalues.2) %>% 
   mutate(naive.p.smaller=ifelse(naive.p.coef<labeled.p.coef,1,0)) %>% 
   mutate(naive.signif=ifelse(naive.p.coef>0.05,0,1)) %>% 
   mutate(labeled.m.signif=ifelse(labeled.p.coef>0.05,0,1)) %>% 
   mutate(opposite.inference=ifelse(labeled.m.signif==naive.signif,0,1)) %>% 
   mutate(OR.naive.coef=exp(naive.coef)) %>% 
   mutate(OR.labeled.coef=exp(labeled.coef))
+
+
+# goo<-data.frame(fisher.b=t(matrix(fisher.b,nrow=2))
+#            ,pvalues=t(matrix(coef.pvalues,nrow=4))
+#            ,naive.coef=naive.coef
+#            ,labeled.coef=labeled.coef) %>% 
+#   rename(fisher.b.intercept=fisher.b.1
+#          ,fisher.b.coef=fisher.b.2
+#          ,naive.p.intercept=pvalues.1
+#          ,naive.p.coef=pvalues.2
+#          ,labeled.p.intercept=pvalues.3
+#          ,labeled.p.coef=pvalues.4) %>% 
+#   mutate(naive.p.smaller=ifelse(naive.p.coef<labeled.p.coef,1,0)) %>% 
+#   mutate(naive.signif=ifelse(naive.p.coef>0.05,0,1)) %>% 
+#   mutate(labeled.m.signif=ifelse(labeled.p.coef>0.05,0,1)) %>% 
+#   mutate(opposite.inference=ifelse(labeled.m.signif==naive.signif,0,1)) %>% 
+#   mutate(OR.naive.coef=exp(naive.coef)) %>% 
+#   mutate(OR.labeled.coef=exp(labeled.coef))
 
 
 
