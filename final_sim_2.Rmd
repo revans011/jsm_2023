@@ -25,6 +25,25 @@ rio,        # to import data
 options(digits = 4)
 ```
 
+
+```{r setup, include=FALSE}
+knitr::knit_hooks$set(time_it = local({
+  now <- NULL
+  function(before, options) {
+    if (before) {
+      # record the current time before each chunk
+      now <<- Sys.time()
+    } else {
+      # calculate the time difference after a chunk
+      res <- difftime(Sys.time(), now)
+      # return a character string to show the time
+      paste("Time for this code chunk to run:", res)
+    }
+  }
+}))
+```
+
+
 If one SNP has a marginal effect on a phenotype, it is known as an SNP interaction displaying marginal effects. In some cases, however, each individual SNP has no effect on the phenotype, but the combination has a strong effect; this is known as SNP interactions displaying no marginal effects (INME)
 
 Wei Pan
@@ -130,16 +149,16 @@ list(Y=Y, X=X, SNP0indx=SNP0indx)
 
 
 
-```{r}
-
+```{r,warning=FALSE,time_it=TRUE}
+ now <- Sys.time()
 ### but how to pick false pos correlated to a gene??
 #--------------------------------------
 ## There is a coef for each gene plus the intercept
 coef.pvalues.naive<-NULL
 coef.pvalues.labeled<-NULL
-num.iter<-200
-ORs<-sample(c(.25,.5,2,4),50,replace = TRUE)
-ORs<-rep(2,50)
+num.iter<-500
+ORs<-sample(c(.25,.5,2,4),100,replace = TRUE)
+ORs<-rep(2,20)
 
 for(i in 1:num.iter){
 
@@ -149,7 +168,7 @@ naive.rupture<-c(rep(0,300),rep(1,300))
 foo<-simRareSNP(ORs=ORs
                 , n0=285
                 , n1=315
-                , nSNP=100
+                , nSNP=200
                 , rho=0,
                  MAF0slow=0.001, MAF0sup=0.05,
                  MAFslow=0.001, MAFsup=0.05, p0=0.05)
@@ -178,6 +197,6 @@ pvalues.diff<-(coef.pvalues.labeled<0.05)==
                             (coef.pvalues.naive<0.05)
 
 sum(pvalues.diff)/length(pvalues.diff)
-
+difftime(Sys.time(),now)
 ```
 
