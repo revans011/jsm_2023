@@ -19,37 +19,19 @@ rio,        # to import data
        ggplot2, #for plotting
         hrbrthemes, #themes fore ggplot2
         kableExtra,
+        purr,
         caret
    ) 
 
 options(digits = 4)
 ```
 
-
-```{r setup, include=FALSE}
-knitr::knit_hooks$set(time_it = local({
-  now <- NULL
-  function(before, options) {
-    if (before) {
-      # record the current time before each chunk
-      now <<- Sys.time()
-    } else {
-      # calculate the time difference after a chunk
-      res <- difftime(Sys.time(), now)
-      # return a character string to show the time
-      paste("Time for this code chunk to run:", res)
-    }
-  }
-}))
-```
-
-
 If one SNP has a marginal effect on a phenotype, it is known as an SNP interaction displaying marginal effects. In some cases, however, each individual SNP has no effect on the phenotype, but the combination has a strong effect; this is known as SNP interactions displaying no marginal effects (INME)
 
 Wei Pan
 https://www.biostat.umn.edu/~weip/prog/BasuPanGE11/simRareSNP.R
 
-minor allele frequency (MAF)
+----------------minor allele frequency (MAF)-------------
 
 ```{r}
 ########simulate SNPs from a latent multivariate Gaussian variable with
@@ -74,8 +56,8 @@ minor allele frequency (MAF)
 #               and location indices for causal SNPs.
 
 simRareSNP<-function(ORs, n0=500, n1=500, nSNP=0, rho=0,
-                 MAF0slow=0.001, MAF0sup=0.01,
-                 MAFslow=0.001, MAFsup=0.01, p0=0.05){
+                 MAF0slow=0.05, MAF0sup=0.9,         #MAF0slow=0.001, MAF0sup=0.01,
+                 MAFslow=0.001, MAFsup=0.5, p0=0.05){  #MAFslow=0.001, MAFsup=0.01
 
 nSNP0<-length(ORs)
 q<-nSNP+nSNP0
@@ -149,88 +131,8 @@ list(Y=Y, X=X, SNP0indx=SNP0indx)
 
 
 
-```{r,warning=FALSE,time_it=TRUE}
- now <- Sys.time()
-### but how to pick false pos correlated to a gene??
-#--------------------------------------
-## There is a coef for each gene plus the intercept
-
-sim.fun<-function(num.iter=500
-                  ,OR=2
-                  ,num.null.snps=60
-                  ,num.important.snps=5
-                  ,num.naive.control=150
-                  ,num.naive.case=50
-                  ,num.true.control=145
-                  ,num.true.case=55
-                    ){
-
-coef.pvalues.naive<-NULL
-coef.pvalues.labeled<-NULL
-
-ORs<-rep(num.important.snps,OR)
-
-for(i in 1:num.iter){
-
-
-naive.rupture<-c(rep(0,num.naive.control),rep(1,num.naive.case))
-
-foo<-simRareSNP(ORs=ORs
-                , n0=num.true.control
-                , n1=num.true.case
-                , nSNP=num.null.snps
-                , rho=0,
-                 MAF0slow=0.001, MAF0sup=0.05,
-                 MAFslow=0.001, MAFsup=0.05, p0=0.05)
-
-labeled.rupture<-foo$Y
-predisposition<-foo$X
-
-df<-data.frame(predisposition=predisposition
-               ,naive.rupture=naive.rupture
-               ,labeled.rupture=labeled.rupture)
-
-m.naive<- glm(naive.rupture ~ predisposition, family="binomial",data=df)
-
-
-m.labeled<- glm(labeled.rupture ~ predisposition, family="binomial",data=df)
-
-
-
-coef.pvalues.naive<-c(coef.pvalues.naive,coef(summary(m.naive))[,4])
-coef.pvalues.labeled<-c(coef.pvalues.labeled,coef(summary(m.labeled))[,4])
-
-
-  } #end loop
-
-pvalues.diff<-(coef.pvalues.labeled<0.05)==
-                            (coef.pvalues.naive<0.05)
-
-return(sum(pvalues.diff)/length(pvalues.diff))
-}
-difftime(Sys.time(),now)
-```
-
-
-
-
-
-```{r,warning=FALSE}
-# now <- Sys.time()
-# sim.fun(num.iter=50
-#                   ,OR=3
-#                   ,num.null.snps=500
-#                   ,num.important.snps=50
-#                   ,num.naive.control=150
-#                   ,num.naive.case=50
-#                   ,num.true.control=140
-#                   ,num.true.case=60
-#                     )
-# difftime(Sys.time(),now)
-```
-
 ```{r}
-now <- Sys.time()
+
 ### but how to pick false pos correlated to a gene??
 #--------------------------------------
 ## There is a coef for each gene plus the intercept
@@ -242,6 +144,8 @@ sim.fun<-function(num.iter=500
                   ,num.naive.control=150
                   ,num.naive.case=50
                   ,prop.nondetect=0.05
+                  ,MAFslow=0.001
+                  ,MAFsup=0.5
                     ){
 
 coef.pvalues.naive<-NULL
@@ -264,10 +168,10 @@ foo<-simRareSNP(ORs=ORs
                 , nSNP=nSNP #number of null snps
                 , rho=0,
                  MAF0slow=0.001, MAF0sup=0.05,
-                 MAFslow=0.001, MAFsup=0.05, p0=0.05)
+                 MAFslow=MAFslow, MAFsup=MAFsup, p0=0.05)
 
 labeled.rupture<-foo$Y
-predisposition<-foo$X
+predisposition<-1*(foo$X>0) #the 1* converts logical to 0/1. 
 
 df<-data.frame(predisposition=predisposition
                ,naive.rupture=naive.rupture
@@ -289,24 +193,52 @@ coef.pvalues.labeled<-c(coef.pvalues.labeled,coef(summary(m.labeled))[,4])
 pvalues.diff<-(coef.pvalues.labeled<0.05)==
                             (coef.pvalues.naive<0.05)
 
-return(sum(pvalues.diff)/length(pvalues.diff))
+return(list(sum(pvalues.diff)/length(pvalues.diff)))
 }
-difftime(Sys.time(),now)
+
 ```
 
 
 
 
 
-```{r,warning=FALSE}
-now <- Sys.time()
-sim.fun(num.iter=500
-                  ,OR=5
-                  ,num.snps=60
-                  ,num.important.snps=55 #must be less than num.snps
-                  ,num.naive.control=150
-                  ,num.naive.case=50
-                  ,prop.nondetect=0.25
-                    )
-difftime(Sys.time(),now)
+```{r, warning=FALSE}
+
+# goo<-
+# map(list(worst=c(200,5,60,10,150,50,0.60)
+#         ,a01=c(200,2,60,5,150,50,0.01)
+#         ,a02=c(200,2,60,5,150,50,0.02)
+#         ,a05=c(200,2,60,5,150,50,0.05)
+#         ,a1=c(200,2,60,5,150,50,0.10)
+#         ,a2=c(200,2,60,5,150,50,0.20)
+#         ,imp5=c(200,2,60,5,150,50,0.05)
+#         ,imp15=c(200,2,60,15,150,50,0.05)
+#         ,imp35=c(200,2,60,35,150,50,0.05)
+#         ,or1.5=c(200,1.5,60,5,150,50,0.05)
+#         ,or5=c(200,5,60,5,150,50,0.05)
+#         ,or10=c(200,10,60,5,150,50,0.05)
+#         ),
+# sim.fun)
+
+#sim.fun(200,5,60,40,150,50,0.60) #worst low MAP
+
+sim.fun(200,5,60,5,150,50,0.05,.7,.9)
+
+# as_tibble(as_tibble(goo))
+# 
+# data.frame(goo) %>% map(unlist) 
+# 
+# do.call(rbind,goo)
+
+
 ```
+
+```{r}
+goo<-simRareSNP(OR=rep(3,5), n0=150, n1=50, nSNP=60, rho=0,
+                 MAF0slow=0.05, MAF0sup=0.9,         #MAF0slow=0.001, MAF0sup=0.01,
+                 MAFslow=0.001, MAFsup=0.5, p0=0.05)
+```
+
+
+```
+
