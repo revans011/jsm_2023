@@ -210,17 +210,103 @@ return(sum(pvalues.diff)/length(pvalues.diff))
 }
 difftime(Sys.time(),now)
 ```
+
+
+
+
+
 ```{r,warning=FALSE}
 now <- Sys.time()
-sim.fun(num.iter=500
-                  ,OR=2
-                  ,num.null.snps=60
-                  ,num.important.snps=5
+sim.fun(num.iter=50
+                  ,OR=3
+                  ,num.null.snps=500
+                  ,num.important.snps=50
                   ,num.naive.control=150
                   ,num.naive.case=50
-                  ,num.true.control=145
-                  ,num.true.case=55
+                  ,num.true.control=140
+                  ,num.true.case=60
                     )
 difftime(Sys.time(),now)
 ```
 
+```{r}
+now <- Sys.time()
+### but how to pick false pos correlated to a gene??
+#--------------------------------------
+## There is a coef for each gene plus the intercept
+
+sim.fun<-function(num.iter=500
+                  ,OR=2
+                  ,num.snps=60
+                  ,num.important.snps=5
+                  ,num.naive.control=150
+                  ,num.naive.case=50
+                  ,prop.nondetect=0.05
+                    ){
+
+coef.pvalues.naive<-NULL
+coef.pvalues.labeled<-NULL
+
+nSNP=num.snps-num.important.snps #number of null snps
+num.true.control=as.integer(num.naive.control*(1-prop.nondetect))
+num.true.case=(num.naive.case+num.naive.control)-num.true.control
+
+ORs<-rep(num.important.snps,OR)
+
+for(i in 1:num.iter){
+
+
+naive.rupture<-c(rep(0,num.naive.control),rep(1,num.naive.case))
+
+foo<-simRareSNP(ORs=ORs
+                , n0=num.true.control
+                , n1=num.true.case
+                , nSNP=nSNP #number of null snps
+                , rho=0,
+                 MAF0slow=0.001, MAF0sup=0.05,
+                 MAFslow=0.001, MAFsup=0.05, p0=0.05)
+
+labeled.rupture<-foo$Y
+predisposition<-foo$X
+
+df<-data.frame(predisposition=predisposition
+               ,naive.rupture=naive.rupture
+               ,labeled.rupture=labeled.rupture)
+
+m.naive<- glm(naive.rupture ~ predisposition, family="binomial",data=df)
+
+
+m.labeled<- glm(labeled.rupture ~ predisposition, family="binomial",data=df)
+
+
+
+coef.pvalues.naive<-c(coef.pvalues.naive,coef(summary(m.naive))[,4])
+coef.pvalues.labeled<-c(coef.pvalues.labeled,coef(summary(m.labeled))[,4])
+
+
+  } #end loop
+
+pvalues.diff<-(coef.pvalues.labeled<0.05)==
+                            (coef.pvalues.naive<0.05)
+
+return(sum(pvalues.diff)/length(pvalues.diff))
+}
+difftime(Sys.time(),now)
+```
+
+
+
+
+
+```{r,warning=FALSE}
+now <- Sys.time()
+sim.fun(num.iter=500
+                  ,OR=5
+                  ,num.snps=60
+                  ,num.important.snps=5
+                  ,num.naive.control=150
+                  ,num.naive.case=50
+                  ,prop.nondetect=0.15
+                    )
+difftime(Sys.time(),now)
+```
