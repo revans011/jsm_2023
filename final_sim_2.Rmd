@@ -216,17 +216,17 @@ difftime(Sys.time(),now)
 
 
 ```{r,warning=FALSE}
-now <- Sys.time()
-sim.fun(num.iter=50
-                  ,OR=3
-                  ,num.null.snps=500
-                  ,num.important.snps=50
-                  ,num.naive.control=150
-                  ,num.naive.case=50
-                  ,num.true.control=140
-                  ,num.true.case=60
-                    )
-difftime(Sys.time(),now)
+# now <- Sys.time()
+# sim.fun(num.iter=50
+#                   ,OR=3
+#                   ,num.null.snps=500
+#                   ,num.important.snps=50
+#                   ,num.naive.control=150
+#                   ,num.naive.case=50
+#                   ,num.true.control=140
+#                   ,num.true.case=60
+#                     )
+# difftime(Sys.time(),now)
 ```
 
 ```{r}
@@ -303,10 +303,10 @@ now <- Sys.time()
 sim.fun(num.iter=500
                   ,OR=5
                   ,num.snps=60
-                  ,num.important.snps=5
+                  ,num.important.snps=55 #must be less than num.snps
                   ,num.naive.control=150
                   ,num.naive.case=50
-                  ,prop.nondetect=0.15
+                  ,prop.nondetect=0.25
                     )
 difftime(Sys.time(),now)
 ```
