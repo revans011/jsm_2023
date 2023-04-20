@@ -154,21 +154,31 @@ list(Y=Y, X=X, SNP0indx=SNP0indx)
 ### but how to pick false pos correlated to a gene??
 #--------------------------------------
 ## There is a coef for each gene plus the intercept
+
+sim.fun<-function(num.iter=500
+                  ,OR=2
+                  ,num.null.snps=60
+                  ,num.important.snps=5
+                  ,num.naive.control=150
+                  ,num.naive.case=50
+                  ,num.true.control=145
+                  ,num.true.case=55
+                    ){
+
 coef.pvalues.naive<-NULL
 coef.pvalues.labeled<-NULL
-num.iter<-500
-ORs<-sample(c(.25,.5,2,4),100,replace = TRUE)
-ORs<-rep(2,20)
+
+ORs<-rep(num.important.snps,OR)
 
 for(i in 1:num.iter){
 
 
-naive.rupture<-c(rep(0,300),rep(1,300))
+naive.rupture<-c(rep(0,num.naive.control),rep(1,num.naive.case))
 
 foo<-simRareSNP(ORs=ORs
-                , n0=285
-                , n1=315
-                , nSNP=200
+                , n0=num.true.control
+                , n1=num.true.case
+                , nSNP=num.null.snps
                 , rho=0,
                  MAF0slow=0.001, MAF0sup=0.05,
                  MAFslow=0.001, MAFsup=0.05, p0=0.05)
@@ -196,7 +206,21 @@ coef.pvalues.labeled<-c(coef.pvalues.labeled,coef(summary(m.labeled))[,4])
 pvalues.diff<-(coef.pvalues.labeled<0.05)==
                             (coef.pvalues.naive<0.05)
 
-sum(pvalues.diff)/length(pvalues.diff)
+return(sum(pvalues.diff)/length(pvalues.diff))
+}
+difftime(Sys.time(),now)
+```
+```{r,warning=FALSE}
+now <- Sys.time()
+sim.fun(num.iter=500
+                  ,OR=2
+                  ,num.null.snps=60
+                  ,num.important.snps=5
+                  ,num.naive.control=150
+                  ,num.naive.case=50
+                  ,num.true.control=145
+                  ,num.true.case=55
+                    )
 difftime(Sys.time(),now)
 ```
 
