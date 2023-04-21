@@ -154,21 +154,20 @@ nSNP=num.snps-num.important.snps #number of null snps
 num.true.control=as.integer(num.naive.control*(1-prop.nondetect))
 num.true.case=(num.naive.case+num.naive.control)-num.true.control
 
-ORs<-rep(num.important.snps,OR)
 
 for(i in 1:num.iter){
 
 
 naive.rupture<-c(rep(0,num.naive.control),rep(1,num.naive.case))
 
-snp.sim.data<-simRareSNP(ORs=ORs
+snp.sim.data<-simRareSNP(ORs=rep(OR,num.important.snps)
                 , n0=num.true.control
                 , n1=num.true.case
                 , nSNP=nSNP #number of null snps
                 , rho=0)
 
 labeled.rupture<-snp.sim.data$Y
-predisposition<-1*(snp.sim.data$X>0) #the 1* converts logical to 0/1. 
+predisposition<-1*(snp.sim.data$X[snp.sim.data$SNP0indx==1,]>0) #the 1* converts logical to 0/1. 
 
 df<-data.frame(predisposition=predisposition
                ,naive.rupture=naive.rupture
@@ -181,8 +180,8 @@ m.labeled<- glm(labeled.rupture ~ predisposition, family="binomial",data=df)
 
 
 
-coef.pvalues.naive<-c(coef.pvalues.naive,coef(summary(m.naive))[,4])
-coef.pvalues.labeled<-c(coef.pvalues.labeled,coef(summary(m.labeled))[,4])
+coef.pvalues.naive<-c(coef.pvalues.naive,coef(summary(m.naive))[,4][-1])      # has only the important coefs and no intercept
+coef.pvalues.labeled<-c(coef.pvalues.labeled,coef(summary(m.labeled))[,4][-1])
 
 
   } #end loop
@@ -229,7 +228,13 @@ return(list(sum(pvalues.diff)/length(pvalues.diff)))
 # 
 # sim.fun(200,2,2,2,50,150,0.25) #0.98
 # 
-# sim.fun(200,2,2,2,50,150,0.25)
+ sim.fun(num.iter=5
+                  ,OR=150
+                  ,num.snps=1
+                  ,num.important.snps=1
+                  ,num.naive.control=50
+                  ,num.naive.case=50
+                  ,prop.nondetect=0.05)
 
 # as_tibble(as_tibble(goo))
 # 
@@ -240,32 +245,47 @@ return(list(sum(pvalues.diff)/length(pvalues.diff)))
 
 ```
 
-
+map2:
+https://dcl-prog.stanford.edu/purrr-parallel.html
 ```{r}
 
-short.sim.fun<-function(contrl,case){sim.fun(200,2,2,2,contrl,case,0.25)}
+ 
 
-contrl<-list(50,100,150,200,300,50,100,150,200,300,300,200,150,100,50)
-case<-  list(50,100,150,200,300,300,200,150,100,50,50,100,150,200,300)
-
-foo<-map2(contrl,case,short.sim.fun)
-```
+contrl<-list(50,100,150,300,50,50,50,100,150,300)
+case<-  list(50,100,150,300,100,150,300,50,50,50)
 
 
-```{r}
-data.frame(control=unlist(contrl)
+
+foo<-data.frame(control=unlist(contrl)
            ,case=unlist(case)
-           ,prop.agree=unlist(foo)) |> 
-  arrange((desc=prop.agree))
+           ,prop.agree.01=unlist(map2(contrl,case,\(contrl,case) sim.fun(num.iter=200
+                                                                         ,OR=2
+                                                                         ,num.snps=2
+                                                                         ,num.important.snps=2
+                                                                         ,contrl
+                                                                         ,case
+                                                                         ,prop.nondetect=0.01)))
+           ,prop.agree.05=unlist(map2(contrl,case,\(contrl,case) sim.fun(200,2,2,2,contrl,case,0.05)))
+           ,prop.agree.1=unlist(map2(contrl,case,\(contrl,case) sim.fun(200,2,2,2,contrl,case,0.10)))
+           ,prop.agree.25=unlist(map2(contrl,case,\(contrl,case) sim.fun(200,2,2,2,contrl,case,0.25)))
+           ) |> 
+  arrange(prop.agree.01,prop.agree.05)
+
+foo
 
 ```
 
 
 
 ```{r}
-goo<-simRareSNP(OR=rep(3,5), n0=150, n1=50, nSNP=60, rho=0,
-                 MAF0slow=0.05, MAF0sup=0.9,         #MAF0slow=0.001, MAF0sup=0.01,
-                 MAFslow=0.001, MAFsup=0.5, p0=0.05)
+goo<-simRareSNP(OR=1000, n0=25, n1=25, nSNP=1, rho=0,
+                 MAF0slow=0.001, MAF0sup=0.01,         #MAF0slow=0.001, MAF0sup=0.01,
+                 MAFslow=0.001, MAFsup=0.01, p0=0.05)
+
+names(goo)
+goo$SNP0indx
+goo$X
+
 ```
 
 
