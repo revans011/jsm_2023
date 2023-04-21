@@ -19,7 +19,7 @@ rio,        # to import data
        ggplot2, #for plotting
         hrbrthemes, #themes fore ggplot2
         kableExtra,
-        purr,
+        #purr,
         caret
    ) 
 
@@ -31,7 +31,8 @@ If one SNP has a marginal effect on a phenotype, it is known as an SNP interacti
 Wei Pan
 https://www.biostat.umn.edu/~weip/prog/BasuPanGE11/simRareSNP.R
 
-----------------minor allele frequency (MAF)-------------
+----------------minor allele frequency (MAF)-------------should be less than 0.05
+https://jvanderw.une.edu.au/Mod2Lecture_PLINK.pdf
 
 ```{r}
 ########simulate SNPs from a latent multivariate Gaussian variable with
@@ -56,8 +57,8 @@ https://www.biostat.umn.edu/~weip/prog/BasuPanGE11/simRareSNP.R
 #               and location indices for causal SNPs.
 
 simRareSNP<-function(ORs, n0=500, n1=500, nSNP=0, rho=0,
-                 MAF0slow=0.05, MAF0sup=0.9,         #MAF0slow=0.001, MAF0sup=0.01,
-                 MAFslow=0.001, MAFsup=0.5, p0=0.05){  #MAFslow=0.001, MAFsup=0.01
+                 MAF0slow=0.01, MAF0sup=0.05,         #MAF0slow=0.001, MAF0sup=0.01,
+                 MAFslow=0.01, MAFsup=0.5, p0=0.05){  #MAFslow=0.001, MAFsup=0.01
 
 nSNP0<-length(ORs)
 q<-nSNP+nSNP0
@@ -144,8 +145,6 @@ sim.fun<-function(num.iter=500
                   ,num.naive.control=150
                   ,num.naive.case=50
                   ,prop.nondetect=0.05
-                  ,MAFslow=0.001
-                  ,MAFsup=0.5
                     ){
 
 coef.pvalues.naive<-NULL
@@ -162,16 +161,14 @@ for(i in 1:num.iter){
 
 naive.rupture<-c(rep(0,num.naive.control),rep(1,num.naive.case))
 
-foo<-simRareSNP(ORs=ORs
+snp.sim.data<-simRareSNP(ORs=ORs
                 , n0=num.true.control
                 , n1=num.true.case
                 , nSNP=nSNP #number of null snps
-                , rho=0,
-                 MAF0slow=0.001, MAF0sup=0.05,
-                 MAFslow=MAFslow, MAFsup=MAFsup, p0=0.05)
+                , rho=0)
 
-labeled.rupture<-foo$Y
-predisposition<-1*(foo$X>0) #the 1* converts logical to 0/1. 
+labeled.rupture<-snp.sim.data$Y
+predisposition<-1*(snp.sim.data$X>0) #the 1* converts logical to 0/1. 
 
 df<-data.frame(predisposition=predisposition
                ,naive.rupture=naive.rupture
@@ -220,9 +217,19 @@ return(list(sum(pvalues.diff)/length(pvalues.diff)))
 #         ),
 # sim.fun)
 
-#sim.fun(200,5,60,40,150,50,0.60) #worst low MAP
-
-sim.fun(200,5,60,5,150,50,0.05,.7,.9)
+# sim.fun(200,5,60,40,150,50,0.60) #worst low MAP
+# 
+# sim.fun(200,5,60,5,150,50,0.05) #0.86
+# 
+# sim.fun(200,2,1,1,150,150,0.25) #0.63
+# 
+# sim.fun(200,2,2,2,150,150,0.25) #0.5383
+# 
+# sim.fun(200,2,2,2,150,50,0.25) #0.77
+# 
+# sim.fun(200,2,2,2,50,150,0.25) #0.98
+# 
+# sim.fun(200,2,2,2,50,150,0.25)
 
 # as_tibble(as_tibble(goo))
 # 
@@ -233,12 +240,32 @@ sim.fun(200,5,60,5,150,50,0.05,.7,.9)
 
 ```
 
+
+```{r}
+
+short.sim.fun<-function(contrl,case){sim.fun(200,2,2,2,contrl,case,0.25)}
+
+contrl<-list(50,100,150,200,300,50,100,150,200,300,300,200,150,100,50)
+case<-  list(50,100,150,200,300,300,200,150,100,50,50,100,150,200,300)
+
+foo<-map2(contrl,case,short.sim.fun)
+```
+
+
+```{r}
+data.frame(control=unlist(contrl)
+           ,case=unlist(case)
+           ,prop.agree=unlist(foo)) |> 
+  arrange((desc=prop.agree))
+
+```
+
+
+
 ```{r}
 goo<-simRareSNP(OR=rep(3,5), n0=150, n1=50, nSNP=60, rho=0,
                  MAF0slow=0.05, MAF0sup=0.9,         #MAF0slow=0.001, MAF0sup=0.01,
                  MAFslow=0.001, MAFsup=0.5, p0=0.05)
 ```
 
-
-```
 
