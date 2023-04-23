@@ -269,7 +269,7 @@ case<-unlist(case)
 #a simulation
 prop.agree.01<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.01))
 
-mat01<-matrix(unlist(prop.agree.01),nrow=length(prop.agree.05),byrow=TRUE)
+mat01<-matrix(unlist(prop.agree.01),nrow=length(prop.agree.01),byrow=TRUE)
 
 #a simulation
 prop.agree.05<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.05))
@@ -279,7 +279,7 @@ mat05<-matrix(unlist(prop.agree.05),nrow=length(prop.agree.05),byrow=TRUE)
 #a simulation
 prop.agree.1<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.1))
 
-mat1<-matrix(unlist(prop.agree.1),nrow=length(prop.agree.05),byrow=TRUE)
+mat1<-matrix(unlist(prop.agree.1),nrow=length(prop.agree.1),byrow=TRUE)
 
 # a simulation
 prop.agree.25<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.25))
