@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 
@@ -246,8 +248,6 @@ difftime(Sys.time(),now)
 
  now<-Sys.time()
 
-contrl<-list(50,100,150,300,50,50,50,100,150,300)
-case<-  list(50,100,150,300,100,150,300,50,50,50)
 
 a<-50
 b<-100
@@ -255,34 +255,32 @@ c<-200
 d<-300
 
 
-contrl<-list(a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d)
-case<-  list(a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d)
-
 contrl<-list(a,a,a,a,a,b,c,d,d,d)
 case<-  list(a,b,c,d,a,a,a,a,d,d)
 
-
+contrl<-list(350,50,300,100,250,150,200)
+case<-  list(50,350,100,300,150,250,200)
 
 control<-unlist(contrl)
 case<-unlist(case)
 
 #a simulation
-prop.agree.01<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.01))
+prop.agree.01<-map2(contrl,case,\(contrl,case) sim.fun(32,10,5,5,contrl,case,0.01))
 
 mat01<-matrix(unlist(prop.agree.01),nrow=length(prop.agree.01),byrow=TRUE)
 
 #a simulation
-prop.agree.05<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.05))
+prop.agree.05<-map2(contrl,case,\(contrl,case) sim.fun(32,10,5,5,contrl,case,0.05))
 
 mat05<-matrix(unlist(prop.agree.05),nrow=length(prop.agree.05),byrow=TRUE)
 
 #a simulation
-prop.agree.1<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.1))
+prop.agree.1<-map2(contrl,case,\(contrl,case) sim.fun(32,10,5,5,contrl,case,0.1))
 
 mat1<-matrix(unlist(prop.agree.1),nrow=length(prop.agree.1),byrow=TRUE)
 
 # a simulation
-prop.agree.25<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.25))
+prop.agree.25<-map2(contrl,case,\(contrl,case) sim.fun(32,10,5,5,contrl,case,0.25))
 
 mat25<-matrix(unlist(prop.agree.25),nrow=length(prop.agree.25),byrow=TRUE)
 
