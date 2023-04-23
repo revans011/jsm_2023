@@ -1,6 +1,10 @@
 ---
-title: "R Notebook"
-output: pdf_document
+title: "JSM 2023"
+author: Report by Rich Evans
+date: 2023-04-22
+output: 
+  html_document:
+     number_sections: true
 
 ---
 
@@ -19,22 +23,21 @@ rio,        # to import data
        ggplot2, #for plotting
         hrbrthemes, #themes fore ggplot2
         kableExtra,
-        #purr,
+        scrime,
         caret
    ) 
-
 options(digits = 4)
 ```
 
-If one SNP has a marginal effect on a phenotype, it is known as an SNP interaction displaying marginal effects. In some cases, however, each individual SNP has no effect on the phenotype, but the combination has a strong effect; this is known as SNP interactions displaying no marginal effects (INME)
+<!-- If one SNP has a marginal effect on a phenotype, it is known as an SNP interaction displaying marginal effects. In some cases, however, each individual SNP has no effect on the phenotype, but the combination has a strong effect; this is known as SNP interactions displaying no marginal effects (INME) -->
 
-Wei Pan
-https://www.biostat.umn.edu/~weip/prog/BasuPanGE11/simRareSNP.R
+<!-- Wei Pan -->
+<!-- https://www.biostat.umn.edu/~weip/prog/BasuPanGE11/simRareSNP.R -->
 
-----------------minor allele frequency (MAF)-------------should be less than 0.05
-https://jvanderw.une.edu.au/Mod2Lecture_PLINK.pdf
+<!-- ----------------minor allele frequency (MAF)-------------should be less than 0.05 -->
+<!-- https://jvanderw.une.edu.au/Mod2Lecture_PLINK.pdf -->
 
-```{r}
+```{r, echo=FALSE, warning=FALSE}
 ########simulate SNPs from a latent multivariate Gaussian variable with
 ######## a CS(rho) correlation structure. 
 
@@ -132,7 +135,7 @@ list(Y=Y, X=X, SNP0indx=SNP0indx)
 
 
 
-```{r}
+```{r, echo=FALSE, warning=FALSE}
 
 ### but how to pick false pos correlated to a gene??
 #--------------------------------------
@@ -150,7 +153,8 @@ sim.fun<-function(num.iter=500
 coef.pvalues.naive<-NULL
 coef.pvalues.labeled<-NULL
 
-nSNP=num.snps-num.important.snps #number of null snps
+nSNP.null=num.snps-num.important.snps #number of null snps
+
 num.true.control=as.integer(num.naive.control*(1-prop.nondetect))
 num.true.case=(num.naive.case+num.naive.control)-num.true.control
 
@@ -163,11 +167,12 @@ naive.rupture<-c(rep(0,num.naive.control),rep(1,num.naive.case))
 snp.sim.data<-simRareSNP(ORs=rep(OR,num.important.snps)
                 , n0=num.true.control
                 , n1=num.true.case
-                , nSNP=nSNP #number of null snps
+                , nSNP=nSNP.null #number of null snps
                 , rho=0)
 
 labeled.rupture<-snp.sim.data$Y
-predisposition<-1*(snp.sim.data$X[snp.sim.data$SNP0indx==1,]>0) #the 1* converts logical to 0/1. 
+predisposition<-1*(snp.sim.data$X[snp.sim.data$SNP0indx==1,]>0) #the 1* converts logical to 0/1.
+predisposition<-snp.sim.data$X
 
 df<-data.frame(predisposition=predisposition
                ,naive.rupture=naive.rupture
@@ -198,7 +203,7 @@ return(list(sum(pvalues.diff)/length(pvalues.diff)))
 
 
 
-```{r, warning=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 
 # goo<-
 # map(list(worst=c(200,5,60,10,150,50,0.60)
@@ -228,13 +233,13 @@ return(list(sum(pvalues.diff)/length(pvalues.diff)))
 # 
 # sim.fun(200,2,2,2,50,150,0.25) #0.98
 # 
- sim.fun(num.iter=5
-                  ,OR=150
-                  ,num.snps=1
-                  ,num.important.snps=1
-                  ,num.naive.control=50
-                  ,num.naive.case=50
-                  ,prop.nondetect=0.05)
+ # sim.fun(num.iter=5
+ #                  ,OR=150
+ #                  ,num.snps=60
+ #                  ,num.important.snps=2
+ #                  ,num.naive.control=50
+ #                  ,num.naive.case=50
+ #                  ,prop.nondetect=0.05)
 
 # as_tibble(as_tibble(goo))
 # 
@@ -245,46 +250,60 @@ return(list(sum(pvalues.diff)/length(pvalues.diff)))
 
 ```
 
-map2:
-https://dcl-prog.stanford.edu/purrr-parallel.html
-```{r}
+<!-- map2: -->
+<!-- https://dcl-prog.stanford.edu/purrr-parallel.html -->
+```{r same_table_two_ways, echo=FALSE, warning=FALSE}
 
- 
+ now<-Sys.time()
 
 contrl<-list(50,100,150,300,50,50,50,100,150,300)
 case<-  list(50,100,150,300,100,150,300,50,50,50)
 
+a<-50
+b<-100
+c<-200
+d<-300
 
+
+contrl<-list(a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d)
+case<-  list(a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d)
+
+contrl<-list(a,a,a,a,a,b,c,d,d,d)
+case<-  list(a,b,c,d,a,a,a,a,d,d)
 
 foo<-data.frame(control=unlist(contrl)
            ,case=unlist(case)
-           ,prop.agree.01=unlist(map2(contrl,case,\(contrl,case) sim.fun(num.iter=200
-                                                                         ,OR=2
-                                                                         ,num.snps=60
-                                                                         ,num.important.snps=2
+           ,prop.agree.01=unlist(map2(contrl,case,\(contrl,case) sim.fun(num.iter=2000
+                                                                         ,OR=100
+                                                                         ,num.snps=12
+                                                                         ,num.important.snps=5
                                                                          ,contrl
                                                                          ,case
                                                                          ,prop.nondetect=0.01)))
-           ,prop.agree.05=unlist(map2(contrl,case,\(contrl,case) sim.fun(200,2,60,2,contrl,case,0.05)))
-           ,prop.agree.1=unlist(map2(contrl,case,\(contrl,case) sim.fun(200,2,60,2,contrl,case,0.10)))
-           ,prop.agree.25=unlist(map2(contrl,case,\(contrl,case) sim.fun(200,2,60,2,contrl,case,0.25)))
-           ) |> 
-  arrange(prop.agree.01,prop.agree.05)
+           #,prop.agree.05=unlist(map2(contrl,case,\(contrl,case) sim.fun(500,100,12,5,contrl,case,0.05)))
+           #,prop.agree.1=unlist(map2(contrl,case,\(contrl,case) sim.fun(500,100,12,5,contrl,case,0.10)))
+           ,prop.agree.25=unlist(map2(contrl,case,\(contrl,case) sim.fun(2000,100,12,5,contrl,case,0.25)))
+           ) 
 
-foo
+foo|> arrange(prop.agree.01)
+#foo|> arrange(prop.agree.1)
 
+foo |> arrange(prop.agree.25)
+difftime(Sys.time(),now)
 ```
 
 
 
-```{r}
-goo<-simRareSNP(OR=1000, n0=25, n1=25, nSNP=1, rho=0,
-                 MAF0slow=0.001, MAF0sup=0.01,         #MAF0slow=0.001, MAF0sup=0.01,
-                 MAFslow=0.001, MAFsup=0.01, p0=0.05)
-
-names(goo)
-goo$SNP0indx
-goo$X
+```{r, echo=FALSE}
+# goo<-simRareSNP(OR=1000, n0=25, n1=25, nSNP=1, rho=0,
+#                  MAF0slow=0.001, MAF0sup=0.01,         #MAF0slow=0.001, MAF0sup=0.01,
+#                  MAFslow=0.001, MAFsup=0.01, p0=0.05)
+# 
+# names(goo)
+# goo$SNP0indx
+# goo$X
 
 ```
+
+
 
