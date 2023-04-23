@@ -26,7 +26,7 @@ pacman::p_load(
 <!-- ----------------minor allele frequency (MAF)-------------should be less than 0.05 -->
 <!-- https://jvanderw.une.edu.au/Mod2Lecture_PLINK.pdf -->
 
-```{r, echo=FALSE, warning=FALSE}
+```{r snp_generator, echo=FALSE, warning=FALSE}
 ########simulate SNPs from a latent multivariate Gaussian variable with
 ######## a CS(rho) correlation structure. 
 
@@ -124,7 +124,7 @@ list(Y=Y, X=X, SNP0indx=SNP0indx)
 
 
 
-```{r, echo=FALSE, warning=FALSE}
+```{r function, echo=FALSE, warning=FALSE}
 
 ### but how to pick false pos correlated to a gene??
 #--------------------------------------
@@ -242,7 +242,7 @@ difftime(Sys.time(),now)
 <!-- https://dcl-prog.stanford.edu/purrr-parallel.html -->
 
 
-```{r pairs,warning=FALSE}
+```{r simulation,warning=FALSE}
 
  now<-Sys.time()
 
@@ -265,22 +265,39 @@ case<-  list(a,b,c,d,a,a,a,a,d,d)
 
 control<-unlist(contrl)
 case<-unlist(case)
-prop.agree.05<-map2(contrl,case,\(contrl,case) sim.fun(20,10,5,5,contrl,case,0.01))
-mat1<-matrix(unlist(prop.agree.05),nrow=length(prop.agree.05),byrow=TRUE)
 
-prop.agree.25<-map2(contrl,case,\(contrl,case) sim.fun(50,10,5,5,contrl,case,0.25))
-mat2<-matrix(unlist(prop.agree.25),nrow=length(prop.agree.25),byrow=TRUE)
+#a simulation
+prop.agree.01<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.01))
 
-foo<-as.data.frame(cbind(control,case,mat1,mat2)) %>% rename(control=1
-                                                        ,case=2
-                                                        ,pr.eq.01=3
-                                                        ,pr.sig.01=4
-                                                        ,pr.eq.25=5
-                                                        ,pr.sig.25=6)
+mat01<-matrix(unlist(prop.agree.01),nrow=length(prop.agree.05),byrow=TRUE)
 
-foo|> arrange(pr.eq.01)
+#a simulation
+prop.agree.05<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.05))
 
-foo |> arrange(pr.eq.25)
+mat05<-matrix(unlist(prop.agree.05),nrow=length(prop.agree.05),byrow=TRUE)
+
+#a simulation
+prop.agree.1<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.1))
+
+mat1<-matrix(unlist(prop.agree.1),nrow=length(prop.agree.05),byrow=TRUE)
+
+# a simulation
+prop.agree.25<-map2(contrl,case,\(contrl,case) sim.fun(2000,10,5,5,contrl,case,0.25))
+
+mat25<-matrix(unlist(prop.agree.25),nrow=length(prop.agree.25),byrow=TRUE)
+
+.foo<-as.data.frame(cbind(control,case,mat01,mat05,mat1,mat25)) %>% 
+  rename(control=1,case=2
+         ,pr.eq.01=3,pr.sig.01=4
+         ,pr.eq.05=5,pr.sig.05=6
+         ,pr.eq.1=7,pr.sig.1=8
+         ,pr.eq.25=9,pr.sig.25=10) %>% relocate(1,2,3,5,7,9,4,6,8,10)
+
+.foo|> arrange(pr.eq.01) %>% kable(caption = "1 percent")%>% 
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")
+
+.foo |> arrange(pr.eq.25)%>% kable(caption = "25 percent") %>% 
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")
 
 difftime(Sys.time(),now)
 ```
