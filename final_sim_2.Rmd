@@ -196,50 +196,6 @@ return(list(c(out,pvalues.sig)))
 
 ```
 
-
-```{r same_table_two_ways, echo=FALSE, warning=FALSE}
-
- now<-Sys.time()
-
-contrl<-list(50,100,150,300,50,50,50,100,150,300)
-case<-  list(50,100,150,300,100,150,300,50,50,50)
-
-a<-50
-b<-100
-c<-200
-d<-300
-
-
-contrl<-list(a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d)
-case<-  list(a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d)
-
-contrl<-list(a,a,a,a,a,b,c,d,d,d)
-case<-  list(a,b,c,d,a,a,a,a,d,d)
-
-
-
-foo<-data.frame(control=unlist(contrl)
-           ,case=unlist(case)
-           ,prop.agree.01=unlist(map2(contrl,case,\(contrl,case) sim.fun(num.iter=200
-                                                                         ,OR=10
-                                                                         ,num.snps=5
-                                                                         ,num.important.snps=5
-                                                                         ,contrl
-                                                                         ,case
-                                                                         ,prop.nondetect=0.01)))
-           #,prop.agree.05=unlist(map2(contrl,case,\(contrl,case) sim.fun(500,100,12,5,contrl,case,0.05)))
-           #,prop.agree.1=unlist(map2(contrl,case,\(contrl,case) sim.fun(500,100,12,5,contrl,case,0.10)))
-           ,prop.agree.25=unlist(map2(contrl,case,\(contrl,case) sim.fun(200,10,5,5,contrl,case,0.25)))
-           ) 
-
-
-foo|> arrange(prop.agree.01)
-#foo|> arrange(prop.agree.1)
-
-foo |> arrange(prop.agree.25)
-difftime(Sys.time(),now)
-```
-
 <!-- map2: -->
 <!-- https://dcl-prog.stanford.edu/purrr-parallel.html -->
 
@@ -254,6 +210,7 @@ b<-100
 c<-200
 d<-300
 
+n.iter<-2000
 
 contrl<-list(a,a,a,a,a,b,c,d,d,d)
 case<-  list(a,b,c,d,a,a,a,a,d,d)
@@ -261,26 +218,32 @@ case<-  list(a,b,c,d,a,a,a,a,d,d)
 contrl<-list(350,50,300,100,250,150,200)
 case<-  list(50,350,100,300,150,250,200)
 
+contrl<-c(225,seq(50,400,by=50))
+case<-c(225,rev(seq(50,400,by=50)))
+
+contrl<-c(200,seq(50,150,by=50))
+case<-c(200,rev(seq(50,150,by=50)))
+#--------------------------------------------
 control<-unlist(contrl)
 case<-unlist(case)
 
 #a simulation
-prop.agree.01<-map2(contrl,case,\(contrl,case) sim.fun(32,10,5,5,contrl,case,0.01))
+prop.agree.01<-map2(contrl,case,\(contrl,case) sim.fun(n.iter,10,5,5,contrl,case,0.01))
 
 mat01<-matrix(unlist(prop.agree.01),nrow=length(prop.agree.01),byrow=TRUE)
 
 #a simulation
-prop.agree.05<-map2(contrl,case,\(contrl,case) sim.fun(32,10,5,5,contrl,case,0.05))
+prop.agree.05<-map2(contrl,case,\(contrl,case) sim.fun(n.iter,10,5,5,contrl,case,0.05))
 
 mat05<-matrix(unlist(prop.agree.05),nrow=length(prop.agree.05),byrow=TRUE)
 
 #a simulation
-prop.agree.1<-map2(contrl,case,\(contrl,case) sim.fun(32,10,5,5,contrl,case,0.1))
+prop.agree.1<-map2(contrl,case,\(contrl,case) sim.fun(n.iter,10,5,5,contrl,case,0.1))
 
 mat1<-matrix(unlist(prop.agree.1),nrow=length(prop.agree.1),byrow=TRUE)
 
 # a simulation
-prop.agree.25<-map2(contrl,case,\(contrl,case) sim.fun(32,10,5,5,contrl,case,0.25))
+prop.agree.25<-map2(contrl,case,\(contrl,case) sim.fun(n.iter,10,5,5,contrl,case,0.25))
 
 mat25<-matrix(unlist(prop.agree.25),nrow=length(prop.agree.25),byrow=TRUE)
 
@@ -292,10 +255,24 @@ mat25<-matrix(unlist(prop.agree.25),nrow=length(prop.agree.25),byrow=TRUE)
          ,pr.eq.25=9,pr.sig.25=10) %>% relocate(1,2,3,5,7,9,4,6,8,10)
 
 .foo|> arrange(pr.eq.01) %>% kable(caption = "1 percent")%>% 
-  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")  %>% 
+  add_footnote(c(".eq. is proportion that two models agree"
+                  , ".sig. is proportion PU model found sig"), notation = "alphabet")
+
+.foo|> arrange(pr.eq.05) %>% kable(caption = "5 percent")%>% 
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")  %>% 
+  add_footnote(c(".eq. is proportion that two models agree"
+                  , ".sig. is proportion PU model found sig"), notation = "alphabet")
+
+.foo|> arrange(pr.eq.1) %>% kable(caption = "10 percent")%>% 
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")  %>% 
+  add_footnote(c(".eq. is proportion that two models agree"
+                  , ".sig. is proportion PU model found sig"), notation = "alphabet")
 
 .foo |> arrange(pr.eq.25)%>% kable(caption = "25 percent") %>% 
-  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")%>% 
+  add_footnote(c(".eq. is proportion that two models agree"
+                  , ".sig. is proportion PU model found sig"), notation = "alphabet")
 
 difftime(Sys.time(),now)
 ```
