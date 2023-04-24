@@ -221,8 +221,8 @@ case<-  list(50,350,100,300,150,250,200)
 contrl<-c(225,seq(50,400,by=50))
 case<-c(225,rev(seq(50,400,by=50)))
 
-contrl<-c(200,seq(50,150,by=50))
-case<-c(200,rev(seq(50,150,by=50)))
+contrl<-c(50,100,150,175,25)
+case<-  c(150,100,50,25,175)
 #--------------------------------------------
 control<-unlist(contrl)
 case<-unlist(case)
