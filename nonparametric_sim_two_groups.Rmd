@@ -43,7 +43,9 @@ dat = c(rnorm(n.cases+n.nondetect,mean=trt.eff)
         ,rnorm((n.controls.unlabeled-n.nondetect)
                        ,mean = 0)))
 
-wilcox_test(data=df,dat ~ labelz)$p -
-wilcox_test(data=df,dat ~ real.labels)$p
+c(wilcox_test(data=df,dat ~ labelz)$p
+,wilcox_test(data=df,dat ~ real.labels)$p)
+
+
 ```
 
