@@ -116,6 +116,7 @@ contrl<-c(225,seq(50,400,by=50))
 case<-c(225,rev(seq(50,400,by=50)))
 contrl<-list(50,100,150,175,25)
 case<-  list(150,100,50,25,175)
+
 # contrl<-list(50,50,100,25,100)
 # case<-  list(50,100,50,100,25)
 #--------------------------------------------
@@ -124,7 +125,7 @@ control<-unlist(contrl)
 case<-unlist(case)
 #a simulation
 
-foo<-map2(contrl,case,\(contrl,case) sim.fun(num.iter=500
+foo<-map2(contrl,case,\(contrl,case) sim.fun(num.iter=1000
                   ,n.cases = case       #we know this
                   ,n.controls.unlabeled = contrl            #we wish new this
                   ,prop.nondetect = 0.2
@@ -138,6 +139,6 @@ goo <- bind_rows(foo, .id = "column_label")
 
 
 ```{r}
-goo %>% group_by(n.cases,n.controls.unlabeled) %>% summarise(mean(pu),mean(tru))
+goo %>% group_by(n.cases,n.controls.unlabeled) %>% summarise(mean(pu),mean(tru),d=mean(abs(pu-tru))) %>% arrange(desc(d))
 ```
 
