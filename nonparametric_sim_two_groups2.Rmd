@@ -29,12 +29,15 @@ make the data and run it
 n.cases <- 100       #we know this
 n.controls.unlabeled <- 50 #we wish this
 
-prop.nondetect <- 0.3
+prop.nondetect <- 0.2
 
 n.nondetect <- round(0.1*n.controls.unlabeled)
 
 trt.eff <- .1
 
+out <- NULL
+
+for (i in 1:10){
 df <- data.frame(
 real.labels = c(rep(1,(n.cases+n.nondetect))
                  ,rep(0,(n.controls.unlabeled-n.nondetect))),
@@ -43,9 +46,98 @@ dat = c(rnorm(n.cases+n.nondetect,mean=trt.eff)
         ,rnorm((n.controls.unlabeled-n.nondetect)
                        ,mean = 0)))
 
-c(wilcox_test(data=df,dat ~ labelz)$p
-,wilcox_test(data=df,dat ~ real.labels)$p)
+out <- c(out,c(wilcox_test(data=df,dat ~ labelz)$p
+,wilcox_test(data=df,dat ~ real.labels)$p))
+}
+
+```
 
 
+
+```{r}
+
+sim.fun<-function(num.iter=500
+                  ,n.cases = 100      
+                  ,n.controls.unlabeled = 50           
+                  ,prop.nondetect = 0.2
+                  ,trt.eff = .1){
+out1 <- NULL
+out2 <- NULL
+n.nondetect <- round(0.1*n.controls.unlabeled)
+
+for (i in 1:num.iter){
+df <- data.frame(
+real.labels = c(rep(1,(n.cases+n.nondetect))
+                 ,rep(0,(n.controls.unlabeled-n.nondetect))),
+labelz = c(rep(1,n.cases),rep(0,n.controls.unlabeled)),
+dat = c(rnorm(n.cases+n.nondetect,mean=trt.eff)
+        ,rnorm((n.controls.unlabeled-n.nondetect)
+                       ,mean = 0)))
+
+out1 <- c(out1,wilcox_test(data=df,dat ~ labelz)$p)
+out2 <- c(out2,wilcox_test(data=df,dat ~ real.labels)$p)
+
+}
+return(data.frame(n.cases=n.cases,
+                  n.controls.unlabeled=n.controls.unlabeled,
+                  n.nondetect=n.nondetect,
+                  pu=out1,
+                  tru=out2))
+}
+
+
+                    
+```
+
+
+
+```{r}
+# sim.fun(num.iter=50
+#                   ,n.cases = 100       #we know this
+#                   ,n.controls.unlabeled = 50            #we wish new this
+#                   ,prop.nondetect = 0.2
+#                   ,trt.eff = .1)
+```
+
+
+
+```{r}
+ now<-Sys.time()
+a<-50
+b<-100
+c<-200
+d<-300
+n.iter<-2000
+contrl<-list(a,a,a,a,a,b,c,d,d,d)
+case<-  list(a,b,c,d,a,a,a,a,d,d)
+contrl<-list(350,50,300,100,250,150,200)
+case<-  list(50,350,100,300,150,250,200)
+contrl<-c(225,seq(50,400,by=50))
+case<-c(225,rev(seq(50,400,by=50)))
+contrl<-list(50,100,150,175,25)
+case<-  list(150,100,50,25,175)
+# contrl<-list(50,50,100,25,100)
+# case<-  list(50,100,50,100,25)
+#--------------------------------------------
+
+control<-unlist(contrl)
+case<-unlist(case)
+#a simulation
+
+foo<-map2(contrl,case,\(contrl,case) sim.fun(num.iter=500
+                  ,n.cases = case       #we know this
+                  ,n.controls.unlabeled = contrl            #we wish new this
+                  ,prop.nondetect = 0.2
+                  ,trt.eff = .25))
+
+goo <- bind_rows(foo, .id = "column_label")
+
+
+```
+
+
+
+```{r}
+goo %>% group_by(n.cases,n.controls.unlabeled) %>% summarise(mean(pu),mean(tru))
 ```
 
