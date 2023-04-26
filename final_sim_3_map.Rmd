@@ -132,7 +132,6 @@ list(Y=Y, X=X, SNP0indx=SNP0indx)
 #--------------------------------------
 ## There is a coef for each gene plus the intercept
 
-
 sim.fun<-function(num.iter=500
                   ,OR=2
                   ,num.snps=60
@@ -151,21 +150,7 @@ num.true.control=as.integer(num.naive.control*(1-prop.nondetect))
 num.true.case=(num.naive.case+num.naive.control)-num.true.control
 
 
-sim.fun<-function(num.inter=500
-                  ,num.important.snp=10
-                  ,OR=2
-                  ,num.true.case=50
-                  ,num.true.control=100
-                  ,prop.nondetect=0.05){
-
-coef.pvalues.naive<-NULL
-coef.pvalues.labeled<-NULL
-#ORs<-sample(c(.25,.5,2,4),100,replace = TRUE)
-ORs<-rep(2,50) #size of OR and number of important snps
-
-
 for(i in 1:num.iter){
-
 
 
 naive.rupture<-c(rep(0,num.naive.control),rep(1,num.naive.case))
@@ -177,17 +162,6 @@ snp.sim.data<-simRareSNP(ORs=rep(OR,num.important.snps)
                 , rho=0)
 
 labeled.rupture<-snp.sim.data$Y
-
-naive.rupture<-c(rep(0,100),rep(1,50)) #naive number of controls and cases
-
-foo<-simRareSNP(ORs=ORs
-                , n0=105  #true number of controls
-                , n1=45 #true number of cases
-                , nSNP=10
-                , rho=0,
-                 MAF0slow=0.001, MAF0sup=0.05,
-                 MAFslow=0.001, MAFsup=0.05, p0=0.05)
-
 
 predisposition<-snp.sim.data$X
 predisposition[predisposition==2]<-1 #removes any 2's
@@ -212,7 +186,6 @@ pvalues.sig<-sum(coef.pvalues.labeled<0.05)/(num.important.snps*num.iter)
 
 pvalues.diff<-(coef.pvalues.labeled<0.05)==
                             (coef.pvalues.naive<0.05)
-
 
 out<-sum(pvalues.diff)/length(pvalues.diff)
 
@@ -305,9 +278,7 @@ mat25<-matrix(unlist(prop.agree.25),nrow=length(prop.agree.25),byrow=TRUE)
   add_footnote(c(".eq. is proportion that two models agree"
                   , ".sig. is proportion PU model found sig"), notation = "alphabet")
 
-
-return(sum(pvalues.diff)/length(pvalues.diff))
-}
-
 difftime(Sys.time(),now)
 ```
+
+
