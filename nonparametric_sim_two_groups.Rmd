@@ -1,0 +1,51 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is a simple two group simulaton for PU data. 
+
+There are two groups, called case and control
+
+The idea is to get some idea of how sample size, group imbalance, and non-detection affects statistical decisions via p-values.
+
+```{r}
+#install.packages("pacman")
+pacman::p_load(
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       rstatix,
+        kableExtra
+   ) 
+```
+
+
+make the data and run it
+```{r}
+n.cases <- 100       #we know this
+n.controls.unlabeled <- 50 #we wish this
+
+prop.nondetect <- 0.3
+
+n.nondetect <- round(0.1*n.controls.unlabeled)
+
+trt.eff <- .1
+
+df <- data.frame(
+real.labels = c(rep(1,(n.cases+n.nondetect))
+                 ,rep(0,(n.controls.unlabeled-n.nondetect))),
+labelz = c(rep(1,n.cases),rep(0,n.controls.unlabeled)),
+dat = c(rnorm(n.cases+n.nondetect,mean=trt.eff)
+        ,rnorm((n.controls.unlabeled-n.nondetect)
+                       ,mean = 0)))
+
+c(wilcox_test(data=df,dat ~ labelz)$p
+,wilcox_test(data=df,dat ~ real.labels)$p)
+
+
+```
+

@@ -1,3 +1,19 @@
 
 
-This is a paper. asdfsdf
+Genome wide association studies (GWAS) of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The case are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone CCL repair. The controls are typically five-years-old or older with no history of CCLD and pass an orthopedic veterinary exam by a board-certifed surgeon. 
+
+It is the control group that is of interest to us because some of those dogs are not truly CCLD-negative dogs, that is, they are false negatives. Some will get CCLD in the future, and so genotypiclly belong in the CCLD cases group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound with physical exam and enrolled in the control group, but actually have force-platform-detectable hindlimb lameness. Such a dog should not be in the control group becuase the lameness might be CCLD. 
+
+False negatives in the control groups of a GWAS studies is a long standing research problem, and there is ample documentation of the biases false negatives cause, namely decreasing XXX and YYYY. 
+
+Treating the unknown false negatives as negatives is called the naive model. 
+
+CCLD GWAS studies assume the naive model because it is assumed that the false-negative rate is low, and the low rate causes small biases that have minimal impact on inferences. However, there are more components to false-negative bias than the false-negative rate. Biases can increase or decrease if the property of being false-negative is correlated with a covariate (e.g., a SNP). For example, hypothetically, there could be a set of SNPs that predispose dogs to unstable knees and sub-diagnostic CCLD. Biases also change if covariates are is strongly or weakly assocated with disease state. 
+
+Our objective is different from demonstrating bias. Instead, we simulate CCLD-specific GWAS and show conditions for which the biases from naive models (i.e., the usual model assuming no false negatives) are acceptable.
+
+If the naive model is deemed not acceptable, then many other models and analytical methods are available to use. Some methods were specifically designed for GWAS. However, the naive models in GWAS studies fit into a larger data analyitic framework. Data Scientists have develped methods under the name positive-unlabled data. Statisticians use the terms presence-only or confirmation bias, and wildlife population biologists use the term presence-absence or non-detection. So, there is no shortage of methods to account for false negatives.
+
+The aim of this descriptive research to is provide critera for GWAS researchers to use to help determine the usefulness of the naive model, and when to use more advance analytic methods. It is also to help veterinarians and clients assess the credability of diagnostic tests developed from GWAS studies that use GWAS data.
+
+

@@ -25,6 +25,25 @@ rio,        # to import data
 options(digits = 4)
 ```
 
+
+```{r setup, include=FALSE}
+knitr::knit_hooks$set(time_it = local({
+  now <- NULL
+  function(before, options) {
+    if (before) {
+      # record the current time before each chunk
+      now <<- Sys.time()
+    } else {
+      # calculate the time difference after a chunk
+      res <- difftime(Sys.time(), now)
+      # return a character string to show the time
+      paste("Time for this code chunk to run:", res)
+    }
+  }
+}))
+```
+
+
 If one SNP has a marginal effect on a phenotype, it is known as an SNP interaction displaying marginal effects. In some cases, however, each individual SNP has no effect on the phenotype, but the combination has a strong effect; this is known as SNP interactions displaying no marginal effects (INME)
 
 Wei Pan
@@ -130,21 +149,34 @@ list(Y=Y, X=X, SNP0indx=SNP0indx)
 
 
 
-```{r}
-
-
+```{r,warning=FALSE,time_it=TRUE}
+ now <- Sys.time()
+### but how to pick false pos correlated to a gene??
 #--------------------------------------
-fisher.b<-NULL
-coef.pvalues<-NULL
-naive.coef<-NULL
-labeled.coef<-NULL
+## There is a coef for each gene plus the intercept
 
-for(i in 1:1){
+sim.fun<-function(num.inter=500
+                  ,num.important.snp=10
+                  ,OR=2
+                  ,num.true.case=50
+                  ,num.true.control=100
+                  ,prop.nondetect=0.05){
+
+coef.pvalues.naive<-NULL
+coef.pvalues.labeled<-NULL
+#ORs<-sample(c(.25,.5,2,4),100,replace = TRUE)
+ORs<-rep(2,50) #size of OR and number of important snps
+
+for(i in 1:num.iter){
 
 
-naive.rupture<-c(rep(0,300),rep(1,300))
+naive.rupture<-c(rep(0,100),rep(1,50)) #naive number of controls and cases
 
-foo<-simRareSNP(ORs=c(5,5), n0=200, n1=400, nSNP=3, rho=0,
+foo<-simRareSNP(ORs=ORs
+                , n0=105  #true number of controls
+                , n1=45 #true number of cases
+                , nSNP=10
+                , rho=0,
                  MAF0slow=0.001, MAF0sup=0.05,
                  MAFslow=0.001, MAFsup=0.05, p0=0.05)
 
@@ -161,46 +193,18 @@ m.naive<- glm(naive.rupture ~ predisposition, family="binomial",data=df)
 m.labeled<- glm(labeled.rupture ~ predisposition, family="binomial",data=df)
 
 
-fisher.b<-c(fisher.b,(coef(summary(m.labeled))[,1] - coef(summary(m.naive))[,1])/abs(coef(summary(m.naive))[,1]))
 
-coef.pvalues<-c(coef.pvalues,coef(summary(m.naive))[,4],coef(summary(m.labeled))[,4])
+coef.pvalues.naive<-c(coef.pvalues.naive,coef(summary(m.naive))[,4])
+coef.pvalues.labeled<-c(coef.pvalues.labeled,coef(summary(m.labeled))[,4])
 
-naive.coef<-c(naive.coef,coef(summary(m.naive))[,1][2])
-labeled.coef<-c(labeled.coef,coef(summary(m.labeled))[,1][2])
 
   } #end loop
 
-goo<-data.frame(fisher.b=t(matrix(fisher.b,nrow=2))
-           ,pvalues=t(matrix(coef.pvalues,nrow=4))
-           ,naive.coef=naive.coef
-           ,labeled.coef=labeled.coef) %>% 
-  rename(fisher.b.intercept=fisher.b.1
-         ,fisher.b.coef=fisher.b.2
-         ,naive.p.intercept=pvalues.1
-         ,naive.p.coef=pvalues.2
-         ,labeled.p.intercept=pvalues.3
-         ,labeled.p.coef=pvalues.4) %>% 
-  mutate(naive.p.smaller=ifelse(naive.p.coef<labeled.p.coef,1,0)) %>% 
-  mutate(naive.signif=ifelse(naive.p.coef>0.05,0,1)) %>% 
-  mutate(labeled.m.signif=ifelse(labeled.p.coef>0.05,0,1)) %>% 
-  mutate(opposite.inference=ifelse(labeled.m.signif==naive.signif,0,1)) %>% 
-  mutate(OR.naive.coef=exp(naive.coef)) %>% 
-  mutate(OR.labeled.coef=exp(labeled.coef))
+pvalues.diff<-(coef.pvalues.labeled<0.05)==
+                            (coef.pvalues.naive<0.05)
 
-
-
-
-t1<-goo %>% 
-  filter(naive.p.coef<0.05|labeled.p.coef<0.05) %>% 
-   dplyr::select(opposite.inference,naive.p.smaller) %>% 
-  tbl_summary(statistic = list(
-      all_continuous() ~ "{median} ({IQR})",
-      all_categorical() ~ "{n} / {N} ({p}%)"))
-
-t2<-goo %>% tbl_summary
-
-tbl_merge(list(t1,t2)
-          ,tab_spanner = c("**at least one p<0.05**","**all**")) %>% as_gt() %>%
-  gt::tab_options(table.font.size = "10") %>% gt::tab_options(table.font.names = "courier")
+return(sum(pvalues.diff)/length(pvalues.diff))
+}
+difftime(Sys.time(),now)
 ```
 
