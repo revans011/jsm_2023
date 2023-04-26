@@ -1,57 +1,34 @@
 ---
 title: "R Notebook"
-output: pdf_document
-
+output:
+  html_document:
+    df_print: paged
 ---
+
 
 ```{r echo=FALSE}
 #install.packages("pacman")
 pacman::p_load(
-rio,        # to import data
        data.table, # to group and clean data
        tidyverse,  # allows use of pipe (%>%) function in this chapter
-       here,       #path for importing 
        janitor,     #for clean_names and tabyl
        broom,   #tidy output, use tidy(xxx)
        gtsummary,  #nice tables
        magrittr, # for %<>%
-       skimr, #for data summaries
-       ggplot2, #for plotting
-        hrbrthemes, #themes fore ggplot2
-        kableExtra,
-        caret
+        kableExtra
    ) 
 
-options(digits = 4)
 ```
 
+<!-- If one SNP has a marginal effect on a phenotype, it is known as an SNP interaction displaying marginal effects. In some cases, however, each individual SNP has no effect on the phenotype, but the combination has a strong effect; this is known as SNP interactions displaying no marginal effects (INME) -->
 
-```{r setup, include=FALSE}
-knitr::knit_hooks$set(time_it = local({
-  now <- NULL
-  function(before, options) {
-    if (before) {
-      # record the current time before each chunk
-      now <<- Sys.time()
-    } else {
-      # calculate the time difference after a chunk
-      res <- difftime(Sys.time(), now)
-      # return a character string to show the time
-      paste("Time for this code chunk to run:", res)
-    }
-  }
-}))
-```
+<!-- Wei Pan -->
+<!-- https://www.biostat.umn.edu/~weip/prog/BasuPanGE11/simRareSNP.R -->
 
+<!-- ----------------minor allele frequency (MAF)-------------should be less than 0.05 -->
+<!-- https://jvanderw.une.edu.au/Mod2Lecture_PLINK.pdf -->
 
-If one SNP has a marginal effect on a phenotype, it is known as an SNP interaction displaying marginal effects. In some cases, however, each individual SNP has no effect on the phenotype, but the combination has a strong effect; this is known as SNP interactions displaying no marginal effects (INME)
-
-Wei Pan
-https://www.biostat.umn.edu/~weip/prog/BasuPanGE11/simRareSNP.R
-
-minor allele frequency (MAF)
-
-```{r}
+```{r snp_generator, echo=FALSE, warning=FALSE}
 ########simulate SNPs from a latent multivariate Gaussian variable with
 ######## a CS(rho) correlation structure. 
 
@@ -74,8 +51,8 @@ minor allele frequency (MAF)
 #               and location indices for causal SNPs.
 
 simRareSNP<-function(ORs, n0=500, n1=500, nSNP=0, rho=0,
-                 MAF0slow=0.001, MAF0sup=0.01,
-                 MAFslow=0.001, MAFsup=0.01, p0=0.05){
+                 MAF0slow=0.01, MAF0sup=0.05,         #MAF0slow=0.001, MAF0sup=0.01,
+                 MAFslow=0.01, MAFsup=0.5, p0=0.05){  #MAFslow=0.001, MAFsup=0.01
 
 nSNP0<-length(ORs)
 q<-nSNP+nSNP0
@@ -149,11 +126,30 @@ list(Y=Y, X=X, SNP0indx=SNP0indx)
 
 
 
-```{r,warning=FALSE,time_it=TRUE}
- now <- Sys.time()
+```{r function, echo=FALSE, warning=FALSE}
+
 ### but how to pick false pos correlated to a gene??
 #--------------------------------------
 ## There is a coef for each gene plus the intercept
+
+
+sim.fun<-function(num.iter=500
+                  ,OR=2
+                  ,num.snps=60
+                  ,num.important.snps=5
+                  ,num.naive.control=150
+                  ,num.naive.case=50
+                  ,prop.nondetect=0.05
+                    ){
+
+coef.pvalues.naive<-NULL
+coef.pvalues.labeled<-NULL
+
+nSNP.null=num.snps-num.important.snps #number of null snps
+
+num.true.control=as.integer(num.naive.control*(1-prop.nondetect))
+num.true.case=(num.naive.case+num.naive.control)-num.true.control
+
 
 sim.fun<-function(num.inter=500
                   ,num.important.snp=10
@@ -167,8 +163,20 @@ coef.pvalues.labeled<-NULL
 #ORs<-sample(c(.25,.5,2,4),100,replace = TRUE)
 ORs<-rep(2,50) #size of OR and number of important snps
 
+
 for(i in 1:num.iter){
 
+
+
+naive.rupture<-c(rep(0,num.naive.control),rep(1,num.naive.case))
+
+snp.sim.data<-simRareSNP(ORs=rep(OR,num.important.snps)
+                , n0=num.true.control
+                , n1=num.true.case
+                , nSNP=nSNP.null #number of null snps
+                , rho=0)
+
+labeled.rupture<-snp.sim.data$Y
 
 naive.rupture<-c(rep(0,100),rep(1,50)) #naive number of controls and cases
 
@@ -180,8 +188,9 @@ foo<-simRareSNP(ORs=ORs
                  MAF0slow=0.001, MAF0sup=0.05,
                  MAFslow=0.001, MAFsup=0.05, p0=0.05)
 
-labeled.rupture<-foo$Y
-predisposition<-foo$X
+
+predisposition<-snp.sim.data$X
+predisposition[predisposition==2]<-1 #removes any 2's
 
 df<-data.frame(predisposition=predisposition
                ,naive.rupture=naive.rupture
@@ -194,17 +203,111 @@ m.labeled<- glm(labeled.rupture ~ predisposition, family="binomial",data=df)
 
 
 
-coef.pvalues.naive<-c(coef.pvalues.naive,coef(summary(m.naive))[,4])
-coef.pvalues.labeled<-c(coef.pvalues.labeled,coef(summary(m.labeled))[,4])
+coef.pvalues.naive<-c(coef.pvalues.naive,coef(summary(m.naive))[,4][-1])      # has only the important coefs and no intercept
+coef.pvalues.labeled<-c(coef.pvalues.labeled,coef(summary(m.labeled))[,4][-1])
 
 
   } #end loop
+pvalues.sig<-sum(coef.pvalues.labeled<0.05)/(num.important.snps*num.iter)
 
 pvalues.diff<-(coef.pvalues.labeled<0.05)==
                             (coef.pvalues.naive<0.05)
 
-return(sum(pvalues.diff)/length(pvalues.diff))
+
+out<-sum(pvalues.diff)/length(pvalues.diff)
+
+
+#return(list(sum(pvalues.diff)/length(pvalues.diff)))
+return(list(c(out,pvalues.sig)))
 }
-difftime(Sys.time(),now)
+
 ```
 
+<!-- map2: -->
+<!-- https://dcl-prog.stanford.edu/purrr-parallel.html -->
+
+
+```{r simulation,warning=FALSE}
+
+ now<-Sys.time()
+
+
+a<-50
+b<-100
+c<-200
+d<-300
+
+n.iter<-2000
+
+contrl<-list(a,a,a,a,a,b,c,d,d,d)
+case<-  list(a,b,c,d,a,a,a,a,d,d)
+
+contrl<-list(350,50,300,100,250,150,200)
+case<-  list(50,350,100,300,150,250,200)
+
+contrl<-c(225,seq(50,400,by=50))
+case<-c(225,rev(seq(50,400,by=50)))
+
+contrl<-c(50,100,150,175,25)
+case<-  c(150,100,50,25,175)
+
+contrl<-c(50,50,100,25,100)
+case<-  c(50,100,50,100,25)
+
+#--------------------------------------------
+control<-unlist(contrl)
+case<-unlist(case)
+
+#a simulation
+prop.agree.01<-map2(contrl,case,\(contrl,case) sim.fun(n.iter,10,5,5,contrl,case,0.01))
+
+mat01<-matrix(unlist(prop.agree.01),nrow=length(prop.agree.01),byrow=TRUE)
+
+#a simulation
+prop.agree.05<-map2(contrl,case,\(contrl,case) sim.fun(n.iter,10,5,5,contrl,case,0.05))
+
+mat05<-matrix(unlist(prop.agree.05),nrow=length(prop.agree.05),byrow=TRUE)
+
+#a simulation
+prop.agree.1<-map2(contrl,case,\(contrl,case) sim.fun(n.iter,10,5,5,contrl,case,0.1))
+
+mat1<-matrix(unlist(prop.agree.1),nrow=length(prop.agree.1),byrow=TRUE)
+
+# a simulation
+prop.agree.25<-map2(contrl,case,\(contrl,case) sim.fun(n.iter,10,5,5,contrl,case,0.25))
+
+mat25<-matrix(unlist(prop.agree.25),nrow=length(prop.agree.25),byrow=TRUE)
+
+.foo<-as.data.frame(cbind(control,case,mat01,mat05,mat1,mat25)) %>% 
+  rename(control=1,case=2
+         ,pr.eq.01=3,pr.sig.01=4
+         ,pr.eq.05=5,pr.sig.05=6
+         ,pr.eq.1=7,pr.sig.1=8
+         ,pr.eq.25=9,pr.sig.25=10) %>% relocate(1,2,3,5,7,9,4,6,8,10)
+
+.foo|> arrange(pr.eq.01) %>% kable(caption = "1 percent")%>% 
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")  %>% 
+  add_footnote(c(".eq. is proportion that two models agree"
+                  , ".sig. is proportion PU model found sig"), notation = "alphabet")
+
+.foo|> arrange(pr.eq.05) %>% kable(caption = "5 percent")%>% 
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")  %>% 
+  add_footnote(c(".eq. is proportion that two models agree"
+                  , ".sig. is proportion PU model found sig"), notation = "alphabet")
+
+.foo|> arrange(pr.eq.1) %>% kable(caption = "10 percent")%>% 
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")  %>% 
+  add_footnote(c(".eq. is proportion that two models agree"
+                  , ".sig. is proportion PU model found sig"), notation = "alphabet")
+
+.foo |> arrange(pr.eq.25)%>% kable(caption = "25 percent") %>% 
+  kable_styling(full_width = F) %>%  kable_classic(lightable_options = "basic")%>% 
+  add_footnote(c(".eq. is proportion that two models agree"
+                  , ".sig. is proportion PU model found sig"), notation = "alphabet")
+
+
+return(sum(pvalues.diff)/length(pvalues.diff))
+}
+
+difftime(Sys.time(),now)
+```
