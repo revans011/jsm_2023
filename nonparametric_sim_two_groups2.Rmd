@@ -59,13 +59,14 @@ dat = c(rnorm(n.cases+n.nondetect,mean=trt.eff)
 out1 <- c(out1,wilcox_test(data=df,dat ~ labelz)$p)
 out2 <- c(out2,wilcox_test(data=df,dat ~ real.labels)$p)
 
-#out3 <- c(out3,cohens_d(x=df$dat[df$labelz==1],y=df$dat[df$labelz==0])[[1]])
-out3 <- c(out3,(mean(df$dat[df$labelz==1])-mean(df$dat[df$labelz==0])))
+out3 <- c(out3,effectsize::cohens_d(x=df$dat[df$labelz==1][[1]],y=df$dat[df$labelz==0])[[1]])
+#out3 <- c(out3,(mean(df$dat[df$labelz==1])-mean(df$dat[df$labelz==0])))
 }
 
 
 return(data.frame(n.cases=n.cases,
                   n.controls.unlabeled=n.controls.unlabeled,
+                  n.case.tru = (n.cases+n.nondetect),
                   n.cntl.tru=(n.controls.unlabeled-n.nondetect),
                   n.nondetect=n.nondetect,
                   pu=out1,
@@ -77,7 +78,10 @@ return(data.frame(n.cases=n.cases,
                     
 ```
 
-```{r,include=FALSE}
+
+
+```{r}
+ now<-Sys.time()
 # a<-50
 # b<-100
 # c<-200
@@ -96,10 +100,10 @@ case<-  list(50,350,100,300,150,250,200)
 # contrl<-list(50,50,100,25,100)
 # case<-  list(50,100,50,100,25)
 
-foo<-map2(contrl,case,\(contrl,case) sim.fun(num.iter=5
+foo<-map2(contrl,case,\(contrl,case) sim.fun(num.iter=1500
                   ,n.cases = case       #we know this
                   ,n.controls.unlabeled = contrl            #we wish new this
-                  ,prop.nondetect = .2
+                  ,prop.nondetect = .1
                   ,trt.eff = .1)) 
 
 goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
@@ -107,23 +111,38 @@ goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
 
 zoo <- goo %>% group_by(cases=n.cases
                         ,contrlz=n.controls.unlabeled) %>% 
-  dplyr::summarise(cntl.tru=median(n.cntl.tru)
-                   ,ndet=median(n.nondetect)
+  dplyr::summarise(case.tru=median(n.case.tru)
+                   ,cntl.tru=median(n.cntl.tru)
+                   ,cas_ctrl_difz=median(cases-n.controls.unlabeled)
+                   ,cas_ctrl_diftru=median(n.case.tru-n.cntl.tru)
+                   ,casz_casetru=median(n.cases-n.case.tru)
+                   ,n.nodetec=median(n.nondetect)
                    ,cohen=median(cohend)
                    ,p.pu=median(pu)
                    ,p.tru=median(tru)
                    ,pdiff=median(abs(pu-tru))
                    ) 
 zoo %>% arrange(desc(pdiff)) %>% 
-  kable(caption = "pdiff l ") %>% kable_styling(full_width = FALSE)
+  kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
 zoo %>% arrange(desc(cohen)) %>% 
   kable(caption = "cohen ") %>% kable_styling(full_width = FALSE)
-zoo %>% arrange(desc(ndet)) %>% 
+zoo %>% arrange(desc(n.nodetec)) %>% 
   kable(caption = "number non detected ") %>% kable_styling(full_width = FALSE)
+zoo %>% arrange(desc(p.pu)) %>% 
+  kable(caption = "p.pu ") %>% kable_styling(full_width = FALSE)
 
 oddsratio_to_d(2,log=FALSE) #this coverts OR to cohens so that I make this like SNPs data
+difftime(Sys.time(),now)
 ```
 
+
+Small effect size: The designs have to line up to get less bias
+with prop=.1 and eff=.1, n.iter = 1500
+bias IMPROVES as designs match up. That is pdiff gets smaller as n.nodetec gets smaller and as
+case-case goes from -35 to -5
+
+In other words, the initial design must be such that shifting non-detected positives has little impact
+that means, more cases than controls.
 
 
 ```{r}
