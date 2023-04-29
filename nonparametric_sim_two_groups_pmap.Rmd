@@ -89,7 +89,7 @@ return(data.frame(n.cases=n.cases,
 
 
 parmlist<-list(
-c(rep(2500,12)),             #interations; num.iter
+c(rep(20,12)),             #interations; num.iter
 c(100,80,80,100,80,80,100,80,80,100,80,80), #cases; n.cases
 c(80,100,80,80,100,80,80,100,80,80,100,80), #controls PU; n.controls.unlabeled
 c(rep(0.1,6),rep(0.05,6)),          #prop non detct ;prop.nondetect
@@ -111,7 +111,7 @@ zoo1 <- goo %>% group_by(n.cases
                    ,n.nodetec=median(n.nondetect)
                    ,p.tru=median(tru)
                    ,pdiff=median(abs(pu-tru))
-                   ) 
+                   )
 
 #same as above but more output
 zoo2 <- goo %>% group_by(n.cases
@@ -130,10 +130,10 @@ zoo2 <- goo %>% group_by(n.cases
                    ,pdiff=median(abs(pu-tru))
                    ) 
 
-zoo1 %>% arrange(pdiff) %>% 
+zoo1 %>% ungroup() %>% arrange(pdiff) %>% 
   kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
 
-zoo2 %>% arrange(pdiff) %>% 
+zoo2 %>% ungroup()%>% arrange(pdiff) %>% 
   kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
 
 
@@ -145,7 +145,7 @@ zoo2 %>% arrange(pdiff) %>%
 #   kable(caption = "p.pu ") %>% kable_styling(full_width = FALSE)
 
 oddsratio_to_d(2,log=FALSE) #this coverts OR to cohens so that I make this like SNPs data
-difftime(Sys.time(),now)
+difftime(Sys.time(),now,units="mins")
 ```
 
 
