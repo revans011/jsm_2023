@@ -83,21 +83,22 @@ return(data.frame(n.cases=n.cases,
 ```{r}
  now<-Sys.time()
 
- 
- contrl<-list(100,80,100,90,85,80)
- case<-  list(100,100,80,90,80,80)
 
-foo<-map2(contrl,case,\(contrl,case) sim.fun(num.iter=2000
+
+ contrl<-list(80,100,80,80,100,80)
+ case<-  list(100,80,80,100,80,80)
+
+foo<-map2(contrl,case,\(contrl,case) sim.fun(num.iter=1000
                   ,n.cases = case       #we know this
                   ,n.controls.unlabeled = contrl            #we wish new this
                   ,prop.nondetect = .1
-                  ,trt.eff = .38)) 
+                  ,trt.eff = .1)) 
 
 goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
 
 
 zoo <- goo %>% group_by(cases=n.cases
-                        ,contrlz=n.controls.unlabeled) %>% 
+                        ,contrlz=n.controls.unlabeled,) %>% 
   dplyr::summarise(case.tru=median(n.case.tru)
                    ,cntl.tru=median(n.cntl.tru)
                    ,cas_ctrl_difz=median(cases-n.controls.unlabeled)
