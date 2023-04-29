@@ -1,0 +1,159 @@
+---
+---
+title: "sim"
+author: Report by Rich Evans
+date: 2023
+output: 
+  html_document:
+     number_sections: true
+
+
+---
+
+This is a simple two group simulation for PU data. 
+
+There are two groups, called case and control
+
+The idea is to get some idea of how sample size, group imbalance, and non-detection affects statistical decisions via p-values.
+
+```{r,include=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       effectsize,
+       rstatix,
+        kableExtra
+   ) 
+```
+
+
+
+
+```{r,include=FALSE}
+
+sim.fun<-function(num.iter = NULL
+                  ,n.cases = NULL    
+                  ,n.controls.unlabeled = NULL          
+                  ,prop.nondetect = NULL
+                  ,trt.eff = NULL,...){
+out1 <- NULL
+out2 <- NULL
+out3 <- NULL
+
+n.nondetect <- round(prop.nondetect*n.controls.unlabeled)
+
+for (i in 1:num.iter){
+df <- data.frame(
+real.labels = c(rep(1,(n.cases+n.nondetect))
+                 ,rep(0,(n.controls.unlabeled-n.nondetect))),
+labelz = c(rep(1,n.cases),rep(0,n.controls.unlabeled)),
+dat = c(rnorm(n.cases+n.nondetect,mean=trt.eff)
+        ,rnorm((n.controls.unlabeled-n.nondetect)
+                       ,mean = 0)))
+
+out1 <- c(out1,wilcox_test(data=df,dat ~ labelz)$p)
+out2 <- c(out2,wilcox_test(data=df,dat ~ real.labels)$p)
+
+out3 <- c(out3,effectsize::cohens_d(x=df$dat[df$labelz==1][[1]],y=df$dat[df$labelz==0])[[1]])
+#out3 <- c(out3,(mean(df$dat[df$labelz==1])-mean(df$dat[df$labelz==0])))
+}
+
+
+return(data.frame(n.cases=n.cases,
+                  n.controls.unlabeled=n.controls.unlabeled,
+                  n.case.tru = (n.cases+n.nondetect),
+                  n.cntl.tru=(n.controls.unlabeled-n.nondetect),
+                  n.nondetect=n.nondetect,
+                  trt.eff=trt.eff,
+                  prop.nondetect=prop.nondetect,
+                  pu=out1,
+                  tru=out2,
+                  cohend = out3))
+}
+
+
+                    
+```
+
+
+
+
+
+```{r}
+ now<-Sys.time()
+
+
+parmlist<-list(
+c(rep(200,6)),             #interations; num.iter
+c(100,80,80,100,80,80), #cases; n.cases
+c(80,100,80,80,100,80), #controls PU; n.controls.unlabeled
+c(rep(0.1,6)),          #prop non detct ;prop.nondetect
+c(0.38,0.38,0.38,0.1,0.1,0.1)  #treat effect; trt.eff 
+ )
+ 
+
+foo<-pmap(parmlist,sim.fun)
+
+goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
+
+
+zoo <- goo %>% group_by(n.cases
+                        ,n.controls.unlabeled
+                        ,trt.eff
+                        ,prop.nondetect) %>% 
+  dplyr::summarise(case.tru=median(n.case.tru)
+                   ,cntl.tru=median(n.cntl.tru)
+                   ,cas_ctrl_difz=median(n.cases-n.controls.unlabeled)
+                   ,cas_ctrl_diftru=median(n.case.tru-n.cntl.tru)
+                   ,casz_casetru=median(n.cases-n.case.tru)
+                   ,n.nodetec=median(n.nondetect)
+                   ,cohen=median(cohend)
+                   ,p.pu=median(pu)
+                   ,p.tru=median(tru)
+                   ,pdiff=median(abs(pu-tru))
+                   ) 
+
+zoo %>% arrange(desc(pdiff)) %>% 
+  kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
+
+
+# zoo %>% arrange(desc(cohen)) %>% 
+#   kable(caption = "cohen ") %>% kable_styling(full_width = FALSE)
+# zoo %>% arrange(desc(n.nodetec)) %>% 
+#   kable(caption = "number non detected ") %>% kable_styling(full_width = FALSE)
+# zoo %>% arrange(desc(p.pu)) %>% 
+#   kable(caption = "p.pu ") %>% kable_styling(full_width = FALSE)
+
+oddsratio_to_d(2,log=FALSE) #this coverts OR to cohens so that I make this like SNPs data
+difftime(Sys.time(),now)
+```
+
+
+
+ndet
+imbalance 
+obs effect size
+if ndet and imbalance combine to make small effect size
+
+
+Note that n.nondetect changes the observed effect size because the means change.
+
+some sample size patterns are better at finding effects size. This matters because there are many effect sizes in GWAS. S
+
+0.5 is large treatment effect => all small p's for all sample sizes
+for a large effect size symetric sample sizes make smaller differences between models
+n.nondetect plays less role, but the imbalance plays a large role
+
+0.1 is small treatment effect => all large p's for all sample sizes
+n.detect plays a large role 
+
+0.2 is mixed treatment effect => all small p's for all sample sizes
+??? What is happening
+
+
+
