@@ -82,29 +82,7 @@ return(data.frame(n.cases=n.cases,
 
 ```{r}
  now<-Sys.time()
-# a<-50
-# b<-100
-# c<-200
-# d<-300
-# 
-# contrl<-list(a,a,a,a,a,b,c,d,d,d)
-# case<-  list(a,b,c,d,a,a,a,a,d,d)
 
-contrl<-c(225,seq(50,400,by=50))
-case<-c(225,rev(seq(50,400,by=50)))
-contrl<-list(50,100,150,175,25)
-case<-  list(150,100,50,25,175)
-contrl<-list(350,50,300,100,250,150,200)
-case<-  list(50,350,100,300,150,250,200)
-
- contrl<-list(50,50,100,25,100,75,100)
- case<-  list(50,100,50,100,25,100,75)
- 
- contrl<-list(80,75,100,100)
- case<-  list(80,100,100,75)
- 
- contrl<-list(100,90,80,70,60)
- case<-  list(100,100,100,100,100)
  
  contrl<-list(100,80,100,90,85,80)
  case<-  list(100,100,80,90,80,80)
