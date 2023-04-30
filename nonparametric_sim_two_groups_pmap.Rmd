@@ -157,25 +157,3 @@ oddsratio_to_d(2,log=FALSE) #this coverts OR to cohens so that I make this like 
 
 
 
-ndet
-imbalance 
-obs effect size
-if ndet and imbalance combine to make small effect size
-
-
-Note that n.nondetect changes the observed effect size because the means change.
-
-some sample size patterns are better at finding effects size. This matters because there are many effect sizes in GWAS. S
-
-0.5 is large treatment effect => all small p's for all sample sizes
-for a large effect size symetric sample sizes make smaller differences between models
-n.nondetect plays less role, but the imbalance plays a large role
-
-0.1 is small treatment effect => all large p's for all sample sizes
-n.detect plays a large role 
-
-0.2 is mixed treatment effect => all small p's for all sample sizes
-??? What is happening
-
-
-
