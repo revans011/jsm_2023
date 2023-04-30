@@ -62,12 +62,12 @@ out1 <- c(out1,wilcox_test(data=df,dat ~ labelz)$p)
 #tru
 out2 <- c(out2,wilcox_test(data=df,dat ~ real.labels)$p)
 
-#cohen
-out3 <- c(out3,effectsize::cohens_d(x=df$dat[df$labelz==1][[1]],y=df$dat[df$labelz==0])[[1]])
-#out3 <- c(out3,(mean(df$dat[df$labelz==1])-mean(df$dat[df$labelz==0])))
+#agree less than 0.05?
+#2=agree, both less than 0.05; 1=disgree, one of them is less; 0=agree both are above agree
+
 }
-
-
+out3<-(out1<0.05) + (out2<0.05)
+out3<-out3==0
 return(list(n.cases=n.cases,
                   n.controls.unlabeled=n.controls.unlabeled,
                   n.case.tru = (n.cases+n.nondetect),
@@ -77,7 +77,7 @@ return(list(n.cases=n.cases,
                   prop.nondetect=prop.nondetect,
                   pu=out1,
                   tru=out2,
-                  cohend = out3))
+                  p.agree = out3))
 }
 
 
@@ -92,12 +92,13 @@ return(list(n.cases=n.cases,
  now<-Sys.time()
 
 
-parmlist<-list(
-c(rep(100,16)),             #interations; num.iter
-c(120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90), #cases; n.cases
-c(60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90), #controls PU; n.controls.unlabeled
-c(rep(0.1,8),rep(0.05,8)),          #prop non detct ;prop.nondetect
-c(0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1) #treat effect; trt.eff 
+ 
+ parmlist<-list(
+c(rep(10,32)),             #interations; num.iter
+c(120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90),  #cases; n.cases
+c(60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90),  #controls unlabeled
+c(rep(0.1,8),rep(0.05,8),rep(0.15,8),rep(0.01,8)),  #non-detection proportion       
+c(0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1) #treat effect
  )
  
 
@@ -115,11 +116,10 @@ zoo1 <- goo %>% group_by(n.cases
                         ,n.controls.unlabeled
                         ,trt.eff
                         ,prop.nondetect) %>% 
-  dplyr::summarise(case.tru=median(n.case.tru)
-                   ,cntl.tru=median(n.cntl.tru)
-                   ,n.nodetec=median(n.nondetect)
-                   ,p.tru=median(tru)
+  dplyr::summarise(n.nodetec=median(n.nondetect)
+                   ,p.agree=mean(p.agree)
                    ,pdiff=median(abs(pu-tru))
+                   ,p.tru=median(tru)
                    )
 
 #same as above but more output
@@ -133,19 +133,22 @@ zoo2 <- goo %>% group_by(n.cases
                    ,cas_ctrl_diftru=median(n.case.tru-n.cntl.tru)
                    ,casz_casetru=median(n.cases-n.case.tru)
                    ,n.nodetec=median(n.nondetect)
-                   ,cohen=median(cohend)
+                   ,p.agree=mean(p.agree)
                    ,p.pu=median(pu)
                    ,p.tru=median(tru)
                    ,pdiff=median(abs(pu-tru))
                    ) 
 
-zoo1 %>% ungroup() %>% arrange(pdiff) %>% 
-  kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
+# zoo1 %>% ungroup() %>% arrange(pdiff) %>% 
+#   kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE) %>% kable_classic()
+
+zoo1 %>% ungroup() %>% arrange(desc(p.agree)) %>%
+  kable(caption = "p.agree ") %>% kable_styling(full_width = FALSE)%>% kable_classic()
 
 
-
-zoo2 %>% ungroup()%>% arrange(pdiff) %>% 
-  kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
+# 
+# zoo2 %>% ungroup()%>% arrange(pdiff) %>% 
+#   kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
 
 
 # zoo %>% arrange(desc(cohen)) %>% 
@@ -156,7 +159,9 @@ zoo2 %>% ungroup()%>% arrange(pdiff) %>%
 #   kable(caption = "p.pu ") %>% kable_styling(full_width = FALSE)
 
 oddsratio_to_d(2,log=FALSE) #this coverts OR to cohens so that I make this like SNPs data
-
+d_to_oddsratio(.1)
+oddsratio_to_d(1.2,log=FALSE)
+ 
 ```
 
 
