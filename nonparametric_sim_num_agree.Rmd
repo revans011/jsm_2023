@@ -62,10 +62,13 @@ out1 <- c(out1,wilcox_test(data=df,dat ~ labelz)$p)
 #tru
 out2 <- c(out2,wilcox_test(data=df,dat ~ real.labels)$p)
 
+
+
+}
+
 #agree less than 0.05?
 #2=agree, both less than 0.05; 1=disgree, one of them is less; 0=agree both are above agree
 
-}
 out3<-(out1<0.05) + (out2<0.05)
 out3<-out3==0
 return(list(n.cases=n.cases,
@@ -94,7 +97,7 @@ return(list(n.cases=n.cases,
 
  
  parmlist<-list(
-c(rep(10,32)),             #interations; num.iter
+c(rep(3000,32)),             #interations; num.iter
 c(120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90),  #cases; n.cases
 c(60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90),  #controls unlabeled
 c(rep(0.1,8),rep(0.05,8),rep(0.15,8),rep(0.01,8)),  #non-detection proportion       
