@@ -56,15 +56,19 @@ dat = c(rnorm(n.cases+n.nondetect,mean=trt.eff)
         ,rnorm((n.controls.unlabeled-n.nondetect)
                        ,mean = 0)))
 
+#pu
 out1 <- c(out1,wilcox_test(data=df,dat ~ labelz)$p)
+
+#tru
 out2 <- c(out2,wilcox_test(data=df,dat ~ real.labels)$p)
 
+#cohen
 out3 <- c(out3,effectsize::cohens_d(x=df$dat[df$labelz==1][[1]],y=df$dat[df$labelz==0])[[1]])
 #out3 <- c(out3,(mean(df$dat[df$labelz==1])-mean(df$dat[df$labelz==0])))
 }
 
 
-return(data.frame(n.cases=n.cases,
+return(list(n.cases=n.cases,
                   n.controls.unlabeled=n.controls.unlabeled,
                   n.case.tru = (n.cases+n.nondetect),
                   n.cntl.tru=(n.controls.unlabeled-n.nondetect),
@@ -89,10 +93,10 @@ return(data.frame(n.cases=n.cases,
 
 
 parmlist<-list(
-c(rep(3000,16)),             #interations; num.iter
+c(rep(100,16)),             #interations; num.iter
 c(120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90), #cases; n.cases
 c(60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90), #controls PU; n.controls.unlabeled
-c(rep(0.01,8),rep(0.05,8)),          #prop non detct ;prop.nondetect
+c(rep(0.1,8),rep(0.05,8)),          #prop non detct ;prop.nondetect
 c(0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1) #treat effect; trt.eff 
  )
  
