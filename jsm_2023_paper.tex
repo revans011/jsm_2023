@@ -2,7 +2,7 @@
 1. Introduction
 Genome wide association studies (GWAS) of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The case are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone CCL repair. The controls are typically five-years-old or older with no history of CCLD and pass an orthopedic veterinary exam by a board-certifed surgeon. CCLD GWAS studies usually enroll as many dogs as they possibly can without regard to the balance between the numbers of cases and controls.
 
-It is the control group that is of interest to us because some of those dogs are not truly CCLD-negative dogs, that is, they are false negatives. Some will get CCLD in the future, and so genotypiclly belong in the CCLD cases group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound with physical exam and enrolled in the control group, but actually have force-platform-detectable hindlimb lameness. Such a dog should not be in the control group because the lameness might be CCLD. 
+It is the control group that is of interest to us because some of those dogs are not truly CCLD-negative dogs, that is, they are false negatives. Some will get CCLD in the future, and so genotypiclly belong in the CCLD cases group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound with physical exam and enrolled in the control group, but actually have force-platform-detectable hindlimb lameness. Such a dog should not be in the control group because the lameness might be subclinical CCLD. 
 
 False negatives in the control groups of a GWAS studies is a long standing research problem, and there is ample documentation of the biases false negatives cause, namely decreasing XXX and YYYY. 
 
@@ -23,7 +23,7 @@ As mentioned above, CCLD-phenotype dogs may rupture their CCL after a study's en
 
 In an ideal GWAS case-control  design, only genotype would influence CCLD, and CCLD would present yearly in life. Then, dogs with CCLD would have the CCLD genotype, and older dogs would not. In humans, Cystic Fibrosis is an example of a genetic disease that presents only early in life. 
 
-CCLD has a number phenotypic risk factors, and among them age is the hardest to control for. Baird assumed that dogs older than five year who ruptured ruptured because of age-related ligament degeneration, not CCLD genotype. 
+CCLD has a number phenotypic risk factors, and among them age is the hardest to control for. Baird assumed that dogs older than five year who ruptured ruptured because of age-related ligament degeneration, not CCLD genotype.
 
 All CCLD GWAS researchers agree that there are false negative cases in control group, but try to minimize their number. Baird et al. follow the standard control group enrollment proceedure, which is to enroll dogs over five years of age with no physcial signs of CCLD.  They attribute CCL rupture in dogs over five years to age-related degeneration of the ligament. One breed they study is the Rottweiler. In and insurance study of Swedish cases, Rotweillers had a median age (min,max) of 4.99 (0.65–9.87), so half the CCLD cases were older than five years of age.
 
@@ -38,8 +38,15 @@ The point of those numbers is that there is uncertainly about the false-negative
 
 2.2. The effect of non-detection in an analytical model of SNP importance
 
-2.3. Simulation study 
+2.3. Simulation studies
 
+There are two simulations studies. The first one samples PU data from two normal distributions as a simple demonstration that more data is not necessary better than a smaller, balanced sample size. 
+
+The second simulation mimics the Baird CCLD GWAS study by generating 60 SNPs with two of them predictive for CCLD. 
+
+3.0 Simulation Results
+
+References
 Ages of dogs
 Engdahl, K., Emanuelson, U., Höglund, O. et al. The epidemiology of cruciate ligament rupture in an insured Swedish dog population. Sci Rep 11, 9546 (2021). https://doi.org/10.1038/s41598-021-88876-3
 

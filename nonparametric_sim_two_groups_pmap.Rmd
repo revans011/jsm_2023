@@ -89,11 +89,11 @@ return(data.frame(n.cases=n.cases,
 
 
 parmlist<-list(
-c(rep(5000,16)),             #interations; num.iter
-c(100,80,80,90,100,80,80,90,100,80,80,90,100,80,80,90), #cases; n.cases
-c(80,100,80,90,80,100,80,90,80,100,80,90,80,100,80,90), #controls PU; n.controls.unlabeled
-c(rep(0.1,8),rep(0.05,8)),          #prop non detct ;prop.nondetect
-c(0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1)  #treat effect; trt.eff 
+c(rep(3000,16)),             #interations; num.iter
+c(120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90), #cases; n.cases
+c(60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90), #controls PU; n.controls.unlabeled
+c(rep(0.01,8),rep(0.05,8)),          #prop non detct ;prop.nondetect
+c(0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1) #treat effect; trt.eff 
  )
  
 
