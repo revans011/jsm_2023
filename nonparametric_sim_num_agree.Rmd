@@ -1,0 +1,159 @@
+---
+---
+title: "sim"
+author: Report by Rich Evans
+date: 2023
+output: 
+  html_document:
+     number_sections: true
+
+
+---
+
+This is a simple two group simulation for PU data. 
+
+There are two groups, called case and control
+
+The idea is to get some idea of how sample size, group imbalance, and non-detection affects statistical decisions via p-values.
+
+```{r,include=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       effectsize,
+       rstatix,
+        kableExtra
+   ) 
+```
+
+
+
+
+```{r,include=FALSE}
+
+sim.fun<-function(num.iter = NULL
+                  ,n.cases = NULL    
+                  ,n.controls.unlabeled = NULL          
+                  ,prop.nondetect = NULL
+                  ,trt.eff = NULL,...){
+out1 <- NULL
+out2 <- NULL
+out3 <- NULL
+
+n.nondetect <- round(prop.nondetect*n.controls.unlabeled)
+
+for (i in 1:num.iter){
+df <- data.frame(
+real.labels = c(rep(1,(n.cases+n.nondetect))
+                 ,rep(0,(n.controls.unlabeled-n.nondetect))),
+labelz = c(rep(1,n.cases),rep(0,n.controls.unlabeled)),
+dat = c(rnorm(n.cases+n.nondetect,mean=trt.eff)
+        ,rnorm((n.controls.unlabeled-n.nondetect)
+                       ,mean = 0)))
+
+out1 <- c(out1,wilcox_test(data=df,dat ~ labelz)$p)
+out2 <- c(out2,wilcox_test(data=df,dat ~ real.labels)$p)
+
+out3 <- c(out3,effectsize::cohens_d(x=df$dat[df$labelz==1][[1]],y=df$dat[df$labelz==0])[[1]])
+#out3 <- c(out3,(mean(df$dat[df$labelz==1])-mean(df$dat[df$labelz==0])))
+}
+
+
+return(data.frame(n.cases=n.cases,
+                  n.controls.unlabeled=n.controls.unlabeled,
+                  n.case.tru = (n.cases+n.nondetect),
+                  n.cntl.tru=(n.controls.unlabeled-n.nondetect),
+                  n.nondetect=n.nondetect,
+                  trt.eff=trt.eff,
+                  prop.nondetect=prop.nondetect,
+                  pu=out1,
+                  tru=out2,
+                  cohend = out3))
+}
+
+
+                    
+```
+
+
+
+
+
+```{r}
+ now<-Sys.time()
+
+
+parmlist<-list(
+c(rep(3000,16)),             #interations; num.iter
+c(120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90), #cases; n.cases
+c(60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90), #controls PU; n.controls.unlabeled
+c(rep(0.01,8),rep(0.05,8)),          #prop non detct ;prop.nondetect
+c(0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1) #treat effect; trt.eff 
+ )
+ 
+
+foo<-pmap(parmlist,sim.fun)
+
+
+
+print(difftime(Sys.time(),now,units="mins"))
+
+
+goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
+
+
+zoo1 <- goo %>% group_by(n.cases
+                        ,n.controls.unlabeled
+                        ,trt.eff
+                        ,prop.nondetect) %>% 
+  dplyr::summarise(case.tru=median(n.case.tru)
+                   ,cntl.tru=median(n.cntl.tru)
+                   ,n.nodetec=median(n.nondetect)
+                   ,p.tru=median(tru)
+                   ,pdiff=median(abs(pu-tru))
+                   )
+
+#same as above but more output
+zoo2 <- goo %>% group_by(n.cases
+                        ,n.controls.unlabeled
+                        ,trt.eff
+                        ,prop.nondetect) %>% 
+  dplyr::summarise(case.tru=median(n.case.tru)
+                   ,cntl.tru=median(n.cntl.tru)
+                   ,cas_ctrl_difz=median(n.cases-n.controls.unlabeled)
+                   ,cas_ctrl_diftru=median(n.case.tru-n.cntl.tru)
+                   ,casz_casetru=median(n.cases-n.case.tru)
+                   ,n.nodetec=median(n.nondetect)
+                   ,cohen=median(cohend)
+                   ,p.pu=median(pu)
+                   ,p.tru=median(tru)
+                   ,pdiff=median(abs(pu-tru))
+                   ) 
+
+zoo1 %>% ungroup() %>% arrange(pdiff) %>% 
+  kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
+
+
+
+zoo2 %>% ungroup()%>% arrange(pdiff) %>% 
+  kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
+
+
+# zoo %>% arrange(desc(cohen)) %>% 
+#   kable(caption = "cohen ") %>% kable_styling(full_width = FALSE)
+# zoo %>% arrange(desc(n.nodetec)) %>% 
+#   kable(caption = "number non detected ") %>% kable_styling(full_width = FALSE)
+# zoo %>% arrange(desc(p.pu)) %>% 
+#   kable(caption = "p.pu ") %>% kable_styling(full_width = FALSE)
+
+oddsratio_to_d(2,log=FALSE) #this coverts OR to cohens so that I make this like SNPs data
+
+```
+
+
+
