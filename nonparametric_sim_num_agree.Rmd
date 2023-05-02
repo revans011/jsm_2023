@@ -164,8 +164,8 @@ zoo1 <- goo %>% group_by(n.cases
 zoo1 %>% ungroup() %>% arrange(desc(both.sig)) %>% select(-p.agree) %>% 
   kable(caption = "both.sig") %>% kable_styling(full_width = FALSE) %>% kable_classic()
 
-# zoo1 %>% ungroup() %>% arrange(desc(p.agree)) %>%
-#   kable(caption = "p.agree ") %>% kable_styling(full_width = FALSE)%>% kable_classic()
+zoo1 %>% ungroup() %>% arrange(desc(p.agree)) %>%
+  kable(caption = "p.agree ") %>% kable_styling(full_width = FALSE)%>% kable_classic()
 
  
 
