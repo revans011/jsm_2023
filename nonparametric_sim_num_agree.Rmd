@@ -69,8 +69,8 @@ out2 <- c(out2,wilcox_test(data=df,dat ~ real.labels)$p)
 #agree less than 0.05?
 #2=agree, both less than 0.05; 1=disgree, one of them is less; 0=agree both are above agree
 
-out3<-(out1<0.05) + (out2<0.05)
-out3<-out3==0
+out3<-(out1<0.05) + (out2<0.05) 
+out3<-1-(out3==1) #==1 is disagree, 1- == agree
 return(list(n.cases=n.cases,
                   n.controls.unlabeled=n.controls.unlabeled,
                   n.case.tru = (n.cases+n.nondetect),
@@ -96,20 +96,39 @@ return(list(n.cases=n.cases,
 
 
  
- parmlist<-list(
-c(rep(3000,32)),             #interations; num.iter
-c(120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90),  #cases; n.cases
-c(60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90),  #controls unlabeled
-c(rep(0.1,8),rep(0.05,8),rep(0.15,8),rep(0.01,8)),  #non-detection proportion       
-c(0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1) #treat effect
- )
+#  parmlist<-list(
+# c(rep(3000,32)),             #interations; num.iter
+# c(120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90),  #cases; n.cases
+# c(60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90),  #controls unlabeled
+# c(rep(0.1,8),rep(0.05,8),rep(0.15,8),rep(0.01,8)),  #non-detection proportion
+# c(0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,.38,0.1,0.1,0.1,0.1,0.38,0.38,0.38,0.38,0.1,0.1,0.1,0.1) #treat effect
+#  )
  
+  parmlist<-list(
+c(rep(500,16)),             #interations; num.iter
+c(120,60,80,90,120,60,80,90,120,60,80,90,120,60,80,90),  #cases; n.cases
+c(60,120,80,90,60,120,80,90,60,120,80,90,60,120,80,90),  #controls unlabeled
+c(rep(0.1,4),rep(0.05,4),rep(0.15,4),rep(0.01,4)),  #non-detection proportion
+c(rep(0.38,16)) #treat effect
+ )
 
+#  parmlist<-list(
+# c(rep(3000,4)),             #interations; num.iter
+# c(120,120,120,120),  #cases; n.cases
+# c(60,60,60,60),  #controls unlabeled
+# c(0.15,.1,.01,.05),  #non-detection proportion
+# c(0.38,0.38,0.38,0.38) #treat effect
+#  )
+ 
+#  parmlist<-list(
+# c(rep(6000,2)),             #interations; num.iter
+# c(120,120),  #cases; n.cases
+# c(60,60),  #controls unlabeled
+# c(.1,.01),  #non-detection proportion       
+# c(0.38,0.38) #treat effect
+#  )
+ 
 foo<-pmap(parmlist,sim.fun)
-
-
-
-print(difftime(Sys.time(),now,units="mins"))
 
 
 goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
@@ -130,26 +149,25 @@ zoo2 <- goo %>% group_by(n.cases
                         ,n.controls.unlabeled
                         ,trt.eff
                         ,prop.nondetect) %>% 
-  dplyr::summarise(case.tru=median(n.case.tru)
-                   ,cntl.tru=median(n.cntl.tru)
-                   ,cas_ctrl_difz=median(n.cases-n.controls.unlabeled)
-                   ,cas_ctrl_diftru=median(n.case.tru-n.cntl.tru)
-                   ,casz_casetru=median(n.cases-n.case.tru)
-                   ,n.nodetec=median(n.nondetect)
+  dplyr::summarise(case.tru=mean(n.case.tru)
+                   ,cntl.tru=mean(n.cntl.tru)
+                   ,cas_ctrl_difz=mean(n.cases-n.controls.unlabeled)
+                   ,cas_ctrl_diftru=mean(n.case.tru-n.cntl.tru)
+                   ,casz_casetru=mean(n.cases-n.case.tru)
+                   ,n.nodetec=mean(n.nondetect)
                    ,p.agree=mean(p.agree)
-                   ,p.pu=median(pu)
-                   ,p.tru=median(tru)
-                   ,pdiff=median(abs(pu-tru))
+                   ,p.pu=mean(pu)
+                   ,p.tru=mean(tru)
+                   ,pdiff=mean(abs(pu-tru))
                    ) 
 
-# zoo1 %>% ungroup() %>% arrange(pdiff) %>% 
-#   kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE) %>% kable_classic()
+zoo1 %>% ungroup() %>% arrange(pdiff) %>%
+  kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE) %>% kable_classic()
 
 zoo1 %>% ungroup() %>% arrange(desc(p.agree)) %>%
   kable(caption = "p.agree ") %>% kable_styling(full_width = FALSE)%>% kable_classic()
 
-
-# 
+ 
 # zoo2 %>% ungroup()%>% arrange(pdiff) %>% 
 #   kable(caption = "pdiff ") %>% kable_styling(full_width = FALSE)
 
@@ -164,6 +182,7 @@ zoo1 %>% ungroup() %>% arrange(desc(p.agree)) %>%
 oddsratio_to_d(2,log=FALSE) #this coverts OR to cohens so that I make this like SNPs data
 d_to_oddsratio(.1)
 oddsratio_to_d(1.2,log=FALSE)
+print(difftime(Sys.time(),now,units="mins"))
  
 ```
 
