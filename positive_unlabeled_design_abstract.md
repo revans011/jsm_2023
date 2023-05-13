@@ -28,7 +28,9 @@ Methodology – This was a simulation study with its parameters chosen to mimic 
 
 Using that paper, and some others (REF), the proportion of non-detected cases in the simulation ranged from 1 percent to 10 percent (although other kinds of studies may have higher proportions). The simulated sample size was 200, buy we varied the sample size between the numbers of cases and controls, and the effect size.
 
-For outcomes, we compared the naive model to the true model, which is the model that knows the true labels of the unlabeled group. To reiterate, the naive models has a known affected group and a group of unlabeled data that we assume is unaffected. The true model has the known affected group, but also knows the labels of the group of unlabeled data and knows which memebers of that groups are affected, and analyses them accordingly. 
+For outcomes, we compared the naive model to the true model. The true model has a group of affected subjects and  a group of unaffected subjects and all the subjects are labled correctly. To reiterate, the naive model has a group of some of the affected subjects and another group of but has a group of unlabeled subjects, who may be affected or unaffected. that we analyze as is unaffected. 
+
+The true model has the known affected group, but also knows the labels of the group of unlabeled data and knows which memebers of that groups are affected, and analyses them accordingly. 
 
 The simulation assessed the models' differences using two outcomes. One was general agreement, that is, the proportion of times inferences from both models agreed on statistical significance. The other outcome significant agreement, that is, the proportion of times the inferences agreed and were both less that 0.05.
 
@@ -47,3 +49,29 @@ Practical implications – This paper brings this issue to the forefront in an e
 Social Implications – This paper is the building block for future research on this topic. The culture of the college classroom, teaching and learning could be affected by this issue. The hiring, training and evaluation of college instructors could be impacted if colleges and universities choose to investigate the issue of grade inflation at their institutions.
 
 Originality/value – The paper begins with an overview of previous research in this area and then moves on to what is currently being implemented to curb grade inflation. The authors then propose several methods and possible solutions which could be implemented to deal with this problem.
+
+
+This table suggest that it is BETTER TO BE UNBALANCED--the goal is to minimze the number
+of unlabeled positives
+
+n.cases	n.controls.unlabeled	trt.eff	prop.nondetect	n.nodetec	tru.minus.pu	pu.less.tru	p.tru
+80			120					0.4			0.1			12			-0.0305553		0.6880	0.0502065
+100			100					0.4			0.1			10			-0.0265240		0.7002	0.0500223
+120			80					0.4			0.1			8			-0.0222058		0.7104	0.0610979
+
+That make sense becuase few wrongly labeled data means less bias pulling the two groups together. The wrongly labeled positives pull the means closer togther so that the THE EFFECT SIZE BECOMES SMALLER.
+
+RICH use formulas to show that a mixture distribution (of positive and negative) averageed with positive distribution bring the means closer together.
+
+MAY BE BETTER TO HAVE A SMALLER SAMPLE SIZE
+This table was meant to check if balance was more important than sample size
+So the best was for the largest sample size but unbalanced toward labeled positive cases
+n.cases	n.controls.unlabeled	trt.eff	prop.nondetect	n.nodetec	tru.minus.pu	pu.less.tru	p.tru
+60			120					0.4			0.1				12		-0.0432026	0.6505000	0.0679540
+70			120					0.4			0.1				12		-0.0387561	0.6536667	0.0574749
+80			120					0.4			0.1				12		-0.0332350	0.6805000	0.0495099
+120			60					0.4			0.1				6		-0.0245107	0.6936667	0.0885766
+120			70					0.4			0.1				7		-0.0227336	0.6961667	0.0706366
+120			80					0.4			0.1				8		-0.0214813	0.7051667	0.0574158
+
+so (a) tru.minus.pu got smaller , which is good because it mean bias decreased, even though it was wrong more often.
