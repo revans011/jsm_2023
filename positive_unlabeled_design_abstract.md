@@ -1,4 +1,8 @@
 
+
+Basically, what is happening is the undetected positives are reducing the effect size. 
+
+
 Long Abstract
 
 Title: Design Considerations for Positive-Unlabled GWAS Studies
@@ -75,3 +79,139 @@ n.cases	n.controls.unlabeled	trt.eff	prop.nondetect	n.nodetec	tru.minus.pu	pu.le
 120			80					0.4			0.1				8		-0.0214813	0.7051667	0.0574158
 
 so (a) tru.minus.pu got smaller , which is good because it mean bias decreased, even though it was wrong more often.
+
+
+
+n.cases	n.controls.unlabeled	trt.eff	prop.nondetect	n.nodetec	tru.minus.pu	pu.less.tru	p.tru
+120	80	0.4	0.01	1	-0.0031828	0.7674	0.0552154
+80	120	0.4	0.01	1	-0.0025346	0.7698	0.0566062
+100	100	0.4	0.01	1	-0.0019571	0.7808	0.0505785
+
+
+
+
+
+
+
+[1] "different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   120   |     80     |  0.4  |    0.01    |     1     |   0.00253    |    0.77     | 0.0587 | 0.0612 |
+|   80    |    120     |  0.4  |    0.01    |     1     |   0.00235    |    0.775    | 0.0549 | 0.0573 |
+|   100   |    100     |  0.4  |    0.01    |     1     |    0.0025    |    0.783    | 0.0505 | 0.053  |
+
+[1] "different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   80    |    120     |  0.4  |    0.05    |     6     |    0.0152    |    0.732    | 0.0529 | 0.0681 |
+|   100   |    100     |  0.4  |    0.05    |     5     |    0.0126    |    0.74     | 0.0513 | 0.064  |
+|   120   |     80     |  0.4  |    0.05    |     4     |     0.01     |    0.746    | 0.0566 | 0.0667 |
+
+[1] "different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   80    |    120     |  0.4  |    0.1     |    12     |    0.0305    |    0.676    | 0.0511 | 0.0816 |
+|   100   |    100     |  0.4  |    0.1     |    10     |    0.025     |    0.695    | 0.0514 | 0.0763 |
+|   120   |     80     |  0.4  |    0.1     |     8     |    0.0228    |     0.7     | 0.0597 | 0.0825 |
+
+[1] "decreased treatment effect different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru | p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:-----:|:-----:|
+|   100   |    100     |  0.1  |    0.1     |    10     |    0.0143    |    0.508    | 0.435 | 0.449 |
+|   80    |    120     |  0.1  |    0.1     |    12     |    0.0152    |    0.509    | 0.432 | 0.447 |
+|   120   |     80     |  0.1  |    0.1     |     8     |   0.00723    |    0.521    | 0.434 | 0.442 |
+
+[1] "increased treatment effect different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru |  p.tru   |   p.pu   |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:--------:|:--------:|
+|   100   |    100     |   1   |    0.1     |    10     |   7.31e-06   |    0.794    | 4.61e-07 | 7.78e-06 |
+|   80    |    120     |   1   |    0.1     |    12     |   1.95e-05   |    0.843    | 1.82e-06 | 2.14e-05 |
+|   120   |     80     |   1   |    0.1     |     8     |   2.25e-05   |    0.864    | 3.07e-06 | 2.56e-05 |
+
+[1] "different sample sizes to assess balance vs unbalanced"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   25    |    175     |  0.4  |    0.1     |    18     |    0.111     |    0.512    | 0.103  | 0.214  |
+|   175   |     25     |  0.4  |    0.1     |     2     |    0.0184    |    0.644    | 0.196  | 0.215  |
+|   80    |    120     |  0.4  |    0.1     |    12     |    0.0329    |    0.674    | 0.0525 | 0.0854 |
+|   95    |     95     |  0.4  |    0.1     |    10     |    0.0262    |    0.696    | 0.0574 | 0.0836 |
+|   120   |     80     |  0.4  |    0.1     |     8     |    0.0222    |    0.708    | 0.0629 | 0.0851 |
+
+
+
+
+
+Show in New Window
+[1] 0.3821521
+[1] 1.198871
+[1] 0.1005191
+Show in New Window
+[1] "different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   120   |     80     |  0.4  |    0.01    |     1     |    0.0027    |    0.768    | 0.0574 | 0.0601 |
+|   80    |    120     |  0.4  |    0.01    |     1     |    0.0022    |    0.774    | 0.0529 | 0.0551 |
+|   100   |    100     |  0.4  |    0.01    |     1     |   0.00208    |    0.776    | 0.0545 | 0.0566 |
+
+[1] "different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   80    |    120     |  0.4  |    0.05    |     6     |    0.0148    |    0.723    | 0.0522 | 0.067  |
+|   100   |    100     |  0.4  |    0.05    |     5     |    0.0118    |    0.749    | 0.0501 | 0.0619 |
+|   120   |     80     |  0.4  |    0.05    |     4     |    0.0108    |    0.741    | 0.0584 | 0.0692 |
+
+[1] "different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   80    |    120     |  0.4  |    0.1     |    12     |    0.0321    |    0.686    | 0.0515 | 0.0836 |
+|   100   |    100     |  0.4  |    0.1     |    10     |    0.025     |    0.705    | 0.0518 | 0.0767 |
+|   120   |     80     |  0.4  |    0.1     |     8     |    0.0213    |    0.711    | 0.0604 | 0.0817 |
+
+[1] "decreased treatment effect different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru | p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:-----:|:-----:|
+|   80    |    120     |  0.1  |    0.1     |    12     |    0.0165    |    0.503    | 0.432 | 0.449 |
+|   120   |     80     |  0.1  |    0.1     |     8     |    0.0128    |    0.508    | 0.434 | 0.447 |
+|   100   |    100     |  0.1  |    0.1     |    10     |   0.00943    |    0.516    | 0.442 | 0.452 |
+
+[1] "increased treatment effect different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru |  p.tru   |   p.pu   |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:--------:|:--------:|
+|   120   |     80     |   1   |    0.1     |     8     |   1.72e-05   |    0.865    | 2.63e-06 | 1.98e-05 |
+|   80    |    120     |   1   |    0.1     |    12     |   1.66e-05   |    0.786    | 7.83e-07 | 1.74e-05 |
+|   100   |    100     |   1   |    0.1     |    10     |   1.21e-05   |    0.877    | 1.77e-06 | 1.38e-05 |
+
+[1] "different sample sizes to assess balance vs unbalanced"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   25    |    175     |  0.4  |    0.1     |    18     |    0.115     |    0.504    | 0.105  |  0.22  |
+|   80    |    120     |  0.4  |    0.1     |    12     |    0.0321    |    0.667    | 0.0512 | 0.0834 |
+|   95    |     95     |  0.4  |    0.1     |    10     |    0.0293    |    0.692    | 0.0593 | 0.0885 |
+|   120   |     80     |  0.4  |    0.1     |     8     |    0.0233    |     0.7     | 0.0556 | 0.079  |
+|   175   |     25     |  0.4  |    0.1     |     2     |    0.0169    |    0.645    | 0.191  | 0.208  |
+
+Time difference of 94.61871 mins

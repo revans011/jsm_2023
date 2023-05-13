@@ -110,7 +110,7 @@ zoo1 <- goo %>% group_by(n.cases
                    ,p.pu=mean(pu)
                    )
 
-return(pandoc.table(zoo1 %>% ungroup() %>% arrange(pu.less.tru)
+return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(pu.minus.tru))
                     ,style='rmarkdown',digits=3,split.table=Inf))
 
 }
