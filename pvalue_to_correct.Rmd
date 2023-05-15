@@ -110,7 +110,7 @@ zoo1 <- goo %>% group_by(n.cases
                    ,p.pu=mean(pu)
                    )
 
-return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(pu.minus.tru))
+return(pandoc.table(zoo1 %>% ungroup() %>% arrange(p.pu)
                     ,style='rmarkdown',digits=3,split.table=Inf))
 
 }
@@ -194,7 +194,7 @@ c(rep(5555,5)),             #interations; num.iter
 c(120,80,95,175,25),  #cases; n.cases
 c(80,120,95,25,175),  #controls unlabeled
 c(rep(0.1,5)), #non-detection proportion
-c(rep(.4,5)) #treat effect
+c(rep(.35,5)) #treat effect
  )
 
 sim.table(parmlist=parmlist)
