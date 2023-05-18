@@ -273,7 +273,172 @@ Time difference of 103.6385 mins
 
 
 
+this is using welsh's tests
 
+Show in New Window
+[1] 0.3821521
+[1] 1.198871
+[1] 0.1005191
+Show in New Window
+[1] "different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   100   |    100     |  0.4  |    0.01    |     1     |   0.00243    |    0.781    | 0.0441 | 0.0466 |
+|   80    |    120     |  0.4  |    0.01    |     1     |   0.00214    |    0.785    | 0.0502 | 0.0523 |
+|   120   |     80     |  0.4  |    0.01    |     1     |   0.00277    |    0.775    | 0.0515 | 0.0543 |
+
+[1] "different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   100   |    100     |  0.4  |    0.05    |     5     |    0.011     |    0.744    | 0.046  | 0.057  |
+|   80    |    120     |  0.4  |    0.05    |     6     |    0.0137    |    0.741    | 0.0476 | 0.0613 |
+|   120   |     80     |  0.4  |    0.05    |     4     |    0.0099    |    0.75     | 0.052  | 0.0619 |
+
+[1] "different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   100   |    100     |  0.4  |    0.1     |    10     |    0.0229    |     0.7     | 0.0467 | 0.0696 |
+|   80    |    120     |  0.4  |    0.1     |    12     |    0.032     |    0.678    | 0.0449 | 0.0769 |
+|   120   |     80     |  0.4  |    0.1     |     8     |    0.021     |    0.713    | 0.0567 | 0.0777 |
+
+[1] "decreased treatment effect different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru | p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:-----:|:-----:|
+|   120   |     80     |  0.1  |    0.1     |     8     |   0.00398    |    0.514    | 0.444 | 0.448 |
+|   100   |    100     |  0.1  |    0.1     |    10     |    0.0187    |    0.504    | 0.429 | 0.448 |
+|   80    |    120     |  0.1  |    0.1     |    12     |    0.0147    |    0.512    | 0.433 | 0.448 |
+
+[1] "increased treatment effect different patterns for the same sample size"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru |  p.tru   |   p.pu   |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:--------:|:--------:|
+|   100   |    100     |   1   |    0.1     |    10     |   6.64e-06   |    0.871    | 8.08e-07 | 7.45e-06 |
+|   120   |     80     |   1   |    0.1     |     8     |   1.6e-05    |    0.859    | 1.38e-06 | 1.74e-05 |
+|   80    |    120     |   1   |    0.1     |    12     |   2.27e-05   |    0.825    | 5.58e-07 | 2.32e-05 |
+
+[1] "different sample sizes to assess balance vs unbalanced"
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  | p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:-----:|
+|   120   |     80     | 0.35  |    0.1     |     8     |    0.0256    |    0.678    | 0.0913 | 0.117 |
+|   80    |    120     | 0.35  |    0.1     |    12     |    0.0366    |    0.658    | 0.083  | 0.12  |
+|   95    |     95     | 0.35  |    0.1     |    10     |    0.032     |    0.665    | 0.0883 | 0.12  |
+|   175   |     25     | 0.35  |    0.1     |     2     |    0.0144    |    0.628    | 0.237  | 0.251 |
+|   25    |    175     | 0.35  |    0.1     |    18     |    0.121     |    0.487    | 0.142  | 0.262 |
+
+Time difference of 60.28324 mins
+
+
+
+[1] using welsh
+This isn't a different design, but i noticed that when welsh's is used, then it's better to 
+increase the number in the control group to miminze variance
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   100   |    100     |  0.4  |    0.05    |     5     |    0.0124    |    0.745    | 0.045  | 0.0575 |
+|   80    |    120     |  0.4  |    0.05    |     6     |    0.0141    |    0.736    | 0.0457 | 0.0597 |
+|   120   |     80     |  0.4  |    0.05    |     4     |    0.0103    |    0.747    | 0.053  | 0.0633 |
+
+
+
+[1] same as above but for wilcoxon
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:------:|:------:|
+|   100   |    100     |  0.4  |    0.1     |    10     |    0.0239    |    0.706    | 0.0492 | 0.0731 |
+|   80    |    120     |  0.4  |    0.1     |    12     |    0.0298    |    0.687    | 0.0475 | 0.0773 |
+|   120   |     80     |  0.4  |    0.1     |     8     |    0.0231    |    0.715    | 0.0561 | 0.0792 |
+
+
+
+[1] "cut some cases???"  YES if the sample sizes are really disparate and It's probably not worth
+a study with too many controls. That only works for moderate dispariy
+wilcoxon
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru | p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:-----:|:-----:|
+|   150   |     25     |  0.4  |    0.1     |     2     |    0.0191    |    0.642    | 0.187 | 0.206 |
+|   175   |     25     |  0.4  |    0.1     |     2     |    0.017     |    0.641    | 0.191 | 0.208 |
+|   25    |    150     |  0.4  |    0.1     |    15     |     0.1      |    0.522    | 0.116 | 0.217 |
+|   25    |    175     |  0.4  |    0.1     |    18     |    0.115     |    0.491    | 0.103 | 0.218 |
+
+
+
+[1] "cut some cases???" with welsh
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru | p.tru | p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:-----:|:-----:|
+|   150   |     25     |  0.4  |    0.1     |     2     |    0.018     |    0.644    | 0.186 | 0.205 |
+|   175   |     25     |  0.4  |    0.1     |     2     |    0.0178    |    0.643    | 0.189 | 0.207 |
+|   25    |    175     |  0.4  |    0.1     |    18     |    0.112     |    0.503    | 0.102 | 0.214 |
+|   25    |    150     |  0.4  |    0.1     |    15     |    0.103     |    0.522    | 0.113 | 0.215 |
+
+
+[1] "sample sizes from the papers: healey, innes, conz, baker"
+Time difference of 8.288119 mins
+wilcoxon below, but the same results and nearly the same p-values
+
+**note in the last two rows, 
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | pu.minus.tru | pu.less.tru |  p.tru  |  p.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:------------:|:-----------:|:-------:|:------:|
+|   151   |    241     |  0.4  |    0.1     |    24     |   0.00839    |    0.747    | 0.00528 | 0.0137 |
+|   191   |    143     |  0.4  |    0.1     |    14     |   0.00965    |    0.774    | 0.0134  | 0.0231 |
+|   91    |    126     |  0.4  |    0.1     |    13     |    0.027     |    0.693    | 0.0363  | 0.0633 |
+|   161   |     55     |  0.4  |    0.1     |     6     |    0.0249    |    0.691    | 0.0867  | 0.112  |
+
+===========================
+Genetic mapping of distal femoral, stifle, and
+tibial radiographic morphology in dogs with cranial cruciate ligament disease
+Eleni Healey¹☯, Rachel J. Murphy¹☯, Jessica J. Hayward ², Marta Castelhano³, Adam
+R. Boyko², Kei Hayashi³, Ursula Krotscheck³, Rory J. Todhunter ³*
+ 
+The 161 dogs with CCLD and 55 dogs without CCLD
+
+
+SNP-based heritability and genetic architecture of cranial cruciate
+ligament rupture in Labrador Retrievers
+S. R. Cook* , M. G. Conzemius† , M. E. McCue‡ and K. J. Ekenstedt*
+*Department of Basic Medical Sciences, College of Veterinary Medicine, Purdue University, 625 Harrison St, West Lafayette, IN 47907,
+USA. †Department of Veterinary Clinical Sciences, College of Veterinary Medicine, University of Minnesota, 1352 Boyd Avenue, St Paul,
+MN 55108, USA. ‡Department of Veterinary Population Medicine, College of Veterinary
+
+CCLR-affected dogs (n = 190) and
+unaffected dogs over the age of 8 years (n = 143).
+
+
+
+Biologically Enhanced Genome-Wide
+Association Study Provides Further
+Evidence for Candidate Loci and
+Discovers Novel Loci That Influence
+Risk of Anterior Cruciate Ligament
+Rupture in a Dog Model
+Lauren A. Baker1*, Mehdi Momen1, Rachel McNally1, Mark E. Berres2,
+Emily E. Binversie1, Susannah J. Sample1 and Peter Muir1*
+
+Our final dataset included 397 (156 ACL rupture affected and
+241 unaffected control) purebred Labrador Retriever dogs
+
+
+Genetic basis of cranial cruciate ligament rupture (CCLR) in dogs
+Arabella Elizabeth Gardiner Baird1,3, Stuart D. Carter1, John F. Innes2, William E. Ollier3, and Andrea D. Short3
+1Department of Infection Biology, Institute of Infection and Global Health, School of Veterinary Science, University of Liverpool, Liverpool, UK,
+2Department of Musculoskeletal Biology, Institute of Ageing and Chronic Disease, University of Liverpool, Liverpool, UK, and
+Labrador Retriever case: 91 control: 126 total: 217
 -----------------
 reference for imbalance
 MEDICINE AND NUMBERS
