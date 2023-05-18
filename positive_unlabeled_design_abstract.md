@@ -1,6 +1,6 @@
 
 
-Basically, what is happening is the undetected positives are reducing the effect size. 
+Basically, what is happening is the undetected positives are reducing the effect size. Using the four real sample sizes, It doesn't appear the sample size or imbalance matters much  for bias. Prop.non-detected matters. also treament effect matters. Larger effect size means more bias.
 
 
 Long Abstract
@@ -400,7 +400,163 @@ wilcoxon below, but the same results and nearly the same p-values
 |   91    |    126     |  0.4  |    0.1     |    13     |    0.027     |    0.693    | 0.0363  | 0.0633 |
 |   161   |     55     |  0.4  |    0.1     |     6     |    0.0249    |    0.691    | 0.0867  | 0.112  |
 
-===========================
+===========================effect size analys--looks at bias
+because the p-value for PU doesn't depend on tru
+
+[1] "different designs"
+Time difference of 5.755738 mins
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:------:|
+|   120   |     80     |  0.4  |    0.3     |    24     |      0.135       | -0.402  | -0.282 |
+|   100   |    100     |  0.4  |    0.3     |    30     |      0.137       |  -0.4   | -0.277 |
+|   80    |    120     |  0.4  |    0.3     |    36     |       0.14       | -0.407  | -0.284 |
+
+[1] "different designs"
+Time difference of 12.7336 mins
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:------:|
+|   120   |     80     |  0.4  |    0.1     |     8     |      0.0587      | -0.396  | -0.355 |
+|   175   |     25     |  0.4  |    0.1     |     2     |      0.0612      | -0.401  | -0.369 |
+|   100   |    100     |  0.4  |    0.1     |    10     |      0.0627      |  -0.4   | -0.359 |
+|   80    |    120     |  0.4  |    0.1     |    12     |      0.0651      | -0.403  | -0.362 |
+|   95    |     95     |  0.4  |    0.1     |    10     |      0.0651      | -0.405  | -0.361 |
+|   25    |    175     |  0.4  |    0.1     |    18     |      0.123       | -0.405  | -0.36  |
+
+
+[1] "different designs"
+Time difference of 6.013531 mins
+so a small effect size doesn't affect bias
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu  |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:-------:|
+|   120   |     80     |  0.1  |    0.1     |     8     |      0.0482      |  -0.1   | -0.0914 |
+|   100   |    100     |  0.1  |    0.1     |    10     |      0.0502      |  -0.1   | -0.0895 |
+|   80    |    120     |  0.1  |    0.1     |    12     |      0.0573      | -0.104  | -0.0933 |
+
+
+large treatment effect
+1] "different designs"
+Time difference of 6.011688 mins
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:------:|
+|   80    |    120     |   1   |    0.1     |    12     |      0.122       |  -1.01  | -0.889 |
+|   120   |     80     |   1   |    0.1     |     8     |      0.124       |  -1.01  | -0.884 |
+|   100   |    100     |   1   |    0.1     |    10     |      0.126       |   -1    | -0.881 |
+
+
+Power analysis
+[1] "sample sizes from the papers: healey (216), innes (217), conz (334), baker (392)"
+Time difference of 1.690911 mins
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu | avg.pu.pwr |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:------:|:----------:|
+|   191   |    143     |  0.4  |    0.3     |    43     |      0.122       | -0.398  | -0.28  |   0.658    |
+|   151   |    241     |  0.4  |    0.3     |    72     |      0.128       | -0.401  | -0.278 |   0.696    |
+|   161   |     55     |  0.4  |    0.3     |    16     |      0.134       | -0.407  | -0.29  |    0.47    |
+|   91    |    126     |  0.4  |    0.3     |    38     |      0.141       | -0.404  | -0.278 |   0.518    |
+
+
+So PU makes bias. bias increases with: (a) non-detected proportion and with (b) treatment effect, and
+(c) to a much smaller extent, sample size imbalance.
+
+
+
+[1] "sample sizes from the papers: healey (216), innes (217), conz (334), baker (392)"
+Time difference of 12.56251 mins
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu | naive.pwr |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:------:|:---------:|
+|   241   |    151     |  0.5  |    0.1     |    15     |      0.0586      | -0.503  | -0.449 |   0.953   |
+|   151   |    241     |  0.5  |    0.1     |    24     |      0.0611      | -0.502  | -0.45  |   0.953   |
+|   191   |    143     |  0.5  |    0.1     |    14     |      0.0587      | -0.504  | -0.453 |   0.934   |
+|   143   |    191     |  0.5  |    0.1     |    19     |      0.0614      | -0.501  | -0.449 |   0.928   |
+|   125   |    125     |  0.5  |    0.1     |    12     |      0.0619      | -0.499  | -0.447 |   0.863   |
+|   91    |    126     |  0.5  |    0.1     |    13     |      0.0708      | -0.503  | -0.45  |   0.82    |
+|   126   |     91     |  0.5  |    0.1     |     9     |      0.0633      | -0.499  | -0.447 |   0.817   |
+|   100   |    100     |  0.5  |    0.1     |    10     |      0.0694      | -0.499  | -0.447 |   0.798   |
+|   55    |    161     |  0.5  |    0.1     |    16     |      0.086       | -0.505  | -0.45  |   0.736   |
+|   161   |     55     |  0.5  |    0.1     |     6     |      0.0723      | -0.502  | -0.443 |   0.732   |
+
+
+
+A smaller effect size made the bias smaller
+[1] "sample sizes from the papers: healey (216), innes (217), conz (334), baker (392)"
+Time difference of 13.62838 mins
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu | naive.pwr |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:------:|:---------:|
+|   241   |    151     | 0.25  |    0.1     |    15     |      0.0397      | -0.248  | -0.224 |   0.556   |
+|   151   |    241     | 0.25  |    0.1     |    24     |      0.0442      | -0.244  | -0.22  |   0.549   |
+|   191   |    143     | 0.25  |    0.1     |    14     |      0.043       |  -0.25  | -0.225 |   0.52    |
+|   143   |    191     | 0.25  |    0.1     |    19     |      0.0461      | -0.248  | -0.223 |   0.517   |
+|   125   |    125     | 0.25  |    0.1     |    12     |      0.0489      | -0.251  | -0.227 |   0.452   |
+|   126   |     91     | 0.25  |    0.1     |     9     |      0.0498      | -0.252  | -0.228 |   0.42    |
+|   91    |    126     | 0.25  |    0.1     |    13     |      0.0575      | -0.247  | -0.22  |   0.402   |
+|   100   |    100     | 0.25  |    0.1     |    10     |      0.0549      | -0.244  | -0.221 |   0.395   |
+|   161   |     55     | 0.25  |    0.1     |     6     |      0.0554      | -0.255  | -0.227 |   0.368   |
+|   55    |    161     | 0.25  |    0.1     |    16     |      0.0727      |  -0.25  | -0.225 |   0.361   |
+
+
+bias is worst for large effect size or large non-detected rate.
+power is worst for small or unbalanced sample sizes.
+
+[1] "sample sizes from the papers: healey (216), innes (217), conz (334), baker (392)"
+Time difference of 12.65087 mins
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu | naive.pwr |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:------:|:---------:|
+|   241   |    151     |   1   |    0.1     |    15     |       0.12       |   -1    | -0.885 |     1     |
+|   151   |    241     |   1   |    0.1     |    24     |       0.12       |  -1.01  | -0.886 |     1     |
+|   143   |    191     |   1   |    0.1     |    19     |      0.122       |  -1.01  | -0.884 |     1     |
+|   191   |    143     |   1   |    0.1     |    14     |      0.118       |  -1.01  | -0.891 |     1     |
+|   125   |    125     |   1   |    0.1     |    12     |      0.119       |   -1    | -0.885 |     1     |
+|   126   |     91     |   1   |    0.1     |     9     |      0.122       |   -1    | -0.883 |   0.999   |
+|   91    |    126     |   1   |    0.1     |    13     |      0.127       |   -1    | -0.877 |   0.999   |
+|   100   |    100     |   1   |    0.1     |    10     |      0.124       |  -1.01  | -0.889 |   0.999   |
+|   55    |    161     |   1   |    0.1     |    16     |      0.131       | -0.999  | -0.88  |   0.995   |
+|   161   |     55     |   1   |    0.1     |     6     |      0.131       |  -1.01  | -0.878 |   0.995   |
+
+
+This is an examination of what healy could have done with N=216
+Was the study worth doing?????
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu | naive.pwr |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:------:|:---------:|
+|   108   |    108     |  0.5  |    0.1     |    11     |      0.0678      | -0.502  | -0.448 |   0.823   |
+|   121   |     95     |  0.5  |    0.1     |    10     |      0.0684      |  -0.5   | -0.445 |   0.814   |
+|   161   |     55     |  0.5  |    0.1     |     6     |      0.0713      | -0.499  | -0.442 |   0.725   |
+|   150   |     55     |  0.5  |    0.1     |     6     |      0.0722      | -0.492  | -0.434 |   0.706   |
+
+
+
+This is an examination of what innes could have done with N=217
+Was the study worth doing?????
+
+[1] "sample sizes from the papers: innes (217)"
+Time difference of 3.520928 mins
+
+
+| n.cases | n.unl.ctrl | t.eff | prp.nondet | n.nodetec | abs.pu.minus.tru | eff.tru | eff.pu | naive.pwr |
+|:-------:|:----------:|:-----:|:----------:|:---------:|:----------------:|:-------:|:------:|:---------:|
+|   108   |    109     |  0.5  |    0.1     |    11     |      0.068       | -0.505  | -0.451 |   0.83    |
+|   91    |    126     |  0.5  |    0.1     |    13     |      0.0715      |  -0.5   | -0.446 |   0.814   |
+|   91    |    116     |  0.5  |    0.1     |    12     |      0.0705      | -0.504  | -0.45  |   0.809   |
+
+
+when is it worth reducing sample size to improve bias--probably when there is power to spare
+
+
 Genetic mapping of distal femoral, stifle, and
 tibial radiographic morphology in dogs with cranial cruciate ligament disease
 Eleni Healey¹☯, Rachel J. Murphy¹☯, Jessica J. Hayward ², Marta Castelhano³, Adam
