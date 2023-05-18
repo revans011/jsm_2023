@@ -121,11 +121,11 @@ zoo1 <- goo %>% group_by(n.cases
                    ,abs.pu.minus.tru=mean(abs(pu-tru))
                    ,eff.tru=mean(tru)
                    ,eff.pu=mean(pu)
-                   ,avg.pu.pwr=mean(pu.pwr)
+                   ,naive.pwr=mean(pu.pwr)
                    )
 
 print(difftime(Sys.time(),now,units="mins"))
-return(pandoc.table(zoo1 %>% ungroup() %>% arrange(abs.pu.minus.tru)
+return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(naive.pwr))
                     ,style='rmarkdown',digits=3,split.table=Inf))
 
 }
@@ -145,11 +145,11 @@ oddsratio_to_d(1.2,log=FALSE)
 
 print("sample sizes from the papers: healey (216), innes (217), conz (334), baker (392)")
  parmlist<-list(
-c(rep(5555,4)),             #interations; num.iter
-c(161,91,191,151),  #cases; n.cases
-c(55,126,143,241),  #controls unlabeled
-c(rep(0.1,4)), #non-detection proportion
-c(rep(0.4,4)) #treat effect
+c(rep(1555,8)),             #interations; num.iter
+c(161,91,191,151,55,126,143,241,100,125),  #cases; n.cases
+c(55,126,143,241,161,91,191,151,100,125),  #controls unlabeled
+c(rep(0.1,10)), #non-detection proportion
+c(rep(0.5,10)) #treat effect
  )
 
 sim.table(parmlist=parmlist)
