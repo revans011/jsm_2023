@@ -51,7 +51,7 @@ n.nondet <- round(prp.nondet*n.unl.cntr)
 
 for (i in 1:num.iter){
   
-predisp<-rbinom(10000,0.1)
+
 
 
 
