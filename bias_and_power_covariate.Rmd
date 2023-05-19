@@ -1,0 +1,161 @@
+---
+title: "sim"
+author: Report by Rich Evans
+date: 2023
+output:
+    html_document
+
+
+---
+
+This simulation implements part of:
+
+Gu W, Swihart RK. Absent or undetected? Effects of non-detection of species occurrence on wildlife–habitat models. Biological conservation. 2004 Apr 1;116(2):195-203.
+
+But they are random sampling a wildlife area. They randomly pick occupied areas in the simulation. In other words they have a grid and randomly assign the occupied areas. 
+
+I have retrospective data there.
+
+```{r,include=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       effectsize,
+       rstatix,
+       pwr,   # power calculations
+       pander, #to write tables as simple text for cut-and-paste
+       knitr,
+        kableExtra
+   ) 
+```
+
+
+
+
+```{r,include=FALSE}
+
+sim.fun<-function(num.iter = NULL
+                  ,n.dogs = NULL    
+                  ,prp.nondet = NULL,...){
+out1 <- NULL
+out2 <- NULL
+out3 <- NULL
+out4 <- NULL
+
+for (i in 1:num.iter){
+
+###sample X  and transform it
+# truth
+X <- exp(rnorm(n.dogs))
+
+trans.1<-exp(-5+2*X)
+
+preds<- trans.1/(1+trans.1)
+
+
+### add random detection for affected but not yet misclassified
+
+tru.labels<- as.numeric(preds>runif(n.dogs))
+
+### estimate coeff before misclassification (tru model)
+
+tru.dat<-data.frame(X=X,
+                       y=tru.labels)
+
+m.tru<-glm(y~X,data=tru.dat, family = binomial())
+tru.coeff<-m.tru$coefficients['X']
+
+### make random misclassification
+
+naive.labels<- tru.labels
+
+# affected get reassigned to zero if runif<nondet prop, one if > prop. non detected
+naive.labels[tru.labels==1]<- as.numeric(runif(sum(tru.labels))>prp.nondet) # affected get reassigned to zero if runif<nondet prop, one if
+
+### estimate coeff naive model
+naive.dat<-data.frame(X=X,
+                       y=naive.labels)
+m.naive<-glm(y~X,data=naive.dat, family = binomial())
+naive.coeff<-m.naive$coefficients['X']
+
+
+
+rel.bias <- 100*(naive.coeff-tru.coeff)/abs(tru.coeff)
+
+out1<- c(out1,rel.bias)
+
+
+ 
+} #loop
+
+return(list(n.cases=n.dogs,
+                  prp.nondet=prp.nondet,
+                  bias.percent=out1))
+}
+
+
+                    
+```
+
+
+
+
+
+```{r,results='asis'}
+
+
+sim.table<-function(parmlist){
+ 
+  now<-Sys.time()
+  
+foo<-pmap(parmlist,sim.fun)
+
+
+goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
+
+
+zoo1 <- goo %>% group_by(prp.nondet) %>% 
+  dplyr::summarise(prp.nondet=mean(prp.nondet)
+                   ,mn.rel.bias=mean(bias.percent)
+                   )
+
+print(difftime(Sys.time(),now,units="mins"))
+return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(mn.rel.bias))
+                    ,style='rmarkdown',digits=3,split.table=Inf))
+
+}
+
+
+oddsratio_to_d(2,log=FALSE) #this coverts OR to cohens so that I make this like SNPs data
+d_to_oddsratio(.1)
+oddsratio_to_d(1.2,log=FALSE)
+
+ 
+```
+<!-- https://cran.r-project.org/web/packages/pander/vignettes/pandoc_table.html -->
+
+```{r, results='asis',message=FALSE,warning=FALSE}
+###this checlks different patterns for the same sample size
+
+
+
+print("sample sizes from the papers: healey (216)")
+ parmlist<-list(
+c(rep(55,4)),             #interations; num.iter
+c(161,150,108,121),   #n.dogs
+c(.01,.05,.1,.2) #non-detection proportion
+
+ )
+
+sim.table(parmlist=parmlist)
+
+
+ 
+
+```
+
