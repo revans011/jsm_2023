@@ -1,0 +1,203 @@
+---
+title: "sim"
+author: Report by Rich Evans
+date: 2023
+output:
+    html_document
+
+
+---
+
+This is a simple two group simulation for PU data. 
+
+There are two groups, called case and control
+
+The idea is to get some idea of how sample size, group imbalance, and non-detection affects statistical decisions via p-values.
+
+```{r,include=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       effectsize,
+       rstatix,
+       pwr,   # power calculations
+       pander, #to write tables as simple text for cut-and-paste
+       knitr,
+        kableExtra
+   ) 
+```
+
+
+
+
+```{r,include=FALSE}
+
+sim.fun<-function(num.iter = NULL
+                  ,n.cases = NULL    
+                  ,n.unl.cntr = NULL          
+                  ,prp.nondet = NULL
+                  ,t.eff = NULL,...){
+out1 <- NULL
+out2 <- NULL
+out3 <- NULL
+out4 <- NULL
+
+n.nondet <- round(prp.nondet*n.unl.cntr)
+
+for (i in 1:num.iter){
+  
+predisp<-rbinom(10000,0.1)
+
+
+
+df <- data.frame(
+real.labels = c(rep(1,(n.cases+n.nondet))
+                 ,rep(0,(n.unl.cntr-n.nondet))),
+labelz = c(rep(1,n.cases),rep(0,n.unl.cntr)),
+dat = c(rnorm(n.cases+n.nondet,mean=t.eff)
+        ,rnorm((n.unl.cntr-n.nondet)
+                       ,mean = 0)))
+
+
+
+##--------------cohen'd
+
+ #pu
+temp.out1 <- cohens_d(data=df,dat ~ labelz,var.equal=FALSE)[1,4,drop=TRUE]
+ out1 <- c(out1,temp.out1)
+
+ #tru
+ temp.out2 <- cohens_d(data=df,dat ~ real.labels,var.equal=FALSE)[1,4,drop=TRUE]
+ out2 <- c(out2,temp.out2)
+
+ 
+
+#power
+temp.out3 <-  pwr::pwr.t2n.test(n1 = sum(df$labelz),
+                  n2 = length(df$labelz)-sum(df$labelz),
+                sig.level = 0.05,
+                alternative = "two.sided", 
+                power = NULL, 
+                d = temp.out1)$power
+
+out3 <- c(out3,temp.out3)
+
+temp.out4 <-  pwr::pwr.t2n.test(n1 = sum(df$real.labels),
+                  n2 = length(df$real.labels)-sum(df$real.labels),
+                sig.level = 0.05,
+                alternative = "two.sided", 
+                power = NULL, 
+                d = temp.out2)$power
+
+out4 <- c(out4,temp.out4)
+ 
+} #loop
+
+return(list(n.cases=n.cases,
+                  n.unl.ctrl=n.unl.cntr,
+                  n.case.tru = (n.cases+n.nondet),
+                  n.cntl.tru=(n.unl.cntr-n.nondet),
+                  n.nondet=n.nondet,
+                  t.eff=t.eff,
+                  prp.nondet=prp.nondet,
+                  pu=out1,
+                  tru=out2,
+                  pu.pwr=out3,
+                  tru.pwr=out4))
+}
+
+
+                    
+```
+
+
+
+
+
+```{r,results='asis'}
+
+
+sim.table<-function(parmlist){
+ 
+  now<-Sys.time()
+  
+foo<-pmap(parmlist,sim.fun)
+
+
+goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
+
+
+zoo1 <- goo %>% group_by(n.cases
+                        ,n.unl.ctrl
+                        ,t.eff
+                        ,prp.nondet) %>% 
+  dplyr::summarise(n.nodetec=mean(n.nondet)
+                   ,perc.rel.bias=mean(100*(pu-tru)/abs(tru))
+                   ,eff.tru=mean(tru)
+                   ,eff.pu=mean(pu)
+                   ,naive.pwr=mean(pu.pwr)
+                   ,tru.pwr=mean(tru.pwr)
+                   )
+
+print(difftime(Sys.time(),now,units="mins"))
+return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(perc.rel.bias))
+                    ,style='rmarkdown',digits=3,split.table=Inf))
+
+}
+
+
+oddsratio_to_d(2,log=FALSE) #this coverts OR to cohens so that I make this like SNPs data
+d_to_oddsratio(.1)
+oddsratio_to_d(1.2,log=FALSE)
+
+ 
+```
+<!-- https://cran.r-project.org/web/packages/pander/vignettes/pandoc_table.html -->
+
+```{r, results='asis',message=FALSE}
+###this checlks different patterns for the same sample size
+
+
+
+print("sample sizes from the papers: healey (216)")
+ parmlist<-list(
+c(rep(1555,4)),             #interations; num.iter
+c(161,150,108,121),  #cases; n.cases
+c(55,55,108,95),  #controls unlabeled
+c(rep(0.1,4)), #non-detection proportion
+c(rep(.4,4)) #treat effect
+ )
+
+sim.table(parmlist=parmlist)
+
+print("sample sizes from the papers: innes (217)")
+ parmlist<-list(
+c(rep(1555,3)),             #interations; num.iter
+c(91,91,108),  #cases; n.cases
+c(126,116,109),  #controls unlabeled
+c(rep(0.1,3)), #non-detection proportion
+c(rep(0.5,3)) #treat effect
+ )
+
+sim.table(parmlist=parmlist)
+ 
+ 
+print("when to pick a smaller sample size")
+ parmlist<-list(
+c(rep(1555,4)),             #interations; num.iter
+c(100,300,100,280),  #cases; n.cases
+c(300,100,280,100),  #controls unlabeled
+c(rep(0.3,4)), #non-detection proportion
+c(rep(0.1,4)) #treat effect
+ )
+
+sim.table(parmlist=parmlist)
+ 
+
+```
+
