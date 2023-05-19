@@ -45,6 +45,7 @@ sim.fun<-function(num.iter = NULL
 out1 <- NULL
 out2 <- NULL
 out3 <- NULL
+out4 <- NULL
 
 n.nondet <- round(prp.nondet*n.unl.cntr)
 
@@ -63,12 +64,15 @@ dat = c(rnorm(n.cases+n.nondet,mean=t.eff)
 
  #pu
 temp.out1 <- cohens_d(data=df,dat ~ labelz,var.equal=FALSE)[1,4,drop=TRUE]
-
  out1 <- c(out1,temp.out1)
 
  #tru
- out2 <- c(out2,cohens_d(data=df,dat ~ real.labels,var.equal=FALSE)[1,4,drop=TRUE])
+ temp.out2 <- cohens_d(data=df,dat ~ real.labels,var.equal=FALSE)[1,4,drop=TRUE]
+ out2 <- c(out2,temp.out2)
 
+ 
+
+#power
 temp.out3 <-  pwr::pwr.t2n.test(n1 = sum(df$labelz),
                   n2 = length(df$labelz)-sum(df$labelz),
                 sig.level = 0.05,
@@ -77,6 +81,15 @@ temp.out3 <-  pwr::pwr.t2n.test(n1 = sum(df$labelz),
                 d = temp.out1)$power
 
 out3 <- c(out3,temp.out3)
+
+temp.out4 <-  pwr::pwr.t2n.test(n1 = sum(df$real.labels),
+                  n2 = length(df$real.labels)-sum(df$real.labels),
+                sig.level = 0.05,
+                alternative = "two.sided", 
+                power = NULL, 
+                d = temp.out2)$power
+
+out4 <- c(out4,temp.out4)
  
 } #loop
 
@@ -89,7 +102,8 @@ return(list(n.cases=n.cases,
                   prp.nondet=prp.nondet,
                   pu=out1,
                   tru=out2,
-                  pu.pwr=out3))
+                  pu.pwr=out3,
+                  tru.pwr=out4))
 }
 
 
@@ -122,6 +136,7 @@ zoo1 <- goo %>% group_by(n.cases
                    ,eff.tru=mean(tru)
                    ,eff.pu=mean(pu)
                    ,naive.pwr=mean(pu.pwr)
+                   ,tru.pwr=mean(tru.pwr)
                    )
 
 print(difftime(Sys.time(),now,units="mins"))
@@ -167,5 +182,17 @@ c(rep(0.5,3)) #treat effect
 sim.table(parmlist=parmlist)
  
  
+print("when to pick a smaller sample size")
+ parmlist<-list(
+c(rep(1555,4)),             #interations; num.iter
+c(100,300,100,280),  #cases; n.cases
+c(300,100,280,100),  #controls unlabeled
+c(rep(0.3,4)), #non-detection proportion
+c(rep(0.1,4)) #treat effect
+ )
+
+sim.table(parmlist=parmlist)
+ 
+
 ```
 
