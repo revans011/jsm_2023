@@ -140,7 +140,7 @@ zoo1 <- goo %>% group_by(n.cases
                    )
 
 print(difftime(Sys.time(),now,units="mins"))
-return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(perc.rel.bias))
+return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(naive.pwr))
                     ,style='rmarkdown',digits=3,split.table=Inf))
 
 }
@@ -161,7 +161,7 @@ oddsratio_to_d(1.2,log=FALSE)
 
 print("sample sizes from the papers: healey (216)")
  parmlist<-list(
-c(rep(1555,4)),             #interations; num.iter
+c(rep(155,4)),             #interations; num.iter
 c(161,150,108,121),  #cases; n.cases
 c(55,55,108,95),  #controls unlabeled
 c(rep(0.1,4)), #non-detection proportion
