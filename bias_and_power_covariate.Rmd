@@ -14,7 +14,7 @@ Gu W, Swihart RK. Absent or undetected? Effects of non-detection of species occu
 
 But they are random sampling a wildlife area. They randomly pick occupied areas in the simulation. In other words they have a grid and randomly assign the occupied areas. 
 
-I have retrospective data there.
+I have retrospective data there. I use a mixture of normals because I have sample sizes I need to investigate
 
 ```{r,include=FALSE}
 #install.packages("pacman")
@@ -53,57 +53,42 @@ n.dogs<-n.cases + n.naiv.control
 
 tru.prev<-(n.cases + (n.naiv.control*prp.nondet))/n.dogs
 
+n.tru.aff<-n.cases + round(n.naiv.control*prp.nondet)
+
 for (i in 1:num.iter){
 
-### calculate the observed prevalence
-# N=217 with 55 controls and 161 cases.
-# the true prevalence is (161 + (55*prop.nondect))/217
-# if prop.nondetect=0.1 then with rounding we should have 161+6 positives
-# six are mislabeled as negative.
-#how can I sample so that on average 161+6 subjects are postitive.
-#by changing the cutoff for the runif to (161+6)/217=0.77
-  
 
+  
   
 ###sample X  and transform it
 # truth
-X <- exp(rnorm(n.dogs))
+x.tru.affected <- rnorm(n.tru.aff,mean=eff.sz)
+x.tru.control<-rnorm(n.dogs-n.tru.aff)
 
-trans.1<-exp(-4+5*X)
 
-preds<- trans.1/(1+trans.1)
 
-#preds<-runif(216)
-### add random detection for affected but not yet misclassified
-#need the average of the runif= 0.77
-tru.labels<- as.numeric(preds>runif(n.dogs,max=2*(1-tru.prev)))
+tru.labels<- c(rep(1,n.tru.aff),rep(0,(n.dogs-n.tru.aff)))
+naive.labels<- c(rep(1,n.cases),rep(0,n.naiv.control))
 
 ### estimate coeff before misclassification (tru model)
 
-tru.dat<-data.frame(X=X,
+tru.dat<-data.frame(X=c(x.tru.affected,x.tru.control),
                        y=tru.labels)
 
 m.tru<-glm(y~X,data=tru.dat, family = binomial())
 tru.coeff<-m.tru$coefficients['X']
 
-### make random misclassification
 
-naive.labels<- tru.labels
 
-# affected get reassigned to zero if runif<nondet prop, one if > prop. non detected
 
-# a 0-1 vector, affected get reassigned to zero if runif<nondet prop, one if
-naive.labels[tru.labels==1]<- as.numeric(runif(sum(tru.labels))>prp.nondet) 
 
 ### estimate coeff naive model
-naive.dat<-data.frame(X=X,
+
+naive.dat<-data.frame(X=c(x.tru.affected,x.tru.control),
                        y=naive.labels)
 m.naive<-glm(y~X,data=naive.dat, family = binomial())
 naive.coeff<-m.naive$coefficients['X']
 
-
-
-#rel.bias <- 100*(naive.coeff-tru.coeff)/abs(tru.coeff)
 
 out1<- c(out1,exp(naive.coeff))
 
@@ -115,9 +100,10 @@ out3<- c(out3,sum(naive.labels))
 return(list(n.cases=n.cases,
             n.naiv.control=n.naiv.control,
                   prp.nondet=prp.nondet,
+                  eff.sz=eff.sz,
                   naive.or=out1,
-                  truprp=out2,
-                  navprp=out3))
+                  ct.tru.pos=out2,
+                  ct.naiv.pos=out3))
 }
 
 
@@ -141,11 +127,14 @@ foo<-pmap(parmlist,sim.fun)
 goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
 
 
-zoo1 <- goo %>% group_by(n.cases,n.naiv.control,prp.nondet) %>% 
+
+zoo1 <- goo %>% group_by(n.cases,n.naiv.control,prp.nondet,eff.sz) %>% 
   dplyr::summarise(prp.nondet=mean(prp.nondet)
+                   ,eff.sz=mean(eff.sz)
                    ,naive.or=mean(naive.or)
-                   ,truprp=mean(truprp)
-                   ,navprp=mean(navprp))
+                   ,naive.or.sd=stats::sd(naive.or)
+                   ,ct.tru.pos=mean(ct.tru.pos)
+                   ,ct.naiv.pos=mean(ct.naiv.pos))
 
 print(difftime(Sys.time(),now,units="mins"))
 return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(naive.or))
@@ -181,10 +170,11 @@ oddsratio_to_d(1.2,log=FALSE)
 
  print("sample sizes from the papers: healey (216)")
  parmlist<-list(
-c(rep(500,3)),             #interations; num.iter
+c(rep(10,3)),             #interations; num.iter
 c(150,50,100),   #n.cases
-c(50,150,100),   #n.control
-c(rep(0.1,3)) #non-detection proportion
+c(50,150,100),   #number unlabeled
+c(rep(.5,3)),
+c(rep(0.3,3)) #non-detection proportion
 
  )
 
