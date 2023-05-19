@@ -42,6 +42,7 @@ pacman::p_load(
 sim.fun<-function(num.iter = NULL
                   ,n.cases = NULL
                   ,n.naiv.control = NULL
+                  ,eff.sz=NULL
                   ,prp.nondet = NULL,...){
 out1 <- NULL
 out2 <- NULL
@@ -49,6 +50,8 @@ out3 <- NULL
 out4 <- NULL
 
 n.dogs<-n.cases + n.naiv.control
+
+tru.prev<-(n.cases + (n.naiv.control*prp.nondet))/n.dogs
 
 for (i in 1:num.iter){
 
@@ -60,13 +63,13 @@ for (i in 1:num.iter){
 #how can I sample so that on average 161+6 subjects are postitive.
 #by changing the cutoff for the runif to (161+6)/217=0.77
   
-tru.prev<-(n.cases + (n.naiv.control*prp.nondet))/n.dogs
+
   
 ###sample X  and transform it
 # truth
 X <- exp(rnorm(n.dogs))
 
-trans.1<-exp(-5+5*X)
+trans.1<-exp(-4+5*X)
 
 preds<- trans.1/(1+trans.1)
 
