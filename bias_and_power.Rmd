@@ -132,7 +132,7 @@ zoo1 <- goo %>% group_by(n.cases
                         ,t.eff
                         ,prp.nondet) %>% 
   dplyr::summarise(n.nodetec=mean(n.nondet)
-                   ,abs.pu.minus.tru=mean(abs(pu-tru))
+                   ,perc.rel.bias=mean(100*(pu-tru)/abs(tru))
                    ,eff.tru=mean(tru)
                    ,eff.pu=mean(pu)
                    ,naive.pwr=mean(pu.pwr)
@@ -140,7 +140,7 @@ zoo1 <- goo %>% group_by(n.cases
                    )
 
 print(difftime(Sys.time(),now,units="mins"))
-return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(naive.pwr))
+return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(perc.rel.bias))
                     ,style='rmarkdown',digits=3,split.table=Inf))
 
 }
@@ -165,7 +165,7 @@ c(rep(1555,4)),             #interations; num.iter
 c(161,150,108,121),  #cases; n.cases
 c(55,55,108,95),  #controls unlabeled
 c(rep(0.1,4)), #non-detection proportion
-c(rep(.5,4)) #treat effect
+c(rep(.4,4)) #treat effect
  )
 
 sim.table(parmlist=parmlist)
