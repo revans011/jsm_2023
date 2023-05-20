@@ -42,8 +42,8 @@ pacman::p_load(
 
 
 n.cases = 100
-n.naiv.control = 100
-prp.nondet = .4
+n.naiv.control = 25
+prp.nondet = .1
 
 out1 <- NULL
 out2 <- NULL
@@ -52,11 +52,20 @@ out4 <- NULL
 
 n.dogs<-n.cases + n.naiv.control
 
-unlab.pos <- round(n.naiv.control*prp.nondet)
-n.tru.aff<-n.cases +unlab.pos
+###numbers of things
+#n.dogs<-n.cases + n.naiv.control  #total number of dogs
 
-tru.labels<- c(rep(1,n.tru.aff),rep(0,(n.dogs-n.tru.aff)))
+unlab.pos <- round(n.naiv.control*prp.nondet) #number of positive dogs who are unlabled
+
+n.tru.aff<-n.cases +unlab.pos # the number of positive dogs in both groups
+
+#control group is made up of the unlabeled pos and the real unaffected
+unlab.pos <- round(n.naiv.control*prp.nondet) #number of positive dogs who are unlabled
+n.tru.unaff <- n.naiv.control-unlab.pos #the number of unaffected
+
+#tru.labels<- c(rep(1,n.tru.aff),rep(0,(n.dogs-n.tru.aff)))
 naive.labels<- c(rep(1,n.cases),rep(0,n.naiv.control))
+
 
 
   
@@ -66,9 +75,9 @@ naive.labels<- c(rep(1,n.cases),rep(0,n.naiv.control))
 # x.tru.affected <- sort(rnorm(n.tru.aff,mean=eff.sz),decreasing=FALSE)
 # x.tru.control<-sort(rnorm(n.dogs-n.tru.aff),decreasing=TRUE)
 ####NEED A MIXTURE FOR THE UNLABELED
-x.tru.affected <- runif(n.tru.aff,.5,1)
+x.tru.affected <- runif(n.cases,.5,1)
 x.tru.control<-c(runif(unlab.pos,.5,1),
-                 runif(n.dogs-n.tru.aff-unlab.pos,0,.5))
+                 runif(n.tru.unaff,0,.5))
 ### estimate coeff naive model
 
 
