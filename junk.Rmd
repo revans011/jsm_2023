@@ -81,6 +81,8 @@ naive.dat<-data.frame(X=c(x.tru.affected,x.tru.control),
  
 m.naive<-glm(y~X,data=naive.dat, family = binomial())
 
+summary(m.naive)$coef[2,4]
+
 m.naive.pred <-predict(m.naive, type = "link")
 
 as.numeric(roc(tru.labels ~ m.naive.pred)$auc)
