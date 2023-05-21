@@ -26,6 +26,7 @@ pacman::p_load(
        gtsummary,  #nice tables
        magrittr, # for %<>%
        effectsize,
+       pROC,
        rstatix,
        pwr,   # power calculations
        pander, #to write tables as simple text for cut-and-paste
@@ -49,51 +50,48 @@ out2 <- NULL
 out3 <- NULL
 out4 <- NULL
 
-n.dogs<-n.cases + n.naiv.control
+###numbers of things
+n.dogs<-n.cases + n.naiv.control  #total number of dogs
 
-tru.prev<-(n.cases + (n.naiv.control*prp.nondet))/n.dogs
 
-n.tru.aff<-n.cases + round(n.naiv.control*prp.nondet)
+#control group is made up of the unlabeled pos and the real unaffected
+unlab.pos <- round(n.naiv.control*prp.nondet) #number of positive dogs who are unlabled
+n.tru.unaff <- n.naiv.control-unlab.pos #the number of unaffected
+
+n.tru.aff<-n.cases +unlab.pos # the number of positive dogs in both groups
+
+tru.labels<- c(rep(1,n.tru.aff),rep(0,(n.dogs-n.tru.aff)))
+naive.labels<- c(rep(1,n.cases),rep(0,n.naiv.control))
+
+
 
 for (i in 1:num.iter){
 
 
   
+###sample X
+# this is where the stocastic part comes in
   
-###sample X  and transform it
-# truth
-x.tru.affected <- rnorm(n.tru.aff,mean=eff.sz)
-x.tru.control<-rnorm(n.dogs-n.tru.aff)
+x.tru.affected <- rnorm(n.cases,mean=eff.sz)
 
-
-
-tru.labels<- c(rep(1,n.tru.aff),rep(0,(n.dogs-n.tru.aff)))
-naive.labels<- c(rep(1,n.cases),rep(0,n.naiv.control))
-
-### estimate coeff before misclassification (tru model)
-
-tru.dat<-data.frame(X=c(x.tru.affected,x.tru.control),
-                       y=tru.labels)
-
-m.tru<-glm(y~X,data=tru.dat, family = binomial())
-tru.coeff<-m.tru$coefficients['X']
-
-
-
-
-
-### estimate coeff naive model
+x.tru.control<-c(rnorm(unlab.pos,mean=eff.sz),
+                 rnorm(n.tru.unaff))
 
 naive.dat<-data.frame(X=c(x.tru.affected,x.tru.control),
                        y=naive.labels)
+
 m.naive<-glm(y~X,data=naive.dat, family = binomial())
-naive.coeff<-m.naive$coefficients['X']
 
+naive.coeff<- m.naive$coefficients['X']
+naive.p<- summary(m.naive)$coef[2,4] #pvalue
 
-out1<- c(out1,exp(naive.coeff))
+#m.naive.pred <-predict(m.naive, type = "link")
 
-out2<- c(out2,sum(tru.labels))
-out3<- c(out3,sum(naive.labels))
+out1<- c(out1,naive.p)
+#out1 <- c(out1,as.numeric(roc(tru.labels ~ m.naive.pred)$auc))
+
+out2<- c(out2,exp(naive.coeff))
+out3<- c(out3,unlab.pos)
  
 } #loop
 
@@ -101,9 +99,9 @@ return(list(n.cases=n.cases,
             n.naiv.control=n.naiv.control,
                   prp.nondet=prp.nondet,
                   eff.sz=eff.sz,
-                  naive.or=out1,
-                  ct.tru.pos=out2,
-                  ct.naiv.pos=out3))
+                  naive.p=out1,
+                  naive.or=out2,
+                  unlabeled.pos=out3))
 }
 
 
@@ -131,13 +129,13 @@ goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
 zoo1 <- goo %>% group_by(n.cases,n.naiv.control,prp.nondet,eff.sz) %>% 
   dplyr::summarise(prp.nondet=mean(prp.nondet)
                    ,eff.sz=mean(eff.sz)
-                   ,naive.or=mean(naive.or)
-                   ,naive.or.sd=stats::sd(naive.or)
-                   ,ct.tru.pos=mean(ct.tru.pos)
-                   ,ct.naiv.pos=mean(ct.naiv.pos))
+                   ,naive.or.mn=mean(naive.or)
+                   ,naive.p.mn=mean(naive.p)
+                   ,naive.p.sd=sd(naive.p)
+                   ,unlabeled.pos=mean(unlabeled.pos))
 
 print(difftime(Sys.time(),now,units="mins"))
-return(pandoc.table(zoo1 %>% ungroup() %>% arrange(desc(naive.or))
+return(pandoc.table(zoo1 %>% ungroup() %>% arrange(naive.p.mn)
                     ,style='rmarkdown',digits=3,split.table=Inf))
 
 }
@@ -156,28 +154,50 @@ oddsratio_to_d(1.2,log=FALSE)
 
 
 
-# print("sample sizes from the papers: healey (216)")
-#  parmlist<-list(
-# c(rep(200,4)),             #interations; num.iter
-# c(161,161,161,161),   #n.dogs
-# c(55,55,55,55),   #n.dogs
-# c(.01,.05,.1,.2) #non-detection proportion
-# 
-#  )
-# 
-# sim.table(parmlist=parmlist)
-
-
- print("sample sizes from the papers: healey (216)")
+ print("sample sizes check")
  parmlist<-list(
-c(rep(10,3)),             #interations; num.iter
-c(150,50,100),   #n.cases
-c(50,150,100),   #number unlabeled
-c(rep(.5,3)),
-c(rep(0.3,3)) #non-detection proportion
+c(rep(7555,6)),             #interations; num.iter
+rep(c(150,50,100),2),   #n.cases
+rep(c(50,150,100),2),   #number unlabeled
+c(rep(.5,6)),  #eff.sz
+c(rep(.1,3),rep(.001,3)) #non-detection proportion
+)
 
+sim.table(parmlist=parmlist)
+
+
+print("sample sizes from the papers: healey (216)")
+ parmlist<-list(
+c(rep(7555,21)),             #interations; num.iter
+rep(c(161,150,108,121,100,95,161),3),  #cases; n.cases
+rep(c(55,55,108,95,100,95,50),3),  #controls unlabeled
+c(rep(0.5,21)), #treat effect
+c(rep(0.001,7),rep(.05,7),rep(.1,7)) #non-detection proportion
  )
+sim.table(parmlist=parmlist)
 
+
+
+
+print("sample sizes from the papers: conz , ")
+ parmlist<-list(
+c(rep(7555,3)),             #interations; num.iter
+rep(191,3),  #cases; n.cases
+rep(143,3),  #controls unlabeled
+c(rep(0.3,3)), #treat effect
+c(.001,.05,.1) #non-detection proportion
+ )
+sim.table(parmlist=parmlist)
+
+
+print("sample sizes from the papers: healey (216),innes, conz , baker")
+ parmlist<-list(
+c(rep(7555,12)),             #interations; num.iter
+rep(c(91,161,191,156),3),  #cases; n.cases
+rep(c(126,55,143,241),3),  #controls unlabeled
+c(rep(0.5,12)), #treat effect
+c(rep(.001,4),rep(.05,4),rep(.1,4)) #non-detection proportion
+ )
 sim.table(parmlist=parmlist)
 
 ```

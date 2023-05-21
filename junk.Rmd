@@ -1,0 +1,108 @@
+---
+title: "sim"
+author: Report by Rich Evans
+date: 2023
+output:
+    html_document
+
+
+---
+
+This simulation implements part of:
+
+Gu W, Swihart RK. Absent or undetected? Effects of non-detection of species occurrence on wildlife–habitat models. Biological conservation. 2004 Apr 1;116(2):195-203.
+
+But they are random sampling a wildlife area. They randomly pick occupied areas in the simulation. In other words they have a grid and randomly assign the occupied areas. 
+
+I have retrospective data there. I use a mixture of normals because I have sample sizes I need to investigate
+
+```{r,include=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       effectsize,
+       pROC,
+       rstatix,
+       pwr,   # power calculations
+       pander, #to write tables as simple text for cut-and-paste
+       knitr,
+        kableExtra
+   ) 
+```
+
+
+
+
+```{r,include=FALSE,warning=FALSE,message=FALSE}
+
+
+n.cases = 100
+n.naiv.control = 25
+prp.nondet = .1
+
+out1 <- NULL
+out2 <- NULL
+out3 <- NULL
+out4 <- NULL
+
+n.dogs<-n.cases + n.naiv.control
+
+###numbers of things
+#n.dogs<-n.cases + n.naiv.control  #total number of dogs
+
+unlab.pos <- round(n.naiv.control*prp.nondet) #number of positive dogs who are unlabled
+
+n.tru.aff<-n.cases +unlab.pos # the number of positive dogs in both groups
+
+#control group is made up of the unlabeled pos and the real unaffected
+unlab.pos <- round(n.naiv.control*prp.nondet) #number of positive dogs who are unlabled
+n.tru.unaff <- n.naiv.control-unlab.pos #the number of unaffected
+
+#tru.labels<- c(rep(1,n.tru.aff),rep(0,(n.dogs-n.tru.aff)))
+naive.labels<- c(rep(1,n.cases),rep(0,n.naiv.control))
+
+
+
+  
+###sample X
+# this is where the stocastic part comes in
+  
+# x.tru.affected <- sort(rnorm(n.tru.aff,mean=eff.sz),decreasing=FALSE)
+# x.tru.control<-sort(rnorm(n.dogs-n.tru.aff),decreasing=TRUE)
+####NEED A MIXTURE FOR THE UNLABELED
+x.tru.affected <- runif(n.cases,.5,1)
+x.tru.control<-c(runif(unlab.pos,.5,1),
+                 runif(n.tru.unaff,0,.5))
+### estimate coeff naive model
+
+
+
+naive.dat<-data.frame(X=c(x.tru.affected,x.tru.control),
+                       y=naive.labels)
+
+ hist(naive.dat$X)
+ 
+ 
+m.naive<-glm(y~X,data=naive.dat, family = binomial())
+
+summary(m.naive)$coef[2,4]
+
+m.naive.pred <-predict(m.naive, type = "link")
+
+as.numeric(roc(tru.labels ~ m.naive.pred)$auc)
+
+
+out1 <- c(out1,as.numeric(roc(tru.labels ~ m.naive.pred)$auc))
+out2<- c(out2,sum(tru.labels))
+out3<- c(out3,sum(naive.labels))
+ 
+
+                    
+```
+
+
