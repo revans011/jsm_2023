@@ -82,7 +82,7 @@ naive.dat<-data.frame(X=c(x.tru.affected,x.tru.control),
 
 m.naive<-glm(y~X,data=naive.dat, family = binomial())
 
-#naive.coeff<- m.naive$coefficients['X']
+naive.coeff<- m.naive$coefficients['X']
 naive.p<- summary(m.naive)$coef[2,4] #pvalue
 
 #m.naive.pred <-predict(m.naive, type = "link")
@@ -90,9 +90,8 @@ naive.p<- summary(m.naive)$coef[2,4] #pvalue
 out1<- c(out1,naive.p)
 #out1 <- c(out1,as.numeric(roc(tru.labels ~ m.naive.pred)$auc))
 
-out2<- c(out2,sum(tru.labels))
-out3<- c(out3,sum(naive.labels))
-out4<- c(out4,unlab.pos)
+out2<- c(out2,exp(naive.coeff))
+out3<- c(out3,unlab.pos)
  
 } #loop
 
@@ -101,9 +100,8 @@ return(list(n.cases=n.cases,
                   prp.nondet=prp.nondet,
                   eff.sz=eff.sz,
                   naive.p=out1,
-                  ct.tru.pos=out2,
-                  ct.naiv.pos=out3,
-                  unlabeled.pos=out4))
+                  naive.or=out2,
+                  unlabeled.pos=out3))
 }
 
 
@@ -131,6 +129,7 @@ goo <- bind_rows(foo, .id = "column_label")  #unlists and binds rows
 zoo1 <- goo %>% group_by(n.cases,n.naiv.control,prp.nondet,eff.sz) %>% 
   dplyr::summarise(prp.nondet=mean(prp.nondet)
                    ,eff.sz=mean(eff.sz)
+                   ,naive.or.mn=mean(naive.or)
                    ,naive.p.mn=mean(naive.p)
                    ,naive.p.sd=sd(naive.p)
                    ,unlabeled.pos=mean(unlabeled.pos))
@@ -169,15 +168,26 @@ sim.table(parmlist=parmlist)
 
 print("sample sizes from the papers: healey (216)")
  parmlist<-list(
-c(rep(7555,12)),             #interations; num.iter
-rep(c(161,150,108,121,100,95),2),  #cases; n.cases
-rep(c(55,55,108,95,100,95),2),  #controls unlabeled
-c(rep(0.5,12)), #treat effect
-c(rep(0.001,6),rep(.1,6)) #non-detection proportion
+c(rep(7555,21)),             #interations; num.iter
+rep(c(161,150,108,121,100,95,161),3),  #cases; n.cases
+rep(c(55,55,108,95,100,95,50),3),  #controls unlabeled
+c(rep(0.5,21)), #treat effect
+c(rep(0.001,7),rep(.05,7),rep(.1,7)) #non-detection proportion
  )
 sim.table(parmlist=parmlist)
 
 
+
+
+print("sample sizes from the papers: conz , ")
+ parmlist<-list(
+c(rep(7555,3)),             #interations; num.iter
+rep(191,3),  #cases; n.cases
+rep(143,3),  #controls unlabeled
+c(rep(0.3,3)), #treat effect
+c(.001,.05,.1) #non-detection proportion
+ )
+sim.table(parmlist=parmlist)
 
 
 print("sample sizes from the papers: healey (216),innes, conz , baker")
