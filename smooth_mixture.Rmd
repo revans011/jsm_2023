@@ -1,0 +1,107 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r,include=FALSE}
+#install.packages("pacman")
+pacman::p_load(
+       data.table, # to group and clean data
+       tidyverse,  # allows use of pipe (%>%) function in this chapter
+       janitor,     #for clean_names and tabyl
+       broom,   #tidy output, use tidy(xxx)
+       gtsummary,  #nice tables
+       magrittr, # for %<>%
+       effectsize,
+       pROC,
+       rstatix,
+       pwr,   # power calculations
+       pander, #to write tables as simple text for cut-and-paste
+       knitr,
+        kableExtra
+   ) 
+```
+
+
+
+```{r}
+
+df <- data.frame(
+  weight=c(rnorm(10000, mean=0, sd=1),
+                 rnorm(4000, mean=5, sd=1))
+  )
+head(df)
+
+p <- ggplot(df, aes(x=weight)) + 
+  geom_density(bw=1)
+
+
+# Add mean line
+p<-p+ geom_vline(aes(xintercept=mean(weight)),
+            color="blue", linetype="dashed", linewidth=1)+theme(
+  axis.text.x = element_blank(),
+  axis.text.y = element_blank(),
+  axis.ticks = element_blank())
+
+
+df2 <- data.frame(
+  weight=c(rnorm(50000, mean=5, sd=1))
+  )
+head(df)
+
+p2 <- ggplot(df2, aes(x=weight)) + 
+  geom_density(bw=1)
+
+# Add mean line
+p2<-p2+ geom_vline(aes(xintercept=mean(weight)),
+            color="blue", linetype="dashed", linewidth=1)+theme(
+  axis.text.x = element_blank(),
+  axis.text.y = element_blank(),
+  axis.ticks = element_blank())
+
+cowplot::plot_grid(p,p2,label="AUTO", ncol=1, align="hv",axis="l",greedy=FALSE)
+```
+
+
+
+
+
+
+
+```{r}
+
+df <- data.frame(
+  z<- as.factor(c(rep(0,14000),rep(1,50000))),
+  weight=c(rnorm(10000, mean=0, sd=1),
+                 rnorm(4000, mean=5, sd=1),rnorm(50000, mean=5, sd=1))
+  )
+
+p <- ggplot(df, aes(x=weight,line=z,color=z)) + 
+  geom_density(bw=1,  show.legend = FALSE,size = 1)+theme(
+  axis.text.x = element_blank(),
+  axis.text.y = element_blank(),
+  axis.ticks = element_blank())
+
+
+# Add mean line
+p<-p+ 
+  geom_vline(aes(xintercept=5),
+            color="blue", linetype="dashed", linewidth=1)+
+  geom_vline(aes(xintercept=0),
+            color="red", linetype="dashed", linewidth=1)+
+  geom_vline(aes(xintercept=mean(weight[1:14000])),
+            color="purple", linetype="dashed", linewidth=1)+theme(
+  axis.text.x = element_blank(),
+  axis.text.y = element_blank(),
+  axis.ticks = element_blank(),
+   axis.title = element_blank())+ scale_color_manual( values = c("red","blue"))
+
+
+tiff("mixture_plot.tiff", units="in", width=6, height=4, res=600)
+
+p
+dev.off()
+
+```
+
+
