@@ -85,13 +85,21 @@ m.naive<-glm(y~X,data=naive.dat, family = binomial())
 naive.coeff<- m.naive$coefficients['X']
 naive.p<- summary(m.naive)$coef[2,4] #pvalue
 
-#m.naive.pred <-predict(m.naive, type = "link")
-
 out1<- c(out1,naive.p)
-#out1 <- c(out1,as.numeric(roc(tru.labels ~ m.naive.pred)$auc))
-
 out2<- c(out2,exp(naive.coeff))
 out3<- c(out3,unlab.pos)
+
+temp.out1 <- cohens_d(data=naive.dat,X ~ y,var.equal=FALSE)[1,4,drop=TRUE]
+
+
+temp.out4 <-  pwr::pwr.t2n.test(n1 = n.cases,
+                  n2 = n.naiv.control,
+                sig.level = 0.05,
+                alternative = "two.sided",
+                power = NULL,
+                d = temp.out1)$power
+out4 <- c(out4,temp.out4)
+
  
 } #loop
 
@@ -101,7 +109,8 @@ return(list(n.cases=n.cases,
                   eff.sz=eff.sz,
                   naive.p=out1,
                   naive.or=out2,
-                  unlabeled.pos=out3))
+                  unlabeled.pos=out3,
+                  naive.pwr=out4))
 }
 
 
@@ -132,10 +141,11 @@ zoo1 <- goo %>% group_by(n.cases,n.naiv.control,prp.nondet,eff.sz) %>%
                    ,naive.or.mn=mean(naive.or)
                    ,naive.p.mn=mean(naive.p)
                    ,naive.p.sd=sd(naive.p)
-                   ,unlabeled.pos=mean(unlabeled.pos))
+                   ,unlabeled.pos=mean(unlabeled.pos)
+                   ,naive.power=mean(naive.pwr))
 
 print(difftime(Sys.time(),now,units="mins"))
-return(pandoc.table(zoo1 %>% ungroup() %>% arrange(naive.p.mn)
+return(pandoc.table(zoo1 %>% ungroup() %>% arrange(prp.nondet)
                     ,style='rmarkdown',digits=3,split.table=Inf))
 
 }
@@ -154,51 +164,111 @@ oddsratio_to_d(1.2,log=FALSE)
 
 
 
- print("sample sizes check")
+#  print("sample sizes check")
+#  parmlist<-list(
+# c(rep(5,6)),             #interations; num.iter
+# rep(c(150,50,100),2),   #n.cases
+# rep(c(50,150,100),2),   #number unlabeled
+# c(rep(.5,6)),  #eff.sz
+# c(rep(.1,3),rep(.001,3)) #non-detection proportion
+# )
+# 
+# sim.table(parmlist=parmlist)
+
+
+# print("sample sizes from the papers: healey (216)")
+#  parmlist<-list(
+# c(rep(7555,21)),             #interations; num.iter
+# rep(c(161,150,108,121,100,95,161),3),  #cases; n.cases
+# rep(c(55,55,108,95,100,95,50),3),  #controls unlabeled
+# c(rep(0.5,21)), #treat effect
+# c(rep(0.001,7),rep(.05,7),rep(.1,7)) #non-detection proportion
+#  )
+# sim.table(parmlist=parmlist)
+# 
+# 
+# 
+# 
+# print("sample sizes from the papers: conz , ")
+#  parmlist<-list(
+# c(rep(7555,3)),             #interations; num.iter
+# rep(191,3),  #cases; n.cases
+# rep(143,3),  #controls unlabeled
+# c(rep(0.3,3)), #treat effect
+# c(.001,.05,.1) #non-detection proportion
+#  )
+# sim.table(parmlist=parmlist)
+# 
+# 
+# print("sample sizes from the papers: healey (216),innes, conz , baker")
+#  parmlist<-list(
+# c(rep(7555,12)),             #interations; num.iter
+# rep(c(91,161,191,156),3),  #cases; n.cases
+# rep(c(126,55,143,241),3),  #controls unlabeled
+# c(rep(0.5,12)), #treat effect
+# c(rep(.001,4),rep(.05,4),rep(.1,4)) #non-detection proportion
+#  )
+# sim.table(parmlist=parmlist)
+# 
+# 
+# 
+# print("sample sizes check")
+#  parmlist<-list(
+# c(rep(755,3)),             #interations; num.iter
+# rep(c(150,50,100),1),   #n.cases
+# rep(c(50,150,100),1),   #number unlabeled
+# c(rep(.5,3)),  #eff.sz
+# c(rep(.1,3)) #non-detection proportion
+# )
+
+#sim.table(parmlist=parmlist)
+
+# print("sample sizes check")
+#  parmlist<-list(
+# c(rep(7555,60)),             #interations; num.iter
+# rep(c(150,50,100),20),   #n.cases
+# rep(c(50,150,100),20),   #number unlabeled
+# c(rep(.5,60)),  #eff.sz
+# c(sort(rep(seq(.005, .1,by=0.005),3))) #non-detection proportion
+# )
+# 
+# sim.table(parmlist=parmlist)
+
+
+```
+
+
+This is a stand alone piece that saves the output table so I can view the results different ways.
+```{r}
+ 
+  now<-Sys.time()
+
  parmlist<-list(
-c(rep(7555,6)),             #interations; num.iter
-rep(c(150,50,100),2),   #n.cases
-rep(c(50,150,100),2),   #number unlabeled
-c(rep(.5,6)),  #eff.sz
-c(rep(.1,3),rep(.001,3)) #non-detection proportion
+c(rep(5,60)),             #interations; num.iter
+rep(c(150,50,100),20),   #n.cases
+rep(c(50,150,100),20),   #number unlabeled
+c(rep(.5,60)),  #eff.sz
+c(sort(rep(seq(.005, .1,by=0.005),3))) #non-detection proportion
 )
 
-sim.table(parmlist=parmlist)
 
-
-print("sample sizes from the papers: healey (216)")
- parmlist<-list(
-c(rep(7555,21)),             #interations; num.iter
-rep(c(161,150,108,121,100,95,161),3),  #cases; n.cases
-rep(c(55,55,108,95,100,95,50),3),  #controls unlabeled
-c(rep(0.5,21)), #treat effect
-c(rep(0.001,7),rep(.05,7),rep(.1,7)) #non-detection proportion
- )
-sim.table(parmlist=parmlist)
+big.otpt <- bind_rows(pmap(parmlist,sim.fun), .id = "column_label")  #unlists and binds rows
 
 
 
+smry.otpt <- big.otpt %>% group_by(n.cases,n.naiv.control,prp.nondet,eff.sz) %>% 
+  dplyr::summarise(prp.nondet=mean(prp.nondet)
+                   ,eff.sz=mean(eff.sz)
+                   ,naive.or.mn=mean(naive.or)
+                   ,naive.p.mn=mean(naive.p)
+                   ,naive.p.sd=sd(naive.p)
+                   ,unlabeled.pos=mean(unlabeled.pos)
+                   ,naive.power=mean(naive.pwr))
 
-print("sample sizes from the papers: conz , ")
- parmlist<-list(
-c(rep(7555,3)),             #interations; num.iter
-rep(191,3),  #cases; n.cases
-rep(143,3),  #controls unlabeled
-c(rep(0.3,3)), #treat effect
-c(.001,.05,.1) #non-detection proportion
- )
-sim.table(parmlist=parmlist)
+smry.otpt %>% ungroup() %>% select(-c(naive.or.mn,naive.p.mn,naive.p.sd, eff.sz)) %>%   arrange(naive.power)
 
 
-print("sample sizes from the papers: healey (216),innes, conz , baker")
- parmlist<-list(
-c(rep(7555,12)),             #interations; num.iter
-rep(c(91,161,191,156),3),  #cases; n.cases
-rep(c(126,55,143,241),3),  #controls unlabeled
-c(rep(0.5,12)), #treat effect
-c(rep(.001,4),rep(.05,4),rep(.1,4)) #non-detection proportion
- )
-sim.table(parmlist=parmlist)
+print(difftime(Sys.time(),now,units="mins"))
 
 ```
 
