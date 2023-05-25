@@ -97,10 +97,10 @@ p<-p+
    axis.title = element_blank())+ scale_color_manual( values = c("red","blue"))
 
 
-tiff("mixture_plot.tiff", units="in", width=6, height=4, res=600)
+#tiff("mixture_plot.tiff", units="in", width=6, height=4, res=600)
 
 p
-dev.off()
+#dev.off()
 
 ```
 
