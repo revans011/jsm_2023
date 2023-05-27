@@ -31,6 +31,7 @@ pacman::p_load(
     pwr, # power calculations
     pander, # to write tables as simple text for cut-and-paste
     knitr,
+    rcompanion, #for cohen's w
     kableExtra
 )
 ```
@@ -91,17 +92,21 @@ sim.fun <- function(
         out2 <- c(out2, exp(naive.coeff))
         out3 <- c(out3, unlab.pos)
 
-        # temp.out1 <- cohens_d(data=naive.dat,X ~ y,var.equal=FALSE)[1,4,drop=TRUE]
+        temp.out1 <- rcompanion::cohenW(naive.dat$y, naive.dat$X)
+        )) # cohen_w
 
 
-        temp.out4 <- pwr::pwr.t2n.test(
-            n1 = n.cases,
-            n2 = n.naiv.control,
-            sig.level = 0.05,
-            alternative = "two.sided",
-            power = NULL,
-            d = temp.out1
-        )$power
+        # temp.out4 <- pwr::pwr.t2n.test(
+        #     n1 = n.cases,
+        #     n2 = n.naiv.control,
+        #     sig.level = 0.05,
+        #     alternative = "two.sided",
+        #     power = NULL,
+        #     d = temp.out1
+        # )$power
+        # out4 <- c(out4, temp.out4)
+
+        temp.out4 <- pwr.chisq.test(w = temp.out1, df = 1, N = 200, sig.level = 0.05)$power
         out4 <- c(out4, temp.out4)
     } # loop
 
@@ -158,123 +163,25 @@ oddsratio_to_d(1.2, log = FALSE)
 ```
 <!-- https://cran.r-project.org/web/packages/pander/vignettes/pandoc_table.html -->
 
-```{r, results='asis',message=FALSE,warning=FALSE}
-### this checlks different patterns for the same sample size
-
-
-
-#  print("sample sizes check")
-#  parmlist<-list(
-# c(rep(5,6)),             #interations; num.iter
-# rep(c(150,50,100),2),   #n.cases
-# rep(c(50,150,100),2),   #number unlabeled
-# c(rep(.5,6)),  #eff.sz
-# c(rep(.1,3),rep(.001,3)) #non-detection proportion
-# )
-#
-# sim.table(parmlist=parmlist)
-
-
-# print("sample sizes from the papers: healey (216)")
-#  parmlist<-list(
-# c(rep(7555,21)),             #interations; num.iter
-# rep(c(161,150,108,121,100,95,161),3),  #cases; n.cases
-# rep(c(55,55,108,95,100,95,50),3),  #controls unlabeled
-# c(rep(0.5,21)), #treat effect
-# c(rep(0.001,7),rep(.05,7),rep(.1,7)) #non-detection proportion
-#  )
-# sim.table(parmlist=parmlist)
-#
-#
-#
-#
-# print("sample sizes from the papers: conz , ")
-#  parmlist<-list(
-# c(rep(7555,3)),             #interations; num.iter
-# rep(191,3),  #cases; n.cases
-# rep(143,3),  #controls unlabeled
-# c(rep(0.3,3)), #treat effect
-# c(.001,.05,.1) #non-detection proportion
-#  )
-# sim.table(parmlist=parmlist)
-#
-#
-# print("sample sizes from the papers: healey (216),innes, conz , baker")
-#  parmlist<-list(
-# c(rep(7555,12)),             #interations; num.iter
-# rep(c(91,161,191,156),3),  #cases; n.cases
-# rep(c(126,55,143,241),3),  #controls unlabeled
-# c(rep(0.5,12)), #treat effect
-# c(rep(.001,4),rep(.05,4),rep(.1,4)) #non-detection proportion
-#  )
-# sim.table(parmlist=parmlist)
-#
-#
-#
-# print("sample sizes check")
-#  parmlist<-list(
-# c(rep(755,3)),             #interations; num.iter
-# rep(c(150,50,100),1),   #n.cases
-# rep(c(50,150,100),1),   #number unlabeled
-# c(rep(.5,3)),  #eff.sz
-# c(rep(.1,3)) #non-detection proportion
-# )
-
-# sim.table(parmlist=parmlist)
-
-# print("sample sizes check")
-#  parmlist<-list(
-# c(rep(7555,60)),             #interations; num.iter
-# rep(c(150,50,100),20),   #n.cases
-# rep(c(50,150,100),20),   #number unlabeled
-# c(rep(.5,60)),  #eff.sz
-# c(sort(rep(seq(.005, .1,by=0.005),3))) #non-detection proportion
-# )
-#
-# sim.table(parmlist=parmlist)
-```
 
 
 This is a stand alone piece that saves the output table so I can view the results different ways.
 ```{r}
 now <- Sys.time()
 
-# parmlist<-list(
-# c(rep(200,60)),             #interations; num.iter
-# rep(c(150,50,100),20),   #n.cases
-# rep(c(50,150,100),20),   #number unlabeled
-# c(rep(.5,60)),  #eff.sz
-# c(sort(rep(seq(.005, .1,by=0.005),3))) #non-detection proportion
-# )
-#
-
-# parmlist<-list(
-# c(rep(7000,10)),             #interations; num.iter
-# rep(c(120,80),5),   #n.cases
-# rep(c(80,120),5),   #number unlabeled
-# c(rep(.5,10)),  #eff.sz
-# c(sort(rep(seq(.005, .1,by=0.02),2))) #non-detection proportion
-# )
 
 parmlist <- list(
-    c(rep(5000, 11)), # interations; num.iter
+    c(rep(10000, 11)), # interations; num.iter
     rep(c(100), 11), # n.cases
     rep(c(100), 11), # number unlabeled
-    c(rep(.5, 11)), # eff.sz
+    c(rep(.5, 11)), # eff.sz for normals
     c(sort(rep(seq(0, .1, by = 0.01), 1))) # non-detection proportion
 )
 
 
-# parmlist<-list(
-# c(rep(5000,8)),             #interations; num.iter
-# rep(c(110,100),4),   #n.cases
-# rep(c(90,100),4),   #number unlabeled
-# c(rep(.5,8)),  #eff.sz
-# c(sort(rep(c(0,.01,.05,.1),2))) #non-detection proportion
-# )
-
-
-big.otpt <- bind_rows(pmap(parmlist, sim.fun), .id = "column_label") # unlists and binds rows
+big.otpt <- bind_rows(pmap(parmlist, sim.fun),
+    .id = "column_label"
+) # unlists and binds rows
 
 
 
@@ -292,16 +199,15 @@ smry.otpt <- big.otpt %>%
 
 
 smry.otpt %>%
-    ungroup() %>%
-    select(-c(naive.or.mn, naive.p.mn, naive.p.sd, eff.sz)) %>%
-    arrange(prp.nondet, naive.power)
+    ungroup() |>
+    arrange(prp.nondet)
 
 smry.otpt %>%
     ungroup() %>%
     select(-c(naive.or.mn, naive.p.mn, naive.p.sd, eff.sz)) %>%
     arrange(naive.power)
 
-pandoc.table(smry.otpt %>% ungroup() %>% select(-c(naive.or.mn, naive.p.mn, naive.p.sd, eff.sz)) %>% arrange(naive.power),
+pandoc.table(smry.otpt %>% ungroup(),
     style = "rmarkdown", digits = 3, split.table = Inf
 )
 
@@ -316,20 +222,78 @@ smry.otpt %>%
 
 
 ```{r}
+# df.plot <- smry.otpt %>%
+#     ungroup() %>%
+#     select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
+#     reframe(prp.nondet = prp.nondet, zzz = naive.power /
+mean(naive.power[prp.nondet == 0])) %>%
+#     mutate(prp.nondet = prp.nondet * 100, zzz = zzz * 100)
+
+#this plots negative power losss
 df.plot <- smry.otpt %>%
     ungroup() %>%
     select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
-    reframe(prp.nondet = prp.nondet, zzz = naive.power / mean(naive.power[prp.nondet == 0])) %>%
-    mutate(prp.nondet = prp.nondet * 100, zzz = zzz * 100)
+    reframe(prp.nondet = prp.nondet, zzz = naive.power /
+    mean(naive.power[prp.nondet == 0])) %>%
+    mutate(prp.nondet = prp.nondet * 100, zzz = (zzz * 100)-100)
 
-tiff("powerloss.tiff", units = "in", width = 6, height = 4, res = 600)
+
+tiff("powerloss3.tiff", units = "in", width = 6, height = 4, res = 600)
 
 ggplot(data = df.plot, aes(x = prp.nondet, zzz)) +
     geom_line(color = "red") +
     geom_point() +
-    xlab("Percent of non-detected positives in the control group") +
-    ylab("Relative power (%)") +
+    xlab("Percent of undetected positives in the control group") +
+    ylab("Relative power loss (%)") +
     ggtitle("Power loss from positive cases in the negative control group")
 dev.off()
 ```
 
+
+
+```{r,include=FALSE}
+n.cases <- 100
+n.naiv.control <- 100
+eff.sz <- .5
+prp.nondet <- .05
+
+
+### numbers of things
+n.dogs <- n.cases + n.naiv.control # total number of dogs
+
+
+# control group is made up of the unlabeled pos and the real unaffected
+# number of positive dogs who are unlabled
+unlab.pos <- round(n.naiv.control * prp.nondet)
+n.tru.unaff <- n.naiv.control - unlab.pos # the number of unaffected
+
+n.tru.aff <- n.cases + unlab.pos # the number of positive dogs in both groups
+
+tru.labels <- c(rep(1, n.tru.aff), rep(0, (n.dogs - n.tru.aff)))
+naive.labels <- c(rep(1, n.cases), rep(0, n.naiv.control))
+
+
+
+
+### sample X
+# this is where the stocastic part comes in
+
+x.tru.affected <- rnorm(n.cases, mean = eff.sz)
+
+x.tru.control <- c(
+    rnorm(unlab.pos, mean = eff.sz),
+    rnorm(n.tru.unaff)
+)
+
+naive.dat <- data.frame(
+    X = as.numeric(c(x.tru.affected, x.tru.control) > 0.5),
+    y = naive.labels
+)
+
+table(naive.dat$y, naive.dat$X)
+
+
+cohen_w<-rcompanion::cohenW(naive.dat$y, naive.dat$X)
+pwr.chisq.test(w = cohen_w, df = 1, N = 200, sig.level = 0.05)$power
+
+```
