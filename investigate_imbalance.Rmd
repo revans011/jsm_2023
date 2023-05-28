@@ -78,8 +78,11 @@ sim.fun <- function(
             rnorm(n.tru.unaff)
         )
 
+        naive_X <- c(x.tru.affected, x.tru.control)
+        naive_X_z <- (naive_X - mean(naive_X))/sd(naive_X)
+
         naive.dat <- data.frame(
-            X = as.numeric(c(x.tru.affected, x.tru.control) > 0.5),
+            X = as.numeric(pnorm(naive_X_z) > runif(200)),
             y = naive.labels
         )
 
@@ -94,16 +97,6 @@ sim.fun <- function(
 
         temp.out1 <- rcompanion::cohenW(naive.dat$y, naive.dat$X) # cohen_w
 
-
-        # temp.out4 <- pwr::pwr.t2n.test(
-        #     n1 = n.cases,
-        #     n2 = n.naiv.control,
-        #     sig.level = 0.05,
-        #     alternative = "two.sided",
-        #     power = NULL,
-        #     d = temp.out1
-        # )$power
-        # out4 <- c(out4, temp.out4)
 
         temp.out4 <- pwr.chisq.test(w = temp.out1, df = 1, N = 200, sig.level = 0.05)$power
         out4 <- c(out4, temp.out4)
@@ -284,13 +277,14 @@ naive.labels <- c(rep(1, n.cases), rep(0, n.naiv.control))
 
 x.tru.affected <- rnorm(n.cases, mean = eff.sz)
 
+#this is a poor choice for variable name
 x.tru.control <- c(
     rnorm(unlab.pos, mean = eff.sz),
     rnorm(n.tru.unaff)
 )
 
 naive.dat <- data.frame(
-    X = as.numeric(c(x.tru.affected, x.tru.control) > 0.5),
+    X = as.numeric(c(x.tru.affected, x.tru.control) > runif(200)),
     y = naive.labels
 )
 
@@ -308,11 +302,11 @@ now <- Sys.time()
 
 
 parmlist <- list(
-    rep(10000, 5), # interations; num.iter
-    rep(100, 5), # n.cases
-    rep(100, 5), # number unlabeled
-    rep(.5, 5), # eff.sz for normals
-    seq(from = 0, to = 0.1, length.out = 5)
+    rep(10000, 15), # interations; num.iter
+    rep(100, 15), # n.cases
+    rep(100, 15), # number unlabeled
+    rep(.5, 15), # eff.sz for normals
+    seq(from = 0, to = 0.1, length.out = 15)
 ) # non-detection proportion
 
 
@@ -340,11 +334,11 @@ pandoc.table(smry.otpt_100_100 %>% ungroup() %>% arrange(prp.nondet),
 
 
 parmlist <- list(
-    rep(10000, 5), # interations; num.iter
-    rep(150, 5), # n.cases
-    rep(50, 5), # number unlabeled
-    rep(.5, 5), # eff.sz for normals
-    seq(from = 0, to = 0.1, length.out = 5)
+    rep(10000, 15), # interations; num.iter
+    rep(150, 15), # n.cases
+    rep(50, 15), # number unlabeled
+    rep(.5, 15), # eff.sz for normals
+    seq(from = 0, to = 0.1, length.out = 15)
 ) # non-detection proportion
 
 
@@ -373,11 +367,11 @@ pandoc.table(smry.otpt_150_50 %>% ungroup() %>% arrange(prp.nondet),
 
 
 parmlist <- list(
-    rep(10000, 5), # interations; num.iter
-    rep(50, 5), # n.cases
-    rep(150, 5), # number unlabeled
-    rep(.5, 5), # eff.sz for normals
-    seq(from = 0, to = 0.1, length.out = 5)
+    rep(10000, 15), # interations; num.iter
+    rep(50, 15), # n.cases
+    rep(150, 15), # number unlabeled
+    rep(.5, 15), # eff.sz for normals
+    seq(from = 0, to = 0.1, length.out = 15)
 ) # non-detection proportion
 
 
@@ -493,6 +487,7 @@ df.plot1 <- smry.otpt_100_100 %>%
         mean(naive.power[prp.nondet == 0])) %>%
     mutate(aaa = "1", prp.nondet = prp.nondet * 100, zzz = (zzz * 100) - 100)
 
+
 mn_100_100 <- as.numeric(smry.otpt_100_100 %>%
     ungroup() %>%
     select(prp.nondet, naive.power) %>%
@@ -515,11 +510,11 @@ df.plot <- bind_rows(df.plot1, df.plot2, df.plot3)
 tiff("powerloss_all_three.tiff", units = "in", width = 7, height = 4, res = 600)
 
 ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
-    geom_line() +
+    geom_smooth() +
     xlab("Percent undetected postitives in the control group") +
     ylab("Percent power loss") +
     labs(
-        title = "Percent power loss from postitive cases in the GWAS control group",
+        title = "Percent power loss from positive cases in the GWAS control group",
         subtitle = "Relative to max power: 100 cases, 100 controls with no undetected positives",
         caption = "Effect size = 0.5, alpha = 0.05",
         color = "Naive sample sizes"
