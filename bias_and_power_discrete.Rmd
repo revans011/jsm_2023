@@ -31,7 +31,7 @@ pacman::p_load(
     pwr, # power calculations
     pander, # to write tables as simple text for cut-and-paste
     knitr,
-    rcompanion, #for cohen's w
+    rcompanion, # for cohen's w
     kableExtra
 )
 ```
@@ -92,8 +92,7 @@ sim.fun <- function(
         out2 <- c(out2, exp(naive.coeff))
         out3 <- c(out3, unlab.pos)
 
-        temp.out1 <- rcompanion::cohenW(naive.dat$y, naive.dat$X)
-        )) # cohen_w
+        temp.out1 <- rcompanion::cohenW(naive.dat$y, naive.dat$X) # cohen_w
 
 
         # temp.out4 <- pwr::pwr.t2n.test(
@@ -172,8 +171,8 @@ now <- Sys.time()
 
 parmlist <- list(
     c(rep(10000, 11)), # interations; num.iter
-    rep(c(100), 11), # n.cases
-    rep(c(100), 11), # number unlabeled
+    rep(c(150), 11), # n.cases
+    rep(c(50), 11), # number unlabeled
     c(rep(.5, 11)), # eff.sz for normals
     c(sort(rep(seq(0, .1, by = 0.01), 1))) # non-detection proportion
 )
@@ -218,6 +217,11 @@ smry.otpt %>%
     ungroup() %>%
     select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
     reframe(prp.nondet = prp.nondet, zzz = naive.power / mean(naive.power[prp.nondet == 0]))
+
+
+pandoc.table(smry.otpt %>% ungroup() %>% arrange(prp.nondet),
+    style = "rmarkdown", digits = 3, split.table = Inf
+)
 ```
 
 
@@ -226,19 +230,19 @@ smry.otpt %>%
 #     ungroup() %>%
 #     select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
 #     reframe(prp.nondet = prp.nondet, zzz = naive.power /
-mean(naive.power[prp.nondet == 0])) %>%
+# mean(naive.power[prp.nondet == 0])) %>%
 #     mutate(prp.nondet = prp.nondet * 100, zzz = zzz * 100)
 
-#this plots negative power losss
+# this plots negative power losss
 df.plot <- smry.otpt %>%
     ungroup() %>%
     select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
     reframe(prp.nondet = prp.nondet, zzz = naive.power /
-    mean(naive.power[prp.nondet == 0])) %>%
-    mutate(prp.nondet = prp.nondet * 100, zzz = (zzz * 100)-100)
+        mean(naive.power[prp.nondet == 0])) %>%
+    mutate(prp.nondet = prp.nondet * 100, zzz = (zzz * 100) - 100)
 
 
-tiff("powerloss3.tiff", units = "in", width = 6, height = 4, res = 600)
+# tiff("powerloss3.tiff", units = "in", width = 6, height = 4, res = 600)
 
 ggplot(data = df.plot, aes(x = prp.nondet, zzz)) +
     geom_line(color = "red") +
@@ -246,11 +250,11 @@ ggplot(data = df.plot, aes(x = prp.nondet, zzz)) +
     xlab("Percent of undetected positives in the control group") +
     ylab("Relative power loss (%)") +
     ggtitle("Power loss from positive cases in the negative control group")
-dev.off()
+# dev.off()
 ```
 
 
-
+Sandbox in this chunk
 ```{r,include=FALSE}
 n.cases <- 100
 n.naiv.control <- 100
@@ -293,7 +297,240 @@ naive.dat <- data.frame(
 table(naive.dat$y, naive.dat$X)
 
 
-cohen_w<-rcompanion::cohenW(naive.dat$y, naive.dat$X)
+cohen_w <- rcompanion::cohenW(naive.dat$y, naive.dat$X)
 pwr.chisq.test(w = cohen_w, df = 1, N = 200, sig.level = 0.05)$power
+```
 
+
+Run three at a time
+```{r}
+now <- Sys.time()
+
+
+parmlist <- list(
+    rep(10000, 5), # interations; num.iter
+    rep(100, 5), # n.cases
+    rep(100, 5), # number unlabeled
+    rep(.5, 5), # eff.sz for normals
+    seq(from = 0, to = 0.1, length.out = 5)
+) # non-detection proportion
+
+
+
+big.otpt_100_100 <- bind_rows(pmap(parmlist, sim.fun),
+    .id = "column_label"
+) # unlists and binds rows
+
+smry.otpt_100_100 <- big.otpt_100_100 %>%
+    group_by(n.cases, n.naiv.control, prp.nondet, eff.sz) %>%
+    dplyr::summarise(
+        prp.nondet = mean(prp.nondet),
+        eff.sz = mean(eff.sz),
+        naive.or.mn = mean(naive.or),
+        naive.p.mn = mean(naive.p),
+        naive.p.sd = sd(naive.p),
+        unlabeled.pos = mean(unlabeled.pos),
+        naive.power = mean(naive.pwr)
+    )
+
+
+pandoc.table(smry.otpt_100_100 %>% ungroup() %>% arrange(prp.nondet),
+    style = "rmarkdown", digits = 3, split.table = Inf
+)
+
+
+parmlist <- list(
+    rep(10000, 5), # interations; num.iter
+    rep(150, 5), # n.cases
+    rep(50, 5), # number unlabeled
+    rep(.5, 5), # eff.sz for normals
+    seq(from = 0, to = 0.1, length.out = 5)
+) # non-detection proportion
+
+
+
+
+big.otpt_150_50 <- bind_rows(pmap(parmlist, sim.fun),
+    .id = "column_label"
+) # unlists and binds rows
+
+smry.otpt_150_50 <- big.otpt_150_50 %>%
+    group_by(n.cases, n.naiv.control, prp.nondet, eff.sz) %>%
+    dplyr::summarise(
+        prp.nondet = mean(prp.nondet),
+        eff.sz = mean(eff.sz),
+        naive.or.mn = mean(naive.or),
+        naive.p.mn = mean(naive.p),
+        naive.p.sd = sd(naive.p),
+        unlabeled.pos = mean(unlabeled.pos),
+        naive.power = mean(naive.pwr)
+    )
+
+
+pandoc.table(smry.otpt_150_50 %>% ungroup() %>% arrange(prp.nondet),
+    style = "rmarkdown", digits = 3, split.table = Inf
+)
+
+
+parmlist <- list(
+    rep(10000, 5), # interations; num.iter
+    rep(50, 5), # n.cases
+    rep(150, 5), # number unlabeled
+    rep(.5, 5), # eff.sz for normals
+    seq(from = 0, to = 0.1, length.out = 5)
+) # non-detection proportion
+
+
+
+big.otpt_50_150 <- bind_rows(pmap(parmlist, sim.fun),
+    .id = "column_label"
+) # unlists and binds rows
+
+
+
+smry.otpt_50_150 <- big.otpt_50_150 %>%
+    group_by(n.cases, n.naiv.control, prp.nondet, eff.sz) %>%
+    dplyr::summarise(
+        prp.nondet = mean(prp.nondet),
+        eff.sz = mean(eff.sz),
+        naive.or.mn = mean(naive.or),
+        naive.p.mn = mean(naive.p),
+        naive.p.sd = sd(naive.p),
+        unlabeled.pos = mean(unlabeled.pos),
+        naive.power = mean(naive.pwr)
+    )
+
+
+
+pandoc.table(smry.otpt_50_150 %>% ungroup() %>% arrange(prp.nondet),
+    style = "rmarkdown", digits = 3, split.table = Inf
+)
+
+difftime(Sys.time(), now)
+```
+
+plot all three curves
+```{r}
+# df.plot <- smry.otpt %>%
+#     ungroup() %>%
+#     select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
+#     reframe(prp.nondet = prp.nondet, zzz = naive.power /
+# mean(naive.power[prp.nondet == 0])) %>%
+#     mutate(prp.nondet = prp.nondet * 100, zzz = zzz * 100)
+
+# this plots negative power losss
+df.plot1 <- smry.otpt_100_100 %>%
+    ungroup() %>%
+    select(prp.nondet, naive.power) %>%
+    mutate(aaa = "1", zzz = naive.power)
+
+df.plot2 <- smry.otpt_150_50 %>%
+    ungroup() %>%
+    select(prp.nondet, naive.power) %>%
+    mutate(aaa = "2", zzz = naive.power)
+
+
+df.plot3 <- smry.otpt_50_150 %>%
+    ungroup() %>%
+    select(prp.nondet, naive.power) %>%
+    mutate(aaa = "3", zzz = naive.power)
+
+df.plot <- bind_rows(df.plot1, df.plot2, df.plot3)
+
+# tiff("powerloss_all_three.tiff", units = "in", width = 6, height = 4, res = 600
+
+ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
+    geom_line()
+# dev.off()
+```
+
+plot all three curves this just changes the scale from the
+above plot
+```{r}
+# df.plot <- smry.otpt %>%
+#     ungroup() %>%
+#     select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
+#     reframe(prp.nondet = prp.nondet, zzz = naive.power /
+# mean(naive.power[prp.nondet == 0])) %>%
+#     mutate(prp.nondet = prp.nondet * 100, zzz = zzz * 100)
+
+# this plots negative power losss
+df.plot1 <- smry.otpt_100_100 %>%
+    ungroup() %>%
+    select(prp.nondet, naive.power) %>%
+    reframe(prp.nondet = prp.nondet, zzz = naive.power) %>%
+    mutate(aaa = "1", prp.nondet = prp.nondet * 100, zzz = zzz * 100)
+
+df.plot2 <- smry.otpt_150_50 %>%
+    ungroup() %>%
+    select(prp.nondet, naive.power) %>%
+    reframe(prp.nondet = prp.nondet, zzz = naive.power) %>%
+    mutate(aaa = "2", prp.nondet = prp.nondet * 100, zzz = zzz * 100)
+
+
+df.plot3 <- smry.otpt_50_150 %>%
+    ungroup() %>%
+    select(prp.nondet, naive.power) %>%
+    reframe(prp.nondet = prp.nondet, zzz = naive.power) |>
+    mutate(aaa = "3", prp.nondet = prp.nondet * 100, zzz = zzz * 100)
+
+df.plot <- bind_rows(df.plot1, df.plot2, df.plot3)
+
+# tiff("powerloss_all_three.tiff", units = "in", width = 6, height = 4, res = 600
+
+ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
+    geom_line()
+# dev.off()
+```
+
+The plot below is power loss normlize to the best power, which is 
+balance groups (100,100) and 0 prp.nondet.
+```{r, echo=FALSE}
+df.plot1 <- smry.otpt_100_100 %>%
+    ungroup() %>%
+    select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
+    reframe(prp.nondet = prp.nondet, zzz = naive.power /
+        mean(naive.power[prp.nondet == 0])) %>%
+    mutate(aaa = "1", prp.nondet = prp.nondet * 100, zzz = (zzz * 100) - 100)
+
+mn_100_100 <- as.numeric(smry.otpt_100_100 %>%
+    ungroup() %>%
+    select(prp.nondet, naive.power) %>%
+    reframe(mean(naive.power[prp.nondet == 0])))
+
+df.plot2 <- smry.otpt_150_50 %>%
+    ungroup() %>%
+    select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
+    reframe(prp.nondet = prp.nondet, zzz = naive.power / mn_100_100) %>%
+    mutate(aaa = "2", prp.nondet = prp.nondet * 100, zzz = (zzz * 100) - 100)
+
+df.plot3 <- smry.otpt_50_150 %>%
+    ungroup() %>%
+    select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
+    reframe(prp.nondet = prp.nondet, zzz = naive.power / mn_100_100) %>%
+    mutate(aaa = "3", prp.nondet = prp.nondet * 100, zzz = (zzz * 100) - 100)
+
+df.plot <- bind_rows(df.plot1, df.plot2, df.plot3)
+
+tiff("powerloss_all_three.tiff", units = "in", width = 7, height = 4, res = 600)
+
+ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
+    geom_line() +
+    xlab("Percent undetected postitives in the control group") +
+    ylab("Percent power loss") +
+    labs(
+        title = "Percent power loss from postitive cases
+        in the GWAS control group",
+        subtitle = "Relative to max power: balanced groups with no undetected positives",
+        caption = "Effect size = 0.5, alpha = 0.05",
+        color = "Naive sample sizes"
+    ) +
+    theme(
+        plot.title = element_text(size = 14), # Center title position and size
+        plot.subtitle = element_text(size = 10), # Center subtitle
+        plot.caption = element_text(face = "italic") # move caption to the left
+    )+scale_color_discrete(labels=c('100 cases, 100 controls', '150 cases, 50 controls', '50 cases, 150 controls'))
+
+
+dev.off()
 ```
