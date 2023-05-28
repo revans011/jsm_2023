@@ -493,6 +493,7 @@ df.plot1 <- smry.otpt_100_100 %>%
         mean(naive.power[prp.nondet == 0])) %>%
     mutate(aaa = "1", prp.nondet = prp.nondet * 100, zzz = (zzz * 100) - 100)
 
+#the mean power of 100, 100 no non-detected. It's the best possible power
 mn_100_100 <- as.numeric(smry.otpt_100_100 %>%
     ungroup() %>%
     select(prp.nondet, naive.power) %>%
@@ -519,9 +520,8 @@ ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
     xlab("Percent undetected postitives in the control group") +
     ylab("Percent power loss") +
     labs(
-        title = "Percent power loss from postitive cases
-        in the GWAS control group",
-        subtitle = "Relative to max power: balanced groups with no undetected positives",
+        title = "Percent power loss from postitive cases in the GWAS control group",
+        subtitle = "Relative to max power: 100 cases, 100 controls with no undetected positives",
         caption = "Effect size = 0.5, alpha = 0.05",
         color = "Naive sample sizes"
     ) +
