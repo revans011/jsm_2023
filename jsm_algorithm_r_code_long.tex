@@ -1,0 +1,79 @@
+\documentclass{article}
+\usepackage{listings}
+\begin{document}
+\begin{lstlisting}[language=R]
+sim.fun <- function(
+    num.iter = NULL,
+    n.cases = NULL,
+    n.naiv.control = NULL,
+    eff.sz = NULL,
+    prp.nondet = NULL, ...) {
+    out1 <- NULL
+    out2 <- NULL
+    out3 <- NULL
+    out4 <- NULL
+
+    ### numbers of things
+    n.dogs <- n.cases + n.naiv.control # total number of dogs
+
+
+    # control group is made up of the unlabeled pos and the real unaffected
+    # number of positive dogs who are unlabled
+    unlab.pos <- round(n.naiv.control * prp.nondet)
+    n.tru.unaff <- n.naiv.control - unlab.pos # the number of unaffected
+
+    n.tru.aff <- n.cases + unlab.pos # the number of positive dogs in both groups
+
+    tru.labels <- c(rep(1, n.tru.aff), rep(0, (n.dogs - n.tru.aff)))
+    naive.labels <- c(rep(1, n.cases), rep(0, n.naiv.control))
+
+
+
+    for (i in 1:num.iter) {
+        ### sample X
+        # this is where the stocastic part comes in
+
+        x.tru.affected <- rnorm(n.cases, mean = eff.sz)
+
+        x.tru.control <- c(
+            rnorm(unlab.pos, mean = eff.sz),
+            rnorm(n.tru.unaff)
+        )
+
+        naive_X <- c(x.tru.affected, x.tru.control)
+        naive_X_z <- (naive_X - mean(naive_X)) / sd(naive_X)
+
+        naive.dat <- data.frame(
+            X = as.numeric(pnorm(naive_X_z) > runif(200)),
+            y = naive.labels
+        )
+
+        m.naive <- glm(y ~ X, data = naive.dat, family = binomial())
+
+        naive.coeff <- m.naive$coefficients["X"]
+        naive.p <- summary(m.naive)$coef[2, 4] # pvalue
+
+        out1 <- c(out1, naive.p)
+        out2 <- c(out2, exp(naive.coeff))
+        out3 <- c(out3, unlab.pos)
+
+        temp.out1 <- rcompanion::cohenW(naive.dat$y, naive.dat$X) # cohen_w
+
+
+        temp.out4 <- pwr.chisq.test(w = temp.out1, df = 1, N = 200, sig.level = 0.05)$power
+        out4 <- c(out4, temp.out4)
+    } # loop
+
+    return(list(
+        n.cases = n.cases,
+        n.naiv.control = n.naiv.control,
+        prp.nondet = prp.nondet,
+        eff.sz = eff.sz,
+        naive.p = out1,
+        naive.or = out2,
+        unlabeled.pos = out3,
+        naive.pwr = out4
+    ))
+}
+\end{lstlisting}
+\end{document}

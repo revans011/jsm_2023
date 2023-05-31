@@ -79,7 +79,7 @@ sim.fun <- function(
         )
 
         naive_X <- c(x.tru.affected, x.tru.control)
-        naive_X_z <- (naive_X - mean(naive_X))/sd(naive_X)
+        naive_X_z <- (naive_X - mean(naive_X)) / sd(naive_X)
 
         naive.dat <- data.frame(
             X = as.numeric(pnorm(naive_X_z) > runif(200)),
@@ -277,7 +277,7 @@ naive.labels <- c(rep(1, n.cases), rep(0, n.naiv.control))
 
 x.tru.affected <- rnorm(n.cases, mean = eff.sz)
 
-#this is a poor choice for variable name
+# this is a poor choice for variable name
 x.tru.control <- c(
     rnorm(unlab.pos, mean = eff.sz),
     rnorm(n.tru.unaff)
@@ -523,7 +523,8 @@ ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
         plot.title = element_text(size = 14), # Center title position and size
         plot.subtitle = element_text(size = 10), # Center subtitle
         plot.caption = element_text(face = "italic") # move caption to the left
-    )+scale_color_discrete(labels=c('100 cases, 100 controls', '150 cases, 50 controls', '50 cases, 150 controls'))
+    ) +
+    scale_color_discrete(labels = c("100 cases, 100 controls", "150 cases, 50 controls", "50 cases, 150 controls"))
 
 
 dev.off()
