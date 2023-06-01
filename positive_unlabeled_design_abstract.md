@@ -11,7 +11,7 @@ evan0770@umn.edu
 
 ### Purpose
 
-In genome-wide association studies (GWAS), negative control groups are sometimes unlabeled, which means they are a mixture of unaffected cases and undetected affected cases. The unlabeled aspect of the data is usually handled in the data analysis rather than the design phase of the study. We considered the design phase, and investigated the effect using unlabeled control groups on the power of the association tests in GWAS studies.
+In genome-wide association studies (GWAS), negative control groups are sometimes unlabeled, which means they are a mixture of unaffected cases and undetected affected cases. The unlabeled aspect of the data is usually handled in the data analysis phase rather than the design phase of the study. In this study, we considered the design phase, and investigated the effect using unlabeled control groups on the power of the association tests in GWAS studies.
 
 ### Background
 
@@ -31,17 +31,46 @@ We have two aims. The first aim is to provide sample-size criteria for GWAS rese
 
 ### Methodology
 
-There were two simulation studies. The first looked at the effect the non-detection proportion on power to detect an association between disease status (affected or unaffected) and a genotype. The second looked at the effect of group imbalance on power. The parameters chosen to mimic canine CCLD GWAS studies, in particular, Healey et al. (2019), which used 161 dogs affected with CCLD, and 55 unlabeled dogs as controls. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance.
+This was a simulation study that used a total sample size of N=200 and calculated the power to detect a 0.5 effect size with Type I error set at 0.05.The sample size was consistent with Healey (XXX, N=216) and YYY (XXX,N=217). The effect size (0.5) was chosen because it is considered a modest effect, and because detecting smaller effect sizes requires sample sizes that are larger than what is available in most veterinary studies. The simulation study varied two parameters. The first looked at the effect the non-detection proportion on power to detect an association between disease status (affected or unaffected) and a genotype. The second looked at the effect of group imbalance on power. The parameters chosen to mimic canine CCLD GWAS studies, in particular, Healey et al. (2019), which used 161 dogs affected with CCLD, and 55 unlabeled dogs as controls. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance.
 
 Using that paper, and some others (REF), the proportion of non-detected cases in the simulation ranged from 0 percent to 10 percent (although other kinds of studies may have higher proportions). The simulated sample size was 200, but we varied the sample size between the numbers of cases and controls, and used 0.5 as the effect size. That effect size was chosen because for N=200 it yielded powers around 80% for Welsh's t-test as the outcome. 
 
-The true model has the known affected group, but also knows the labels of the group of unlabeled data and knows which members of that groups are affected, and analyses them accordingly.
+### The algorithm
 
-The simulation assessed the models' differences using two outcomes. One was general agreement, that is, the proportion of times inferences from both models agreed on statistical significance. The other outcome significant agreement, that is, the proportion of times the inferences agreed and were both less that 0.05.
+Input Naive model
+Number of cases in affected group
+Number of subjects in the naive control group
 
-There were two simulations. The first simulation was a simple one. We sampled cases and controls under various parameter scenarios from two normal distributions and then compared their means with Wilcoxon rank-sum tests.
+Input the simulation parameters
+number of simulation iterations
+proportion cases in the control group that are undetected positives
 
-The second simulation
+Calculate true model labels
+number of affected subjects in the naive control group
+real number of affected subjects (equal to the size of the affected group plus the number of affected in the control group)
+real number of negatives (equal to the number of subjects in the naive control minus the number of affected cases in the naive control)
+
+FOR 1 to num.iter
+
+Sample a covariate related to genotype
+sample real number of negatives from N(0,1)
+sample real number of positives from N(0.5,1)
+
+Simulate disease
+standardize X
+Observed diseased from if X a uniform variate (-1,1) otherwise disease negative
+
+Label
+label the data according to the naive model (0 or 1)
+
+Calculate the observed effect size for binary data (Cohen's W)
+
+Calculate power using Cohen's W
+
+save power
+
+END loop
+
 
 ### Findings
 
