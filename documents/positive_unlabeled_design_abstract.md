@@ -115,3 +115,11 @@ Table 1. Sample sizes for four GWAS studies of CCLD. The last columns shows the 
 | Baker et al. (2021)     | 397   | 156   | 241       |  24     |
 | Cook et al. (2020)      | 333   | 190   | 143       |  14     |
 | Healy et al. (2019)     | 216   | 161   | 55        |  6      |
+
+
+In orthopaedic genome-wide association studies (GWAS), negative control groups are sometimes are a combination of unaffected cases and some undetected affected cases. An example are the control groups for canine cruciate ligament GWAS. Some of those control dogs may have a "rupture genotype" but have not yet spontaneously ruptured. Control groups that are a combination of unaffected and some undetected affected subjects are called "unlabeled." The unlabeled aspect of the data is usually handled in the data analysis phase rather than the design phase of the study. In this study, we considered the design phase, and investigated the effect using unlabeled control groups on the power of the association tests in GWAS studies. More broadly, this study address the effect of unlabeled data on orthopaedic observational studies.
+
+competing
+
+
+

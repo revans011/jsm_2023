@@ -32,8 +32,12 @@ pacman::p_load(
     pander, # to write tables as simple text for cut-and-paste
     knitr,
     rcompanion, # for cohen's w
-    kableExtra
+    kableExtra,
+    bindata,
+    here
 )
+
+here::i_am("README.md")
 ```
 
 
@@ -127,43 +131,86 @@ out4 <- c(out4, temp.out4)
 }
 ```
 
-```{r,results='asis'}
-sim.table <- function(parmlist) {
-    now <- Sys.time()
 
-    foo <- pmap(parmlist, sim.fun)
+this version samples from a binomial
+```{r,include=FALSE}
+sim.fun <- function(
+    num.iter = NULL,
+    n.cases = NULL,
+    n.naiv.control = NULL,
+    eff.sz = NULL,
+    prp.nondet = NULL, ...) {
+    out1 <- NULL
+    out2 <- NULL
+    out3 <- NULL
+    out4 <- NULL
+
+    ### numbers of things
+    n.dogs <- n.cases + n.naiv.control # total number of dogs
 
 
-    goo <- bind_rows(foo, .id = "column_label") # unlists and binds rows
+    # control group is made up of the unlabeled pos and the real unaffected
+    # number of positive dogs who are unlabled
+    unlab.pos <- round(n.naiv.control * prp.nondet)
+    n.tru.unaff <- n.naiv.control - unlab.pos # the number of unaffected
+
+    n.tru.aff <- n.cases + unlab.pos # the number of positive dogs in both groups
+
+    tru.labels <- c(rep(1, n.tru.aff), rep(0, (n.dogs - n.tru.aff)))
+    naive.labels <- c(rep(1, n.cases), rep(0, n.naiv.control))
 
 
 
-    zoo1 <- goo %>%
-        group_by(n.cases, n.naiv.control, prp.nondet, eff.sz) %>%
-        dplyr::summarise(
-            prp.nondet = mean(prp.nondet),
-            eff.sz = mean(eff.sz),
-            naive.or.mn = mean(naive.or),
-            naive.p.mn = mean(naive.p),
-            naive.p.sd = sd(naive.p),
-            unlabeled.pos = mean(unlabeled.pos),
-            naive.power = mean(naive.pwr)
+    for (i in 1:num.iter) {
+        ### sample X
+        # this is where the stocastic part comes in
+
+        x.tru.affected <- rbinom(n.cases, 1, eff.sz + .2)
+
+        x.tru.control <- c(
+            rbinom(unlab.pos, 1, prob = eff.sz + .2),
+            rbinom(n.tru.unaff, 1, prob = 0.2)
         )
 
-    print(difftime(Sys.time(), now, units = "mins"))
-    return(pandoc.table(zoo1 %>% ungroup() %>% arrange(prp.nondet),
-        style = "rmarkdown", digits = 3, split.table = Inf
+        naive_X <- c(x.tru.affected, x.tru.control)
+    
+
+    
+        naive.dat <- data.frame(
+            X = naive_X,
+            y = naive.labels
+        )
+
+         temp.out1 <- as.numeric(rcompanion::cohenW(naive.dat$y, naive.dat$X)) # cohen_w
+        out1 <- c(out1, temp.out1)
+
+         temp.out4 <- pwr.chisq.test(w = temp.out1, df = 1, N = 200, sig.level = 0.05)$power
+         out4 <- c(out4, temp.out4)
+
+
+    } # loop
+
+    return(list(
+        n.cases = n.cases,
+        n.naiv.control = n.naiv.control,
+        prp.nondet = prp.nondet,
+        eff.sz = eff.sz,
+        naive.pwr = out4,
+        cohen = out1
     ))
 }
-
-# this coverts OR to cohens so that I make this like SNPs data
-oddsratio_to_d(2, log = FALSE)
-d_to_oddsratio(.1)
-oddsratio_to_d(1.2, log = FALSE)
 ```
-<!-- https://cran.r-project.org/web/packages/pander/vignettes/pandoc_table.html -->
+
+```{r, echo=FALSE}
+rcompanion::cohenW(c(rep(1,50),rep(0,100)), c(rep(1,60),rep(0,90)))
+
+rstatix::chisq_test(c(rep(1,50),rep(0,100)), c(rep(1,60),rep(0,90)))
+
+rcompanion::cohenW(c(rep(1,100),rep(0,50)), c(rep(1,105),rep(0,45)))
+rstatix::chisq_test(c(rep(1,100),rep(0,50)), c(rep(1,105),rep(0,45)))
 
 
+```
 
 Run three at a time-makes all the data for the plot
 ```{r}
@@ -171,14 +218,12 @@ now <- Sys.time()
 
 
 parmlist <- list(
-    rep(10001, 15), # interations; num.iter
-    rep(100, 15), # n.cases
-    rep(100, 15), # number unlabeled
-    rep(.5, 15), # eff.sz for normals
-    seq(from = 0, to = 0.1, length.out = 15)
+    rep(5001, 3), # interations; num.iter
+    rep(100, 3), # n.cases
+    rep(100, 3), # number unlabeled
+    rep(.1, 3), # eff.sz for normals
+    seq(from = 0, to = 0.1, length.out = 3)
 ) # non-detection proportion
-
-
 
 big.otpt_100_100 <- bind_rows(pmap(parmlist, sim.fun),
     .id = "column_label"
@@ -189,13 +234,9 @@ smry.otpt_100_100 <- big.otpt_100_100 %>%
     dplyr::summarise(
         prp.nondet = mean(prp.nondet),
         eff.sz = mean(eff.sz),
-        naive.or.mn = mean(naive.or),
-        naive.p.mn = mean(naive.p),
-        naive.p.sd = sd(naive.p),
-        unlabeled.pos = mean(unlabeled.pos),
-        naive.power = mean(naive.pwr)
+        naive.power = mean(naive.pwr),
+        cohen = mean(cohen)
     )
-
 
 pandoc.table(smry.otpt_100_100 %>% ungroup() %>% arrange(prp.nondet),
     style = "rmarkdown", digits = 3, split.table = Inf
@@ -203,11 +244,11 @@ pandoc.table(smry.otpt_100_100 %>% ungroup() %>% arrange(prp.nondet),
 
 
 parmlist <- list(
-    rep(10001, 15), # interations; num.iter
-    rep(150, 15), # n.cases
-    rep(50, 15), # number unlabeled
-    rep(.5, 15), # eff.sz for normals
-    seq(from = 0, to = 0.1, length.out = 15)
+    rep(5001, 3), # interations; num.iter
+    rep(150, 3), # n.cases
+    rep(50, 3), # number unlabeled
+    rep(.1, 3), # eff.sz for normals
+    seq(from = 0, to = 0.1, length.out = 3)
 ) # non-detection proportion
 
 
@@ -222,11 +263,8 @@ smry.otpt_150_50 <- big.otpt_150_50 %>%
     dplyr::summarise(
         prp.nondet = mean(prp.nondet),
         eff.sz = mean(eff.sz),
-        naive.or.mn = mean(naive.or),
-        naive.p.mn = mean(naive.p),
-        naive.p.sd = sd(naive.p),
-        unlabeled.pos = mean(unlabeled.pos),
-        naive.power = mean(naive.pwr)
+        naive.power = mean(naive.pwr),
+        cohen = mean(cohen)
     )
 
 
@@ -236,11 +274,11 @@ pandoc.table(smry.otpt_150_50 %>% ungroup() %>% arrange(prp.nondet),
 
 
 parmlist <- list(
-    rep(10001, 15), # interations; num.iter
-    rep(50, 15), # n.cases
-    rep(150, 15), # number unlabeled
-    rep(.5, 15), # eff.sz for normals
-    seq(from = 0, to = 0.1, length.out = 15)
+    rep(5001, 3), # interations; num.iter
+    rep(50, 3), # n.cases
+    rep(150, 3), # number unlabeled
+    rep(.1, 3), # eff.sz for normals
+    seq(from = 0, to = 0.1, length.out = 3)
 ) # non-detection proportion
 
 
@@ -256,11 +294,8 @@ smry.otpt_50_150 <- big.otpt_50_150 %>%
     dplyr::summarise(
         prp.nondet = mean(prp.nondet),
         eff.sz = mean(eff.sz),
-        naive.or.mn = mean(naive.or),
-        naive.p.mn = mean(naive.p),
-        naive.p.sd = sd(naive.p),
-        unlabeled.pos = mean(unlabeled.pos),
-        naive.power = mean(naive.pwr)
+        naive.power = mean(naive.pwr),
+        cohen = mean(cohen)
     )
 
 
@@ -313,7 +348,7 @@ ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
     labs(
         title = "Percent power loss from positive cases in the GWAS control group",
         subtitle = "Relative to max power: 100 cases, 100 controls with no undetected positives",
-        caption = "Effect size = 0.5, alpha = 0.05",
+        caption = "Avg. observed effect size = 0.38, alpha = 0.05",
         color = "Naive sample sizes"
     ) +
     theme(
@@ -390,3 +425,4 @@ temp.out1
 
 pwr.2p2n.test(temp.out1,n.cases,n.naiv.control,0.05)[[5]]
 ```
+
