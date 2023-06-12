@@ -5,9 +5,6 @@ Clinical and Translational Science Institute \
 University of Minnesota \
 evan0770@umn.edu
 
-RICH MAYBE CHANGE THIS TO RISK FACTORS IN GENERAL
-
-
 ## Design Considerations for Positive-Unlabeled GWAS Studies
 
 ### Long Abstract
@@ -34,28 +31,24 @@ We have two aims. The first aim is to provide sample-size criteria for GWAS rese
 
 ### Methodology
 
-This was a simulation study assessing the power of a univariate association test, which is a common test in risk-factor studies. For example, risk-factor studies report the p-values of age, BCS, sex, and SNPS separately. (RICH what about another paper with a familywise power calculation?) The sample, N=200, size was consistent with Healey (XXX, N=216) and YYY (XXX,N=217). Lastly, The effect size (0.5) was chosen because with N=200, the power of the statistical test under a true naive model is 80% RICH check this using the real power. That way, the reference model is the one with standard power of 80%
-
-
-
- The simulation study varied two parameters. The first was the proportion of undetected positives in the unaffected control group, which ranged from 0 (the reference) to 10%. (RICH why stop at 10%??) and the sample size balance between the . The first looked at the effect the non-detection proportion on power to detect an association between disease status (affected or unaffected) and a genotype. The second looked at the effect of group imbalance on power. The parameters chosen to mimic canine CCLD GWAS studies, in particular, Healey et al. (2019), which used 161 dogs affected with CCLD, and 55 unlabeled dogs as controls. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance.
+This was a simulation study that used a total sample size of N=200 and calculated the power to detect a 0.5 effect size with Type I error set at 0.05.The sample size was consistent with Healey (XXX, N=216) and YYY (XXX,N=217). The effect size (0.5) was chosen because it is considered a modest effect, and because detecting smaller effect sizes requires sample sizes that are larger than what is available in most veterinary studies. The simulation study varied two parameters. The first looked at the effect the non-detection proportion on power to detect an association between disease status (affected or unaffected) and a genotype. The second looked at the effect of group imbalance on power. The parameters chosen to mimic canine CCLD GWAS studies, in particular, Healey et al. (2019), which used 161 dogs affected with CCLD, and 55 unlabeled dogs as controls. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance.
 
 Using that paper, and some others (REF), the proportion of non-detected cases in the simulation ranged from 0 percent to 10 percent (although other kinds of studies may have higher proportions). The simulated sample size was 200, but we varied the sample size between the numbers of cases and controls, and used 0.5 as the effect size. That effect size was chosen because for N=200 it yielded powers around 80% for Welsh's t-test as the outcome. 
 
 ### The algorithm
 
-1. Input Naive model
-- Number of cases in affected group
-- Number of subjects in the naive control group
+Input Naive model
+Number of cases in affected group
+Number of subjects in the naive control group
 
-1. Input the simulation parameters
-- number of simulation iterations
-- proportion cases in the control group that are undetected positives
+Input the simulation parameters
+number of simulation iterations
+proportion cases in the control group that are undetected positives
 
-1. Calculate true model labels
-- number of affected subjects in the naive control group
-- real number of affected subjects (equal to the size of the affected group plus the number of affected in the control group)
-- real number of negatives (equal to the number of subjects in the naive control minus the number of affected cases in the naive control)
+Calculate true model labels
+number of affected subjects in the naive control group
+real number of affected subjects (equal to the size of the affected group plus the number of affected in the control group)
+real number of negatives (equal to the number of subjects in the naive control minus the number of affected cases in the naive control)
 
 FOR 1 to num.iter
 
@@ -79,15 +72,9 @@ save power
 END loop
 
 
-## Findings
+### Findings
 
-### Loss of power, balanced group sizes
-
-Undetected positives in the control group reduced the power of the association test. An example of the reduction in power is in Figure 1. The first point on blue curve in Figure 1 shows the power of the association test when there are no undetected positives in the control group. This point serves as the "referece" power when the proportion of undetected positives is the control group is zero and the naive model is the correct model. As the proportion of undetected positives increases (the x-axis), the blue curves decreases, which means the power is decreasing. The y-axis is the 
-
-### Loss of power, unbalanced group sizes
-
-The $\chi^{2}$ test statistic is not symetric, so the the direction of the 
+Undetected positives in the control group reduced the power of the association test. Figure 1 shows the percent reduction in power with and without unlabeled control groups. The beginning of the curves, where the proportion on undetected positives is zero, is the case where the naive model is the correct model. As expected, The unbalance sample size examples show a reduction in power relative to the balanced design. For all three curves, as the proportion of undetected positives increases, the power decreases. 
 
 The columns "No. not det" and "p-value difference" show that for the same N=200 sample size, the difference in p-values decreases as the number of of non-detected cases decreases. For this example, and unbalanced design minimizes the difference in p-values suggesting the the inferences will be similar. However the balanced design give the smallest p-value.
 
@@ -98,16 +85,6 @@ Research limitations/implications – Basically, what is happening is the undete
 However, the undetected-positive rate for CCLD GWAS studies is small, certainly less that 10 percent, and the low rate causes only small biases in odds ratio estimates. However, this study shows that unlabeled data also affect the inferences, and we show that even a few positive cases in the negative controls can affect the power of the study. Fortunately, positive-unlabeled data appears to reduce power, making the results reported in CCLD GWAS studies conservative.
 
 # Researcher should account for 
-
-# Discussion
-
-There are modest power reductions even for small proportions of undetected positives in the control group. The reductions in power (relative to the reference power) are less so when the powers are near 0 or 1. {Rich check and fix this}. The results for absolute powers are less dramatic. The simlations suggest proportions of undetected positives in the control of 10 percent or less decrease power, but minimally. 
-
-This was a simulation study to test the power of a single association test. The working example was the association test for a single SNP in a GWAS study, but the simulation results apply to any kind of study with univariate association tests, such as any risk factor study. That is a broad class of studies. Examples include the univariate associations between post-op surgical infections and various surgical conditions (e.g., boarded surgeon vs resident, manufactuer of bone plate). In that case, there may be subdiagnostic infections in the control group. Another example is univariate association tests in veterinary surveys, such as XXX. In that case, there may be subclinical ...
-
-In this simulaion, the undetected positives in the negative group were sampled from the same population as the detected positives in the affected group. That's a common assumption (ref GU and others) but it does not apply to the situation where binary "affectedness" changes as the function of a scaled risk factor variable. Using risk factors for CCLD example, BCS may affect spontaneous rupture. 
-
-This was a simulation study that considered the effect on statistical power of 10 percent or fewer undetected positives in the control group. The simulation used 
 
 ## References
 
