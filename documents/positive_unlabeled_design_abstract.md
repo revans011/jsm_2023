@@ -85,11 +85,33 @@ END loop
 
 Undetected positives in the control group reduced the power of the association test. An example of the reduction in power is in Figure 1. The first point on blue curve in Figure 1 shows the power of the association test when there are no undetected positives in the control group. This point serves as the "referece" power when the proportion of undetected positives is the control group is zero and the naive model is the correct model. As the proportion of undetected positives increases (the x-axis), the blue curves decreases, which means the power is decreasing. The y-axis is the 
 
+| n.cases | n.naiv.control | prp.nondet | eff.sz | naive.power | cohen |
+|:-------:|:--------------:|:----------:|:------:|:-----------:|:-----:|
+|   100   |      100       |     0      |  0.21  |    0.822    | 0.229 |
+|   100   |      100       |    0.05    |  0.21  |    0.788    | 0.217 |
+|   100   |      100       |    0.1     |  0.21  |    0.747    | 0.204 |
+
 ### Loss of power, unbalanced group sizes
 
 The $\chi^{2}$ test statistic is not symetric, so the the direction of the 
 
 The columns "No. not det" and "p-value difference" show that for the same N=200 sample size, the difference in p-values decreases as the number of of non-detected cases decreases. For this example, and unbalanced design minimizes the difference in p-values suggesting the the inferences will be similar. However the balanced design give the smallest p-value.
+
+
+| n.cases | n.naiv.control | prp.nondet | eff.sz | naive.power | cohen |
+|:-------:|:--------------:|:----------:|:------:|:-----------:|:-----:|
+|   150   |       50       |     0      |  0.21  |    0.706    | 0.19  |
+|   150   |       50       |    0.05    |  0.21  |    0.681    | 0.182 |
+|   150   |       50       |    0.1     |  0.21  |    0.637    | 0.171 |
+
+
+
+| n.cases | n.naiv.control | prp.nondet | eff.sz | naive.power | cohen |
+|:-------:|:--------------:|:----------:|:------:|:-----------:|:-----:|
+|   50    |      150       |     0      |  0.21  |    0.755    | 0.209 |
+|   50    |      150       |    0.05    |  0.21  |    0.709    | 0.196 |
+|   50    |      150       |    0.1     |  0.21  |    0.677    | 0.186 |
+
 
 Research limitations/implications – Basically, what is happening is the undetected positives are reducing the effect size. Using the four real sample sizes, It doesn't appear the sample size or imbalance matters much  for bias. Prop.non-detected matters. also treatment effect matters. Larger effect size means more bias.
 
