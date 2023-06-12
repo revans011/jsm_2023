@@ -165,14 +165,22 @@ sim.fun <- function(
         ### sample X
         # this is where the stocastic part comes in
 
-        x.tru.affected <- rbinom(n.cases, 1, eff.sz + .2)
+        x.real.affected <- rbinom(n.cases, 1, eff.sz + .2)
 
-        x.tru.control <- c(
-            rbinom(unlab.pos, 1, prob = eff.sz + .2),
+# eff.sz is the probability above baseline of being affected without the snp
+# the binomials determine who is affected.
+# Pan would have determined "prob" from a logistic formula
+# where the covariate is the snp and the snp comes from a latent MVN.
+# For Pan, it would be sample a MVN, use a cutoff to determine mutation, then
+# use mutation (0,1,2) with the OR parameter and baseline rate to calc "prob"
+# in the usual formula 1/1+exp(-baseline-or*snp))
+
+        x.real.control <- c(
+            rbinom(unlab.pos, 1, prob = eff.sz + .2),   #0.2 is the background disease prevalence
             rbinom(n.tru.unaff, 1, prob = 0.2)
         )
 
-        naive_X <- c(x.tru.affected, x.tru.control)
+        naive_X <- c(x.real.affected, x.real.control)
     
 
     
@@ -187,7 +195,8 @@ sim.fun <- function(
          temp.out4 <- pwr.chisq.test(w = temp.out1, df = 1, N = 200, sig.level = 0.05)$power
          out4 <- c(out4, temp.out4)
 
-
+        junk<-table(naive.dat$y, naive.dat$X)
+        out2 <- c(out2, (junk[1,1]*junk[2,2])/(junk[2,1]*junk[1,2]))
     } # loop
 
     return(list(
@@ -196,7 +205,8 @@ sim.fun <- function(
         prp.nondet = prp.nondet,
         eff.sz = eff.sz,
         naive.pwr = out4,
-        cohen = out1
+        cohen = out1,
+        or = out2
     ))
 }
 ```
@@ -221,7 +231,7 @@ parmlist <- list(
     rep(5001, 3), # interations; num.iter
     rep(100, 3), # n.cases
     rep(100, 3), # number unlabeled
-    rep(.1, 3), # eff.sz for normals
+    rep(.21, 3), # eff.sz for normals
     seq(from = 0, to = 0.1, length.out = 3)
 ) # non-detection proportion
 
@@ -235,7 +245,8 @@ smry.otpt_100_100 <- big.otpt_100_100 %>%
         prp.nondet = mean(prp.nondet),
         eff.sz = mean(eff.sz),
         naive.power = mean(naive.pwr),
-        cohen = mean(cohen)
+        cohen = mean(cohen),
+        or = mean(or)
     )
 
 pandoc.table(smry.otpt_100_100 %>% ungroup() %>% arrange(prp.nondet),
@@ -247,7 +258,7 @@ parmlist <- list(
     rep(5001, 3), # interations; num.iter
     rep(150, 3), # n.cases
     rep(50, 3), # number unlabeled
-    rep(.1, 3), # eff.sz for normals
+    rep(.21, 3), # eff.sz for normals
     seq(from = 0, to = 0.1, length.out = 3)
 ) # non-detection proportion
 
@@ -264,7 +275,8 @@ smry.otpt_150_50 <- big.otpt_150_50 %>%
         prp.nondet = mean(prp.nondet),
         eff.sz = mean(eff.sz),
         naive.power = mean(naive.pwr),
-        cohen = mean(cohen)
+        cohen = mean(cohen),
+        or = mean(or)
     )
 
 
@@ -277,7 +289,7 @@ parmlist <- list(
     rep(5001, 3), # interations; num.iter
     rep(50, 3), # n.cases
     rep(150, 3), # number unlabeled
-    rep(.1, 3), # eff.sz for normals
+    rep(.21, 3), # eff.sz for normals
     seq(from = 0, to = 0.1, length.out = 3)
 ) # non-detection proportion
 
@@ -295,7 +307,8 @@ smry.otpt_50_150 <- big.otpt_50_150 %>%
         prp.nondet = mean(prp.nondet),
         eff.sz = mean(eff.sz),
         naive.power = mean(naive.pwr),
-        cohen = mean(cohen)
+        cohen = mean(cohen),
+        or = mean(or)
     )
 
 
@@ -339,7 +352,7 @@ df.plot3 <- smry.otpt_50_150 %>%
 
 df.plot <- bind_rows(df.plot1, df.plot2, df.plot3)
 
-tiff("powerloss_all_three.tiff", units = "in", width = 7, height = 4, res = 600)
+tiff("powerloss_all_three_80percent.tiff", units = "in", width = 7, height = 4, res = 600)
 
 ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
     geom_smooth() +
@@ -347,8 +360,8 @@ ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
     ylab("Percent power loss") +
     labs(
         title = "Percent power loss from positive cases in the GWAS control group",
-        subtitle = "Relative to max power: 100 cases, 100 controls with no undetected positives",
-        caption = "Avg. observed effect size = 0.38, alpha = 0.05",
+        subtitle = "Relative to reference power: 100 cases, 100 controls with no undetected positives",
+        caption = "Reference power = 0.82, alpha = 0.05",
         color = "Naive sample sizes"
     ) +
     theme(
@@ -426,3 +439,109 @@ temp.out1
 pwr.2p2n.test(temp.out1,n.cases,n.naiv.control,0.05)[[5]]
 ```
 
+
+http://www.biostat.umn.edu/~weip/prog.html
+http://www.biostat.umn.edu/~weip/prog/BasuPanGE11/simRareSNP.R
+
+```{r, echo=FALSE}
+########simulate SNPs from a latent multivariate Gaussian variable with
+######## a CS(rho) correlation structure. 
+
+########Input: 
+#               ORs: association in OR between the causal SNPs and outcome;
+#                   implicitly,  # of causal SNPs = length(ORs);
+#               n0: # of controls;
+#               n1: # of cases ;
+#               nSNP: # of noise/marker SNPs to be generated;
+#               rho: the parameter in CS(rho) for the latent multivariate
+#                    Gaussian variable to be discretized to SNPs;
+#                    rho=0 means all SNPs are independent;
+#               MAF0slow, MAF0sup: MAFs for the causal SNPs from 
+#                                   Unif(MAF0slow, MAF0sup);
+#               MAFslow, MAFsup: MAF's of the noise SNPs are drawn from
+#                                 Unif(MAFslow, MAFsup);
+#               p0: background disease prevalence; i.e. true logistic reg model's intercept=log(p0/(1-p0))
+########Output: a list of the binary outcome Y (=0 or 1) and SNPs (=0, 1 or 2);
+#               Y is a vector of length n=n1+n0; X is a matrix of n by nSNP;
+#               and location indices for causal SNPs.
+
+simRareSNP<-function(ORs, n0=500, n1=500, nSNP=0, rho=0,
+                 MAF0slow=0.001, MAF0sup=0.01,
+                 MAFslow=0.001, MAFsup=0.01, p0=0.05){
+
+nSNP0<-length(ORs)
+q<-nSNP+nSNP0
+
+###############index for causal SNPs; mix causal and noise SNPs:
+############### SNP j is causal iff SNP0index[j]=1 or -1; =0 o/w
+signORs<-rep(1, nSNP0)
+signORs[ORs<1]<-0-1
+SNP0indx<-sample(c(signORs,  rep(0, nSNP)), q, replace = FALSE)
+
+R<-matrix(1, nrow=q, ncol=q)
+for(i in 1:q)
+  for(j in 1:q)
+    if (i!=j) R[i, j]<-rho
+svd.R<-svd(R)
+R1<-svd.R$u %*% diag(sqrt(svd.R$d))
+
+##background disease prev = p0
+b0<-log(p0/(1-p0))
+logORs<-log(ORs)
+
+MAF0s<-runif(nSNP0, MAF0slow, MAF0sup)
+MAFs1<-runif(nSNP, MAFslow, MAFsup)
+cutoff0<-qnorm(MAF0s)
+cutoff1<-qnorm(MAFs1)
+
+cutoff<-rep(0, q)
+cutoff[SNP0indx!=0]=cutoff0
+cutoff[SNP0indx==0]=cutoff1
+
+X<-matrix(0, nrow=n0+n1, ncol=q)
+Y<-rep(0, n0+n1); Y[(n0+1):(n0+n1)]<-1
+i<-1
+#sampling controls:
+while ( i <= n0){
+  X0<-rnorm(q, 0, 1) #: X0 ~ MVN(0, I)
+  X1<-R1 %*% X0   #: X1 ~ MVN(0, R)
+  X2<-ifelse(X1<cutoff, 1, 0)
+  X0<-rnorm(q, 0, 1) #: X0 ~ MVN(0, I)
+  X1<-R1 %*% X0   #: X1 ~ MVN(0, R)
+  X3<-ifelse(X1<cutoff, 1, 0)
+  X4<-X2+ X3
+  pr<-1/(1 + exp(-(b0 + sum(logORs * X4[SNP0indx!=0]))))
+  Y1<-sample(c(0, 1), 1, prob=c(1-pr, pr))
+  if (Y1==0){
+    X[i, ]<-X4
+    i<-i+1
+    }
+  }
+#sampling cases:
+while ( i <= n0+n1){
+  X0<-rnorm(q, 0, 1) #: X0 ~ MVN(0, I)
+  X1<-R1 %*% X0   #: X1 ~ MVN(0, R)
+  X2<-ifelse(X1<cutoff, 1, 0)
+  X0<-rnorm(q, 0, 1) #: X0 ~ MVN(0, I)
+  X1<-R1 %*% X0   #: X1 ~ MVN(0, R)
+  X3<-ifelse(X1<cutoff, 1, 0)
+  X4<-X2+ X3
+  pr<-1/(1 + exp(-(b0 + sum(logORs * X4[SNP0indx!=0]))))
+  Y1<-sample(c(0, 1), 1, prob=c(1-pr, pr))
+  if (Y1==1){
+    X[i, ]<-X4
+    i<-i+1
+    }
+  }
+
+list(Y=Y, X=X, SNP0indx=SNP0indx)
+
+}
+```
+
+```{r, echo=FALSE}
+junk<-simRareSNP(5,n0=100,n1=100, p=.2)
+
+str(junk)
+table(junk$Y,junk$X)
+```
