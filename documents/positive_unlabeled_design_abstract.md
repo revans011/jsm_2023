@@ -1,42 +1,38 @@
-2023-05-25
+# Long abstract: Design Considerations for studies with positive-unlabeled data
 
+2023-06-12 \
 Richard Evans \
 Clinical and Translational Science Institute \
 University of Minnesota \
-evan0770@umn.edu
+[Richard Evans' email](evan0770@umn.edu)
 
-RICH MAYBE CHANGE THIS TO RISK FACTORS IN GENERAL
+## Purpose
 
+In disease association studies, the affected subjects in the positive group are often identified with perfect sensitivity and specificity, but the disease status of control subjects is not perfectly ascertained. That means the control groups may be a mixture of both unaffected cases and some unidentified affected cases. That kind of control group is called _unlabeled_, because we are not completely sure about the disease labels (affected or unaffected)
 
-## Design Considerations for Positive-Unlabeled GWAS Studies
+ Accounting for the unlabeled aspect of the control group is usually handled during data analysis. (Bekker XXX, Hastie, Gu) In this study, we start at the beginning and considered design changes for studies that expect unlabeled control groups. In particular, we considered the effect of unlabeled data on the power of association tests.
 
-### Long Abstract
+~~For example, some affected subjects in the control group may have subclinical or sub-diagnostic disease. For example, in genome-wide association studies of cranial cruciate ligament disease in dogs, the positive groups consist of dogs with surgically stabilized knees, so the ruptured CCL is identified with certainty. However, the control groups consist of dogs who have not yet spontaneously ruptured their CCL. It is possible that some dogs in the control group may have the genotype associated with CCL disease, and just not ruptured by the time of the study. GWAS CCLD researchers mitigate this problem by selecting older dogs for controls. Nevertheless, from a statistical perspective, their control groups are considered unlabeled.~~
 
-### Purpose
+## Background
 
-In genome-wide association studies (GWAS), negative control groups are sometimes unlabeled, which means they are a mixture of unaffected cases and undetected affected cases. The unlabeled aspect of the data is usually handled in the data analysis phase rather than the design phase of the study. In this study, we considered the design phase, and investigated the effect using unlabeled control groups on the power of the association tests in GWAS studies.
+The Biases caused by PU data are well documented in the statistical and data science literature. (ref) Examples of positive-unlabeled data is well documented in human medicine, but less so in veterinary medicine. (refs in human medicine) Nevertheless, there are some veterinary studies the fall into the PU framework. For example, genome-wide association studies of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The affected cases are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone knee stabilization surgery. The controls are typically five-years-old or older with no history of CCLD and pass an orthopedic veterinary exam by board-certified surgeons. However some control dogs will have spontaneous rupture in the future, and so genetically belong in the CCLD affected group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound on physical exam and enrolled in the control group, but actually have force-platform-detectable hindlimb lameness. (ref conz eye vs platform) Such a dog should not be in the control group because the lameness might be subclinical CCLD.
 
-### Background
+Using data science terminology, the affected cases are "labeled" positive, but the control data is "unlabeled," because dogs may be affected or unaffected. These kind of data are called positive-unlabeled or presence-only data. Treating the unlabeled control group as entirely unaffected is called the _naive model_. The proportion of affected dogs in the unaffected control group is called the nondetection rate or undetected rate.
 
-Genome wide association studies of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The case are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone CCL surgery. The controls are typically five-years-old or older with no history of CCLD and pass an orthopedic veterinary exam by a board-certified surgeon. CCLD GWAS studies usually enroll as many dogs as they possibly can without regard to the balance between the numbers of cases and controls.
+There are other plausible examples of PU data in the veterinary literature, typically in risk-factor studies using case-control designs. For example, Arthur et al. (2016) used a case-control design to assess the risk of osteosarcoma following fracture repair. They noted, "There may be additional cases in which implant-related osteosarcoma was diagnosed in the private practice setting without referral...," suggesting that the control group may be PU. For another example, Wylie et al. 2013 studied risk factors for equine laminitis using controls obtained from an owner survey. The authors noted the PU aspect of their data,"Our study relied on owner-reported diagnoses of endocrinopathic conditions, and this may have introduced misclassification bias."
 
-For example, Healy enrolled 161 affected dogs and 55 control dogs, giving about a 3:1 ratio of cases to controls for N=216 dogs, while 
+The biases due to misclassification can be sometimes be mitigated using models other than the naive model, and with the appropriate data analysis, and there are many articles describing methods for analyzing positive-unlabeled data. Bekker provides and excellent summary of methods. Sometimes, however reseachers prefer the naive model becuase they believe that their small nondection rates induce small bias. There is some suggestion that nondetection rates under 10% do have little impact on bias.
 
-It is the control group that is of interest to us because some of those dogs are not truly CCLD-negative dogs. Some will get CCLD in the future, and so genetically belong in the CCLD cases group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound on physical exam and enrolled in the control group, but actually have force-platform-detectable hindlimb lameness. Such a dog should not be in the control group because the lameness might be subclinical CCLD.
+Bias in estimates (e.g., bias in regression coefficients), however, is just one part of the results, with inference (e.g., p-values) being the other. Our objective investigate the effect of unlabeled controls on the power of association tests. Using a simulation, we describe how statistical power changes while varying proportion of undetected positives in the naive controls, and varying the imbalance between the numbers of cases and naive controls.
 
-Using data science terminology, the identified cases are "labeled" positive, but the control data is "unlabeled," because it may be affected or unaffected. These kind of data are called positive-unlabeled, presence-absence or presence-only data. Treating the unlabeled group as unaffected is called the _naive model_. The proportion of affected dogs in the unaffected control group is called the nondetection rate or undetected rate.
-
-There are many articles describing methods for analyzing positive-unlabeled data. Our objective was to tackle the problem from the study design angle. Using a simulation, we describe how statistical power changes while varying proportion of undetected positives in the naive controls, and varying the imbalance between the numbers of cases and naive controls.
-
-### Aims
+## Aims
 
 We have two aims. The first aim is to provide sample-size criteria for GWAS researchers who are considering using the naive model. The second aim is to help veterinarians and clients assess the credibility of diagnostic tests developed from GWAS data.
 
-### Methodology
+## Methodology
 
-This was a simulation study assessing the power of a univariate association test, which is a common test in risk-factor studies. For example, risk-factor studies report the p-values of age, BCS, sex, and SNPS separately. (RICH what about another paper with a familywise power calculation?) The sample, N=200, size was consistent with Healey (XXX, N=216) and YYY (XXX,N=217). Lastly, The effect size (0.5) was chosen because with N=200, the power of the statistical test under a true naive model is 80% RICH check this using the real power. That way, the reference model is the one with standard power of 80%
-
-
+This was a simulation study assessing the power of a univariate association test, which is a common test in risk-factor studies. Note that there are many statistical tests for association (for GWAS, see Pan, XXX), we chose a chi-square test for simplicity, and We reported the relative loss in power so that power loss For example, risk-factor studies report the p-values of age, BCS, sex, and SNPS separately. (RICH what about another paper with a familywise power calculation?) The sample, N=200, size was consistent with Healey (XXX, N=216) and YYY (XXX,N=217). Lastly, The effect size (0.5) was chosen because with N=200, the power of the statistical test under a true naive model is 80% RICH check this using the real power. That way, the reference model is the one with standard power of 80%
 
  The simulation study varied two parameters. The first was the proportion of undetected positives in the unaffected control group, which ranged from 0 (the reference) to 10%. (RICH why stop at 10%??) and the sample size balance between the . The first looked at the effect the non-detection proportion on power to detect an association between disease status (affected or unaffected) and a genotype. The second looked at the effect of group imbalance on power. The parameters chosen to mimic canine CCLD GWAS studies, in particular, Healey et al. (2019), which used 161 dogs affected with CCLD, and 55 unlabeled dogs as controls. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance.
 
@@ -131,11 +127,17 @@ In this simulaion, the undetected positives in the negative group were sampled f
 
 This was a simulation study that considered the effect on statistical power of 10 percent or fewer undetected positives in the control group. The simulation used 
 
+Other papers have discussed improved tests and power. (wang, and the pan paper )
+
 ## References
+
+Arthur EG, Arthur GL, Keeler MR, Bryan JN. Risk of osteosarcoma in dogs after open fracture fixation. Veterinary Surgery. 2016 Jan;45(1):30-5.
 
 Baird AE, Carter SD, Innes JF, Ollier WE, Short AD. Genetic basis of cranial cruciate ligament rupture (CCLR) in dogs. Connective tissue research. 2014 Aug 1;55(4):275-81.
 
 Baker LA, Momen M, McNally R, Berres ME, Binversie EE, Sample SJ, Muir P. Biologically enhanced genome-wide association study provides further evidence for candidate loci and discovers novel loci that influence risk of anterior cruciate ligament rupture in a dog model. Frontiers in Genetics. 2021 Mar 5;12:593515.
+
+Basu S, Pan W. Comparison of statistical tests for disease association with rare variants. Genetic epidemiology. 2011 Nov;35(7):606-19.
 
 Bekker J, Davis J. Learning from positive and unlabeled data: A survey. Machine Learning. 2020 Apr;109:719-60.
 
@@ -150,6 +152,10 @@ Healey E, Murphy RJ, Hayward JJ, Castelhano M, Boyko AR, Hayashi K, Krotscheck U
 Lydersen S. Balanced or imbalanced samples?. Tidsskrift for Den norske legeforening. 2018 Sep 17.
 
 McManus IC. The power of a procedure for detecting mixture distributions in laterality data. Cortex. 1984 Sep 1;20(3):421-6.
+
+Wang T, Elston RC. Improved power by use of a weighted score test for linkage disequilibrium mapping. The american journal of human genetics. 2007 Feb 1;80(2):353-60.
+
+Wylie CE, Collins SN, Verheyen KL, Newton JR. Risk factors for equine laminitis: A case-control study conducted in veterinary-registered horses and ponies in Great Britain between 2009 and 2011. The Veterinary Journal. 2013 Oct 1;198(1):57-69.
 
 ## Appendix 1.
 Table 1. Sample sizes for four GWAS studies of CCLD. The last columns shows the number of affected cases in the control group assuming 10 percent non-detection rate. 
