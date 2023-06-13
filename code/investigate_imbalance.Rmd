@@ -42,7 +42,7 @@ here::i_am("README.md")
 
 
 
-
+This chunk is the normal mixture simulation
 ```{r,include=FALSE}
 sim.fun <- function(
     num.iter = NULL,
@@ -195,8 +195,14 @@ sim.fun <- function(
          temp.out4 <- pwr.chisq.test(w = temp.out1, df = 1, N = 200, sig.level = 0.05)$power
          out4 <- c(out4, temp.out4)
 
-        junk<-table(naive.dat$y, naive.dat$X)
-        out2 <- c(out2, (junk[1,1]*junk[2,2])/(junk[2,1]*junk[1,2]))
+        #save the odds ratio for the naive model
+        junk <- table(naive.dat$y, naive.dat$X)
+        out2 <- c(out2, (junk[1, 1] * junk[2, 2]) / (junk[2, 1] * junk[1, 2]))
+
+        #save the odds ratio for the real model
+        junk <- table(tru.labels, naive.dat$X)
+        out3 <- c(out3, (junk[1, 1] * junk[2, 2]) / (junk[2, 1] * junk[1, 2]))
+
     } # loop
 
     return(list(
@@ -206,26 +212,18 @@ sim.fun <- function(
         eff.sz = eff.sz,
         naive.pwr = out4,
         cohen = out1,
-        or = out2
+        naive_or = out2,
+        tru_or = out3
     ))
 }
 ```
 
-```{r, echo=FALSE}
-rcompanion::cohenW(c(rep(1,50),rep(0,100)), c(rep(1,60),rep(0,90)))
-
-rstatix::chisq_test(c(rep(1,50),rep(0,100)), c(rep(1,60),rep(0,90)))
-
-rcompanion::cohenW(c(rep(1,100),rep(0,50)), c(rep(1,105),rep(0,45)))
-rstatix::chisq_test(c(rep(1,100),rep(0,50)), c(rep(1,105),rep(0,45)))
-
-
-```
 
 Run three at a time-makes all the data for the plot
 ```{r}
 now <- Sys.time()
 
+set.seed(124)
 
 parmlist <- list(
     rep(5001, 3), # interations; num.iter
@@ -246,12 +244,9 @@ smry.otpt_100_100 <- big.otpt_100_100 %>%
         eff.sz = mean(eff.sz),
         naive.power = mean(naive.pwr),
         cohen = mean(cohen),
-        or = mean(or)
+        naive_or = mean(naive_or),
+        tru_or = mean(tru_or)
     )
-
-pandoc.table(smry.otpt_100_100 %>% ungroup() %>% arrange(prp.nondet),
-    style = "rmarkdown", digits = 3, split.table = Inf
-)
 
 
 parmlist <- list(
@@ -276,13 +271,10 @@ smry.otpt_150_50 <- big.otpt_150_50 %>%
         eff.sz = mean(eff.sz),
         naive.power = mean(naive.pwr),
         cohen = mean(cohen),
-        or = mean(or)
+        naive_or = mean(naive_or),
+        tru_or = mean(tru_or)
     )
 
-
-pandoc.table(smry.otpt_150_50 %>% ungroup() %>% arrange(prp.nondet),
-    style = "rmarkdown", digits = 3, split.table = Inf
-)
 
 
 parmlist <- list(
@@ -308,14 +300,23 @@ smry.otpt_50_150 <- big.otpt_50_150 %>%
         eff.sz = mean(eff.sz),
         naive.power = mean(naive.pwr),
         cohen = mean(cohen),
-        or = mean(or)
+        naive_or = mean(naive_or),
+        tru_or = mean(tru_or)
     )
 
+pandoc.table(smry.otpt_100_100 %>% ungroup() %>% arrange(prp.nondet),
+    style = "rmarkdown", digits = 3, split.table = Inf
+)
 
+pandoc.table(smry.otpt_150_50 %>% ungroup() %>% arrange(prp.nondet),
+    style = "rmarkdown", digits = 3, split.table = Inf
+)
 
 pandoc.table(smry.otpt_50_150 %>% ungroup() %>% arrange(prp.nondet),
     style = "rmarkdown", digits = 3, split.table = Inf
 )
+
+
 
 difftime(Sys.time(), now)
 ```
@@ -352,7 +353,7 @@ df.plot3 <- smry.otpt_50_150 %>%
 
 df.plot <- bind_rows(df.plot1, df.plot2, df.plot3)
 
-tiff("powerloss_all_three_80percent.tiff", units = "in", width = 7, height = 4, res = 600)
+tiff("powerloss_all_three_80percentb.tiff", units = "in", width = 7, height = 4, res = 600)
 
 ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
     geom_smooth() +
