@@ -304,6 +304,8 @@ smry.otpt_50_150 <- big.otpt_50_150 %>%
         tru_or = mean(tru_or)
     )
 
+
+#test git
 pandoc.table(smry.otpt_100_100 %>% ungroup() %>% arrange(prp.nondet),
     style = "rmarkdown", digits = 3, split.table = Inf
 )
