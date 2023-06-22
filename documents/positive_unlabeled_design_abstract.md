@@ -24,25 +24,33 @@ Using data science terminology, the affected cases are "labeled" positive, but t
 
 The Biases caused by PU data are well documented in the statistical and data science literature. (ref) The biases due to misclassification can be sometimes be mitigated using models other than the naive model and with the appropriate data analysis, and there are many articles describing methods for analyzing positive-unlabeled data. Bekker provides and excellent summary of methods. Sometimes, however researchers prefer the naive model because they believe that their small nondection rates induce biases that are too small for pracatical consideration. There is some suggestion that nondetection rates under 10% do have little impact on bias.
 
-But bias in estimates (e.g., bias in regression coefficients) is just one part of the results; the other part is inference (e.g., p-values). Our objective was investigate the effect of unlabeled controls on the power of association tests. Using a simulation, we describe how statistical power changes with varying proportion of undetected positives in the naive controls, and varying the imbalance between the numbers of cases and naive controls.
+But bias in estimates (e.g., bias in regression coefficients) is just one part of the results; the other part is inference (e.g., p-values). Central to inference is the power of statistical tests in the study. Power is used in planning a study to as a measure of the ability of the study to make the correct decision. Typically, 80 percent power means that if the groups are truly different, then the statistical test has an 80 percent chance of obtain p<0.05
 
-## Aims
+During the design of a risk association study, a researcher might calculate the sample size they need using the naive model. However, if the data are PU, then the naive model is incorrect and the estimated power may not correct.
+
+In this paper we investigated the effect of PU data on statistical power under the naive model. The reference power is defined as the power when the naive model is correct and the group sizes are balanced. The results are described in terms power loss relative to the reference power, either percent power loss or absolute power loss. These two quantities are analogous to relative risk and absolute risk from epidemiology.
+
+Using a simulation, we described how statistical power changes with varying proportion of undetected positives in the naive controls, and varying the imbalance between the numbers of cases and naive controls.
+
+## Aim
 
 Our aim is to provide sample size guidelines for risk association researchers who are considering analyzing PU data under the naive model.
 
+## Objective
+
+The objective is to report the loss in statistical power due to unlabeled data two ways: as a percentage of the reference power, and as asbolute power loss.
+
 ## Methodology
 
-This was a simulation study assessing the power of a univariate association test when planning a risk association study using the naive model with PU data. There are many statistical tests for association (for GWAS, see Pan, XXX), but we calculated the power for a chi-square test (DF=1) because it is a common test. For example, the association between disease state and any binary covariate (e.g., sex, or a SNP) might be tested with a chi-square test.
+This was a simulation study assessing the power of a univariate association test when planning a risk association study using the naive model with PU data. There are many statistical tests for association (for GWAS, see Pan, XXX), but we calculated the power for a chi-square test (DF=1) because it is a common test. For example, the association between disease state and any binary covariate (e.g., sex, or a SNP) might be tested with a chi-square test with DF=1.
 
 In the context of risk association studies, and all else being equal, the chi-square test would achieve maximum power for a balanced study design and when the naive model is correct (i.e., the undetected rate is zero). We call that maximum power the _reference power_ and reported our results as both percent power loss relative to the reference power and as absolute power loss from reference power. In other words, we are using the chi-square test to show how much statistical power is lost by ignoring the nondetection rate.
 
-The total sample size for the simulation was fixed N=200, which is consistent with Healey (XXX, N=216) and YYY (XXX,N=217). Lastly, The effect size, 0.5, was chosen because with N=200, the reference power was about 80 percent, which is value that is commonly used in study design. That way, the reference model is the one with standard power of 80 percent. Note that the sample size is not a key parameter for the simulation, because for any sample size an effect size can be chosen so that power is 80 percent. Also, the nondetection rate is a proportion of the size of the control group, rather than an absolute number of affected cases, so the rate is constant even for different sample sizes. 
+The total sample size for the simulation was fixed N=200, which is consistent with Healey (XXX, N=216) and YYY (XXX,N=217). The effect size, 0.5, was chosen because with N=200, the reference power was about 80 percent, which is value that is commonly used in study design. That way, the reference model is the one with standard power of 80 percent. Note that the sample size and effect size are not a key parameters for the simulation, because for any sample size an effect size can be chosen so that power is 80 percent.
 
  The simulation study varied two study design parameters: the non-detection proportion and group-size imbalance. The proportion of undetected positives in the control group ranged from 0 (the value for reference power) to 10 percent. We used 10 percent as the upper limit because researcher are generally willing to accept detection rates below 10 percent and use the naive model, but change to a PU analysis for rates greater than 10 percent.  
  
- We modeled imbalance using  Healey et al. (2019), which used 161 dogs affected with CCLD, and 55 unlabeled dogs as controls and zzz so that imbalnces ranged from 3:1 and 1:3. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance.
-
-Using that paper, and some others (REF), the proportion of non-detected cases in the simulation ranged from 0 percent to 10 percent (although other kinds of studies may have higher proportions). The simulated sample size was 200, but we varied the sample size between the numbers of cases and controls, and used 0.5 as the effect size. That effect size was chosen because for N=200 it yielded powers around 80% for Welsh's t-test as the outcome. 
+ We modeled imbalance using  Healey et al. (2019), which used 161 dogs affected with CCLD, and 55 unlabeled dogs as controls and zzz so that imbalnces ranged from 3:1 and 1:3. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance. We only used two imbalance proportions (1:3 and 3:1) and no imbalance (1:1) because the key parameter for this study was the nondetection proportion.
 
 ### The algorithm
 
