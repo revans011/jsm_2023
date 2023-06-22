@@ -56,7 +56,7 @@ The total sample size for the simulation was fixed N=200, which is consistent wi
 
 ## Findings
 
-### Loss of power, balanced group sizessssss
+### Loss of power, balanced group sizecccccccccc
 
 Undetected positives in the control group reduced the power of the association test. An example of the reduction in power is in Figure 1. The first point on blue curve in Figure 1 shows the power of the association test when there are no undetected positives in the control group. This point serves as the "referece" power when the proportion of undetected positives is the control group is zero and the naive model is the correct model. As the proportion of undetected positives increases (the x-axis), the blue curves decreases, which means the power is decreasing. The y-axis is the 
 
