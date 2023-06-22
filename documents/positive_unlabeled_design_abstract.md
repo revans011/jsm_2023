@@ -46,48 +46,13 @@ This was a simulation study assessing the power of a univariate association test
 
 In the context of risk association studies, and all else being equal, the chi-square test would achieve maximum power for a balanced study design and when the naive model is correct (i.e., the undetected rate is zero). We call that maximum power the _reference power_ and reported our results as both percent power loss relative to the reference power and as absolute power loss from reference power. In other words, we are using the chi-square test to show how much statistical power is lost by ignoring the nondetection rate.
 
-The total sample size for the simulation was fixed N=200, which is consistent with Healey (XXX, N=216) and YYY (XXX,N=217). The effect size, 0.5, was chosen because with N=200, the reference power was about 80 percent, which is value that is commonly used in study design. That way, the reference model is the one with standard power of 80 percent. Note that the sample size and effect size are not a key parameters for the simulation, because for any sample size an effect size can be chosen so that power is 80 percent.
+The total sample size for the simulation was fixed N=200, which is consistent with Healey (XXX, N=216) and YYY (XXX,N=217). The effect size, 0.5 OR WAS IT 0.3, was chosen because with N=200, the reference power was about 80 percent, which is value that is commonly used in study design. That way, the reference model is the one with standard power of 80 percent. Note that the sample size and effect size are not a key parameters for the simulation, because for any sample size an effect size can be chosen so that power is 80 percent.
 
  The simulation study varied two study design parameters: the non-detection proportion and group-size imbalance. The proportion of undetected positives in the control group ranged from 0 (the value for reference power) to 10 percent. We used 10 percent as the upper limit because researcher are generally willing to accept detection rates below 10 percent and use the naive model, but change to a PU analysis for rates greater than 10 percent.  
  
  We modeled imbalance using  Healey et al. (2019), which used 161 dogs affected with CCLD, and 55 unlabeled dogs as controls and zzz so that imbalnces ranged from 3:1 and 1:3. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance. We only used two imbalance proportions (1:3 and 3:1) and no imbalance (1:1) because the key parameter for this study was the nondetection proportion.
 
-### The algorithm
-
-1. Input Naive model
-- Number of cases in affected group
-- Number of subjects in the naive control group
-
-1. Input the simulation parameters
-- number of simulation iterations
-- proportion cases in the control group that are undetected positives
-
-1. Calculate true model labels
-- number of affected subjects in the naive control group
-- real number of affected subjects (equal to the size of the affected group plus the number of affected in the control group)
-- real number of negatives (equal to the number of subjects in the naive control minus the number of affected cases in the naive control)
-
-FOR 1 to num.iter
-
-Sample a covariate related to genotype
-sample real number of negatives from N(0,1)
-sample real number of positives from N(0.5,1)
-
-Simulate disease
-standardize X
-Observed diseased from if X a uniform variate (-1,1) otherwise disease negative
-
-Label
-label the data according to the naive model (0 or 1)
-
-Calculate the observed effect size for binary data (Cohen's W)
-
-Calculate power using Cohen's W
-
-save power
-
-END loop
-
+ The simulated data were generated in XXXX steps using two latent variables with normal distributions. The truly negative cases come from N(0,1). The tru First, using the nondetection rate, 
 
 ## Findings
 
