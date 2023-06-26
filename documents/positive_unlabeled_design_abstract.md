@@ -8,80 +8,60 @@ University of Minnesota \
 
 ## Purpose
 
-In risk association studies, the affected subjects in the positive group are often identified with perfect sensitivity and specificity, but the disease status of control subjects is not perfectly ascertained. That means the control groups may be a mixture of both unaffected cases and some unidentified affected cases. That kind of control group is called _unlabeled_, because we are not completely sure about the disease labels (affected or unaffected). The entire dataset is referred to as _postitive-unlabeled_ (PU) because the positives are truly affected but the purported controls are truly unlabeled.
+In risk association studies, the affected subjects in the positive group are often identified with perfect sensitivity and specificity, but sometimes the disease status of control subjects is not perfectly ascertained. That means the control groups may be mixtures of both unaffected cases and some unidentified affected cases. Those kinds of control groups are called _unlabeled_, because we are not completely sure about the disease labels (affected or unaffected). The entire dataset is referred to as _postitive-unlabeled_ (PU).
 
- Accounting for the unlabeled aspect of the control group is usually handled during data analysis. (Bekker XXX, Hastie, Gu) In this study, we start at the beginning and considered design changes for studies that expect unlabeled control groups. In particular, we considered the effect of unlabeled data on the power of association tests.
+ Accounting for the unlabeled aspect of the control groups is usually handled during data analysis. (Bekker XXX, Hastie, Gu), rather than during the study design phase. In this study, we start at the beginning and considered design changes for studies that expect unlabeled control groups. In particular, we considered the effect of unlabeled data on the power of association tests.
 
 ~~For example, some affected subjects in the control group may have subclinical or sub-diagnostic disease. For example, in genome-wide association studies of cranial cruciate ligament disease in dogs, the positive groups consist of dogs with surgically stabilized knees, so the ruptured CCL is identified with certainty. However, the control groups consist of dogs who have not yet spontaneously ruptured their CCL. It is possible that some dogs in the control group may have the genotype associated with CCL disease, and just not ruptured by the time of the study. GWAS CCLD researchers mitigate this problem by selecting older dogs for controls. Nevertheless, from a statistical perspective, their control groups are considered unlabeled.~~
 
 ## Background
 
-The Biases caused by PU data are well documented in the statistical and data science literature. (ref) Examples of positive-unlabeled data are also well documented in human medicine, but less so in veterinary medicine. (refs in human medicine) Nevertheless, there are some veterinary studies the fall into the PU framework. For example, genome-wide association studies of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The affected cases are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone knee stabilization surgery. The controls are typically five-years-old or older with no history of CCLD and pass an orthopedic veterinary exam by board-certified surgeons. However some control dogs will have spontaneous rupture in the future, and so genetically belong in the CCLD affected group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound on physical exam and enrolled in the control group, but actually have force-platform-detectable hindlimb lameness. (ref conz eye vs platform) Such a dog should not be in the control group because the lameness might be subclinical CCLD.
+Examples of positive-unlabeled data are also well documented in human medicine, but less so in veterinary medicine. (refs in human medicine) Nevertheless, there are some veterinary studies the fall into the PU framework. For example, genome-wide association studies of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The affected cases are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone knee stabilization surgery. The controls are typically five-years-old or older with no history of CCLD and pass an orthopedic veterinary exam by board-certified surgeons. However some control dogs will have spontaneous rupture in the future, and so genetically belong in the CCLD affected group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound on physical exam and enrolled in the control group, but actually have force-platform-detectable hindlimb lameness. (ref conz eye vs platform) Such a dog should not be in the control group because the lameness might be subclinical CCLD.
 
 There are other plausible examples of PU data in the veterinary literature, typically in risk-factor studies using case-control designs. For example, Arthur et al. (2016) used a case-control design to assess the risk of osteosarcoma following fracture repair. They noted, "There may be additional cases [in the control group] in which implant-related osteosarcoma was diagnosed in the private practice setting without referral...," suggesting that the control group may be PU. For another example, Wylie et al. 2013 studied risk factors for equine laminitis using controls obtained from an owner survey. The authors noted the PU aspect of their data,"Our study relied on owner-reported diagnoses of endocrinopathic conditions, and this may have introduced misclassification bias."
 
 Using data science terminology, the affected cases are "labeled" positive, but the control data is "unlabeled," because dogs may be affected or unaffected. These kind of data are called positive-unlabeled or presence-only data. Treating the unlabeled control group as entirely unaffected is called the _naive model_. The proportion of affected dogs in the unaffected control group is called the _nondetection_ rate or _undetected rate_.
 
-The biases due to misclassification can be sometimes be mitigated using models other than the naive model, and with the appropriate data analysis, and there are many articles describing methods for analyzing positive-unlabeled data. Bekker provides and excellent summary of methods. Sometimes, however researchers prefer the naive model because they believe that their small nondection rates induce small bias. There is some suggestion that nondetection rates under 10% do have little impact on bias.
+The Biases caused by PU data are well documented in the statistical and data science literature. (ref) The biases due to misclassification can be sometimes be mitigated using models other than the naive model and with the appropriate data analysis, and there are many articles describing methods for analyzing positive-unlabeled data. Bekker provides and excellent summary of methods. Sometimes, however researchers prefer the naive model because they believe that their small nondection rates induce biases that are too small for pracatical consideration. There is some suggestion that nondetection rates under 10% do have little impact on bias.
 
-Bias in estimates (e.g., bias in regression coefficients), however, is just one part of the results; the other part is inference (e.g., p-values). Our objective was investigate the effect of unlabeled controls on the power of association tests. Using a simulation, we describe how statistical power changes with varying proportion of undetected positives in the naive controls, and varying the imbalance between the numbers of cases and naive controls.
+But bias in estimates (e.g., bias in regression coefficients) is just one part of the results; the other part is inference (e.g., p-values). Central to inference is the power of statistical tests in the study. Power is used in planning a study to as a measure of the ability of the study to make the correct decision. Typically, 80 percent power means that if the groups are truly different, then the statistical test has an 80 percent chance of obtain p<0.05
 
-## Aims
+During the design of a risk association study, a researcher might calculate the sample size they need using the naive model. However, if the data are PU, then the naive model is incorrect and the estimated power may not correct.
 
-Our aim is to provide sample-size guidelines for risk association researchers who are considering using the naive model.
+In this paper we investigated the effect of PU data on statistical power under the naive model. The reference power is defined as the power when the naive model is correct and the group sizes are balanced. The results are described in terms power loss relative to the reference power, either percent power loss or absolute power loss. These two quantities are analogous to relative risk and absolute risk from epidemiology.
+
+Using a simulation, we described how statistical power changes with varying proportion of undetected positives in the naive controls, and varying the imbalance between the numbers of cases and naive controls.
+
+## Aim
+
+Our aim is to provide sample size guidelines for risk association researchers who are considering analyzing PU data under the naive model.
+
+## Objective
+
+The objective is to report the loss in statistical power due to unlabeled data two ways: as a percentage of the reference power, and as asbolute power loss.
 
 ## Methodology
 
-This was a simulation study assessing the power of a univariate association test when the naive model is wrong. There are many statistical tests for association (for GWAS, see Pan, XXX), but we calculated the power for a chi-square test (DF=1) for simplicity and because it is a common test. For example, the association between disease state and any binary covariate (e.g., sex) might be tested with a chi-square test. In the context of risk association studies, and all else being equal, the chi-square test would achieve maximum power for a balanced study design when the naive model is correct (i.e., the undetected rate is zero). We call that maximum power the _reference power_ and reported our results as both percent power loss relative to the reference power and as absolute power loss from reference power. In other words, we are using the chi-square test to show how much statistical power is lost by ignoring the nondetection rate.
+This was a simulation study assessing the power of a univariate association test when planning a risk association study using the naive model with PU data. There are many statistical tests for association (for GWAS, see Pan, XXX), but we calculated the power for a chi-square test (DF=1) because it is a common test. For example, the association between disease state and any binary covariate (e.g., sex, or a SNP) might be tested with a chi-square test with DF=1.
 
-The total sample size for the simulation was N=200, size was consistent with Healey (XXX, N=216) and YYY (XXX,N=217). Lastly, The effect size (0.5) was chosen because with N=200, the reference power was about 80%, which is value that is commonly used to design studies. That way, the reference model is the one with standard power of 80%. Note that the simulation sample size is not a central issue, because whatever the sample size the effect size could be changed to obtain and 80% reference power.
 
- With the sample size and the effect size fixed, the simulation study varied two parameters: The proportion of undetected positives in the control group, and the proportion of imbalance in sample sizes between the positive and negative groups. The proportion of undetected positives in the control group ranged from 0 (the value for reference power) to 10%. We used 10% as the upper limit because researcher are generally willing to accept detection rates below 10% and use the naive model, but change models when the detection rate is greater than 10%. For group size imbalance, risk factor studies, especially retrospective risk factor studies, often have imbalanced groups because the researchers take every acceptable case and control to maximize sample size. Imbalance was chosen to mimic two canine CCLD GWAS studies. Healey et al. (2019), used 161 dogs affected with CCLD and 55 unlabeled dogs as controls giving a roughly 3:1 imbalance. XXXX, used YYY dogs affected with CCLD and ZZZ unlabeled dogs as controls giving a roughly 1:3 imbalance. 
+In the context of risk association studies, and all else being equal, the chi-square test would achieve maximum power for a balanced study design and when the naive model is correct (i.e., the undetected rate is zero). We call that maximum power the _reference power_ and reported our results as both percent power loss relative to the reference power and as absolute power loss from reference power. In other words, we are using the chi-square test to show how much statistical power is lost by ignoring the nondetection rate.
 
-Using that paper, and some others (REF), the proportion of non-detected cases in the simulation ranged from 0 percent to 10 percent (although other kinds of studies may have higher proportions). The simulated sample size was 200, but we varied the sample size between the numbers of cases and controls, and used 0.5 as the effect size. That effect size was chosen because for N=200 it yielded powers around 80% for Welsh's t-test as the outcome. 
+The total sample size for the simulation was fixed N=200, which is consistent with Healey (XXX, N=216) and YYY (XXX,N=217). The effect size, 0.5 OR WAS IT 0.3, was chosen because with N=200, the reference power was about 80 percent, which is value that is commonly used in study design. That way, the reference model is the one with standard power of 80 percent. Note that the sample size and effect size are not a key parameters for the simulation, because for any sample size an effect size can be chosen so that power is 80 percent.
 
-### The algorithm
+ The simulation study varied two study design parameters: the non-detection proportion and group-size imbalance. The proportion of undetected positives in the control group ranged from 0 (the value for reference power) to 10 percent. We used 10 percent as the upper limit because researcher are generally willing to accept detection rates below 10 percent and use the naive model, but change to a PU analysis for rates greater than 10 percent.  
+ 
+ We modeled imbalance using  Healey et al. (2019), which used 161 dogs affected with CCLD, and 55 unlabeled dogs as controls and zzz so that imbalnces ranged from 3:1 and 1:3. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance. We only used two imbalance proportions (1:3 and 3:1) and no imbalance (1:1) because the key parameter for this study was the nondetection proportion.
 
-1. Input Naive model
-- Number of cases in affected group
-- Number of subjects in the naive control group
-
-1. Input the simulation parameters
-- number of simulation iterations
-- proportion cases in the control group that are undetected positives
-
-1. Calculate true model labels
-- number of affected subjects in the naive control group
-- real number of affected subjects (equal to the size of the affected group plus the number of affected in the control group)
-- real number of negatives (equal to the number of subjects in the naive control minus the number of affected cases in the naive control)
-
-FOR 1 to num.iter
-
-Sample a covariate related to genotype
-sample real number of negatives from N(0,1)
-sample real number of positives from N(0.5,1)
-
-Simulate disease
-standardize X
-Observed diseased from if X a uniform variate (-1,1) otherwise disease negative
-
-Label
-label the data according to the naive model (0 or 1)
-
-Calculate the observed effect size for binary data (Cohen's W)
-
-Calculate power using Cohen's W
-
-save power
-
-END loop
-
+ The simulated data were generated in XXXX steps using two latent variables with normal distributions. The truly negative cases come from N(0,1). The tru First, using the nondetection rate, 
 
 ## Findings
 
 ### Loss of power, balanced group sizes
 
 Undetected positives in the control group reduced the power of the association test. An example of the reduction in power is in Figure 1. The first point on blue curve in Figure 1 shows the power of the association test when there are no undetected positives in the control group. This point serves as the "referece" power when the proportion of undetected positives is the control group is zero and the naive model is the correct model. As the proportion of undetected positives increases (the x-axis), the blue curves decreases, which means the power is decreasing. The y-axis is the 
+
+RICH THESE ARE RAW POWERS. FIX THE TABLE TO INCLUDE PERCENT LOSS AND ABSOLUTE LOSS
 
 | n.cases | n.naiv.control | prp.nondet | eff.sz | naive.power | cohen |
 |:-------:|:--------------:|:----------:|:------:|:-----------:|:-----:|
@@ -121,11 +101,15 @@ However, the undetected-positive rate for CCLD GWAS studies is small, certainly 
 
 # Discussion
 
-There are modest power reductions even for small proportions of undetected positives in the control group. The reductions in power (relative to the reference power) are less so when the powers are near 0 or 1. {Rich check and fix this}. The results for absolute powers are less dramatic. The simlations suggest proportions of undetected positives in the control of 10 percent or less decrease power, but minimally. 
+There are modest power reductions even for small proportions of undetected positives in the control group. The results for absolute powers appear less dramatic by can affect the sample size. For example, with a 5 percent nondection rate and a balanced study design, the sample size in the context of this simulation would have to be XXXX, which is a zzz percent increase in sample size. 
 
 This was a simulation study to test the power of a single association test. The working example was the association test for a single SNP in a GWAS study, but the simulation results apply to any kind of study with univariate association tests, such as any risk factor study. That is a broad class of studies. Examples include the univariate associations between post-op surgical infections and various surgical conditions (e.g., boarded surgeon vs resident, manufactuer of bone plate). In that case, there may be subdiagnostic infections in the control group. Another example is univariate association tests in veterinary surveys, such as XXX. In that case, there may be subclinical ...
 
-In this simulaion, the undetected positives in the negative group were sampled from the same population as the detected positives in the affected group. That's a common assumption (ref GU and others) but it does not apply to the situation where binary "affectedness" changes as the function of a scaled risk factor variable. Using risk factors for CCLD example, BCS may affect spontaneous rupture. 
+In this simulaion, the undetected positives in the negative group were randomly sampled from the same population as the detected positives in the affected group. That's a common assumption (ref GU and others) but there are other models. For example, the undetected positives in the control group might be a subpopulation of positives defined by another variable. For example, in a CCLD GWAS study, the undetected positives in the control group might be positive dogs with low BCS only. 
+
+
+
+ it does not apply to the situation where binary "affectedness" changes as the function of a scaled risk factor variable. Using risk factors for CCLD example, BCS may affect spontaneous rupture. 
 
 This was a simulation study that considered the effect on statistical power of 10 percent or fewer undetected positives in the control group. The simulation used 
 
@@ -170,9 +154,7 @@ Table 1. Sample sizes for four GWAS studies of CCLD. The last columns shows the 
 | Healy et al. (2019)     | 216   | 161   | 55        |  6      |
 
 
-In orthopaedic genome-wide association studies (GWAS), negative control groups are sometimes are a combination of unaffected cases and some undetected affected cases. An example are the control groups for canine cruciate ligament GWAS. Some of those control dogs may have a "rupture genotype" but have not yet spontaneously ruptured. Control groups that are a combination of unaffected and some undetected affected subjects are called "unlabeled." The unlabeled aspect of the data is usually handled in the data analysis phase rather than the design phase of the study. In this study, we considered the design phase, and investigated the effect using unlabeled control groups on the power of the association tests in GWAS studies. More broadly, this study address the effect of unlabeled data on orthopaedic observational studies.
 
-competing
 
 
 
