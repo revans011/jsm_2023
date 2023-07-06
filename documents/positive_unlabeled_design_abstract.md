@@ -32,81 +32,80 @@ Using a simulation, we described how statistical power changes with varying prop
 
 ## Aim
 
-Our aim is to provide sample size guidelines for risk association researchers who are considering analyzing PU data under the naive model.
+Our aim is to demonstrate that PU data affects statistical power in risk-factor studies, even for small nondetection rates.
 
 ## Objective
 
-The objective is to report the loss in statistical power due to unlabeled data two ways: as a percentage of the reference power, and as absolute power loss.
+The objective is to report the loss in statistical power for specific, reasonable examples based on the published literature. Loss is reported two ways: as a percentage of the reference power, and as absolute power loss.
 
-## Methodology
+## Methods
 
-This was a simulation study assessing the changes in power of a univariate association test under different PU conditions. There are many statistical tests for association (for GWAS, see Pan), but we calculated the power for one of the most common tests, the Wald test, which is used to test statistical significance of a risk-factor coefficient in a logistic regression model. For example, if the disease is CCLD, and the risk factor is body condition score, then the logistic regression coefficient for body condition score would be tested with a Wald test. If the coefficient is statistically significant, then body condition score is a risk factor for CCLD.
+This was a simulation study assessing the changes in power of a univariate association test under different PU conditions. There are many statistical tests for association (for GWAS, see Pan), but we calculated the power for one of the most common tests, the $\chi^2$ test with one degree of freedom, which is used to test statistical significance of a risk-factor binary. For example, if the disease is CCLD, and the risk factor is sex, then the logistic regression coefficient for body condition score would be tested with a $\chi_2$ test. More generally, this test can be used to assess the significance of any risk factor using the predicted values from a univariate logistic regression.
 
-In the context of risk association studies, and all else being equal, the Wald test would achieve its maximum power for a balanced study design and when the naive model is correct (i.e., the undetected rate is zero). We call that maximum power the _reference power_ and reported our results as both percent power loss relative to the reference power and as absolute power loss from reference power. In other words, we are using the Wald test to show how much statistical power is lost by ignoring the nondetection rate.
+In the context of risk association studies, and all else being equal, the $\chi_2$ test would achieve its maximum power for a balanced study design when the naive model is correct (i.e., the undetected positives rate is zero). We call that maximum power the _reference power_ and reported our results as both percent power loss relative to the reference power and as absolute power loss from reference power. In other words, we are using the Wald test to show how much statistical power is lost by ignoring the nondetection rate.
 
-The total sample size for the simulation was fixed N=200, which is consistent with Healey (N=216) and Baird (N=217). The effect size, 0.3, was chosen because with N=200, the reference power was close to 80 percent, which is value that is commonly used in study design. That way, the reference model is the one with standard power of 80 percent. Note that the sample size and effect size are not a key parameters for the simulation because for any sample size an effect size can be chosen so that power is 80 percent. Also, effect size and sample size are not features of PU data, per se.
+The total sample size for the simulation was fixed N=200, which is consistent with Healey (N=216) and Baird (N=217). The effect size, 0.21, was chosen because with N=200, the reference power was close to 80 percent, which is value that is commonly used in study design. That way, the reference model is the one with standard power of 80 percent. Note that the sample size and effect size are not a key parameters for the simulation because for any sample size an effect size can be chosen so that power is 80 percent. Also, effect size and sample size are not features of PU data, per se.
 
  The simulation study varied two study design parameters: the non-detection proportion and group-size imbalance. The proportion of undetected positives in the control group ranged from 0 (the value for reference power) to 10 percent. We used 10 percent as the upper limit because researchers are generally willing to accept detection rates below 10 percent and use the naive model, but change to a PU analysis for rates greater than 10 percent. (Bekker)  
 
  We modeled group imbalance using Healey et al. (2019), which used 161 dogs affected with CCLD and 55 unlabeled dogs as controls, and Baird et al. (2014) which used 91 dogs affected with CCLD, and 126 unlabeled dogs as controls, so that imbalance ratios were about 3:1 and 1:3. That study was chosen because it was generally similar to other GWAS studies, and because it has the most extreme imbalance. We only used two imbalance proportions (1:3 and 3:1) and no imbalance (1:1) because the key parameter for this study was the nondetection proportion. That gave sample sizes of (50, 150), (150, 50), and (100, 100)
 
- The simulation algorithm is most easily described using an example. The input is the group sizes and the nondetection rate. Suppose the imbalance is 150 positives and 50 unlabeled, with a nondetection rate of 0.1 (10 percent). So, five of the 50 unlabeled cases are undetected positives, leaving 45 truly negative cases.
+The simulation algorithm is most easily described using two examples, and we begin with calculating power for the $\chi^2$ test using simulated reference data, which has no positives in the negative group and balanced group sizes (100 positive and 100 negative cases). That is, there in no PU data. The binary risk factor variable, $X$ (e.g., sex), is simulated by sampling 100 negative cases from a binomial distribution with $Pr(X=1) = 0.2$. That probability means the the baseline risk for the disease in the population is 0.2. It it was chosen arbitrarily, because the baseline risk isn't central to power, the effect size is. As mentioned above, the effect size was 0.21, so the 100 positive cases were sampled from a binomial distribution with $Pr(X=1) = 0.2 + 0.21$. These data and the disease status labels allow for a 2x2 table, 
 
- The risk-factor variable, $X$, is sampled from two distributions
+|           |     | Risk factor |      |
+|:---------:|:---:|:-----------:|:----:|
+|           |     |     0       |  1   |
+|   status  |  0  |     a       |  c   |
+|           |  1  |     b       |  d   |
 
- The 45 negative cases for the risk factor variable, $X$, are independently sampled from $N(0,1)$. The 5 nondetected positive cases are independently sampled from $N(0.3,1)$. Now, the control group has 50 cases, five of which has simulated data from the positive distribution. The 
- 
- The input for the simulated data were generated in XXXX steps using two latent variables with normal distributions. The truly negative cases come from N(0,1). The tru First, using the nondetection rate, 
+These simulated data are then treated like pilot data and used for a $\chi^2$ test power calculation with one degree of freedom and $\alpha = 0.05. That process was repeated 5000 times, each time generating new risk factor data from the two binomial distributions. The average of the 5000 powers give the estimated power for the reference model, which, as mentioned above, is 80 percent by design.
+
+For the second example, we calculate the power for a PU example. Suppose that in a 100-patient control group, 10 percent are in fact undetected positives. So the dataset is 100 positives in the positive group, 10 positives in the control group, and 90 negatives in the control group. As in the previous example, the risk factor is simulated by sampling from binomial distributions. Now, 90 negatives are sampled from the binomial distribution with $Pr(X=1) = 0.2$ and 155 positives from the binomial distribution with $Pr(X=1) = 0.2 + 0.21$. But this time, the 10 mislabeled positives are analyzed as negatives, so as to measure the effect of treating PU data naively.   
 
 ## Findings
 
-### Loss of power, balanced group sizecccccccccc
+Table 1 shows the loss of power due to group size imbalance only. For this table, the naive model is the correct model because the nondetection rate is zero. The first row is the reference power, so its loss of power compared to itself is zero. The reference power was calculated in the simulation just like all the other powers, and was 0.82. As expected, the power drops with imbalance, but it is important to note that the power drop is asymmetric.
 
-Undetected positives in the control group reduced the power of the association test. An example of the reduction in power is in Figure 1. The first point on blue curve in Figure 1 shows the power of the association test when there are no undetected positives in the control group. This point serves as the "referece" power when the proportion of undetected positives is the control group is zero and the naive model is the correct model. As the proportion of undetected positives increases (the x-axis), the blue curves decreases, which means the power is decreasing. The y-axis is the 
+Table 1 Power loss due to group size imbalance
+| Row | N positive cases | N naive controls | nondetection proportion | Relative power loss (%) | Absolute power loss (from 0.82) |
+|:---:|:---:|:--------:|:----------:|:--------:|:--------:|
+| 1 | 100 |   100    |     0      |    0     |    0     |
+| 2 | 50  |   150    |     0      |  -8.24   | -0.0676  |
+| 3 | 150 |    50    |     0      |  -13.4   |  -0.11   |
 
-RICH THESE ARE RAW POWERS. FIX THE TABLE TO INCLUDE PERCENT LOSS AND ABSOLUTE LOSS
+Table 2 shows power loss when PU is modeled naively, for selected nondetection proportions and groups sizes, sorted by descending relative power loss. The first row is the reference power, so there is no power loss for itself.  Columns four and five are the power loss columns, and have negative entries because for this simulation, PU data models treated as naive models always had lower power, as did unbalanced data. For example, the second row shows a -4.3% relative power reduction when the group sizes are balanced but five percent of the control group is actually positive cases. Rows three has a higher nondetection rate than rows five and size, but a smaller power loss. 
 
-| n.cases | n.naiv.control | prp.nondet | eff.sz | naive.power | cohen |
-|:-------:|:--------------:|:----------:|:------:|:-----------:|:-----:|
-|   100   |      100       |     0      |  0.21  |    0.822    | 0.229 |
-|   100   |      100       |    0.05    |  0.21  |    0.788    | 0.217 |
-|   100   |      100       |    0.1     |  0.21  |    0.747    | 0.204 |
+Table 2. Power loss due to nondetection rate and group size imbalance.
+| Row | N positive cases | N naive controls | nondetection proportion | Relative power loss (%) | Absolute power loss (from 0.82) |
+|:---:|:---:|:--------:|:----------:|:--------:|:--------:|
+| 1 | 100 |   100    |     0      |    0     |    0     |
+| 2 | 100 |   100    |    0.05    |   -4.3   | -0.0353  |
+| 3 | 100 |   100    |    0.1     |   -8.8   | -0.0722  |
+| 4 | 50  |   150    |    0.05    |  -12.8   |  -0.105  |
+| 5 | 150 |    50    |    0.05    |  -17.2   |  -0.141  |
+| 6 | 50  |   150    |    0.1     |  -17.4   |  -0.143  |
+| 7 | 150 |    50    |    0.1     |  -22.3   |  -0.183  |
 
-### Loss of power, unbalanced group sizes
+Table 3 combines Tables 1 and 2 to show the combined effects of nondetection rate and group size imbalance. On the whole, increasing nondetection rate increases. However, group size imbalance can affect power loss more than relatively small nondetection rates. For example, consider rows 4, 5, and 6. For those rows, nondetection rate is decreasing, but power loss is increasing due to group imbalance. However, within fixed group sizes (e.g., 100,100, 150,50 or 50,150) increasing nondetection rate alway means increasing power loss.
 
-The $\chi^{2}$ test statistic is not symetric, so the the direction of the 
-
-The columns "No. not det" and "p-value difference" show that for the same N=200 sample size, the difference in p-values decreases as the number of of non-detected cases decreases. For this example, and unbalanced design minimizes the difference in p-values suggesting the the inferences will be similar. However the balanced design give the smallest p-value.
-
-
-| n.cases | n.naiv.control | prp.nondet | eff.sz | naive.power | cohen |
-|:-------:|:--------------:|:----------:|:------:|:-----------:|:-----:|
-|   150   |       50       |     0      |  0.21  |    0.706    | 0.19  |
-|   150   |       50       |    0.05    |  0.21  |    0.681    | 0.182 |
-|   150   |       50       |    0.1     |  0.21  |    0.637    | 0.171 |
-
-
-
-| n.cases | n.naiv.control | prp.nondet | eff.sz | naive.power | cohen |
-|:-------:|:--------------:|:----------:|:------:|:-----------:|:-----:|
-|   50    |      150       |     0      |  0.21  |    0.755    | 0.209 |
-|   50    |      150       |    0.05    |  0.21  |    0.709    | 0.196 |
-|   50    |      150       |    0.1     |  0.21  |    0.677    | 0.186 |
-
-
-Research limitations/implications – Basically, what is happening is the undetected positives are reducing the effect size. Using the four real sample sizes, It doesn't appear the sample size or imbalance matters much  for bias. Prop.non-detected matters. also treatment effect matters. Larger effect size means more bias.
-
-### Practical implications
-
-However, the undetected-positive rate for CCLD GWAS studies is small, certainly less that 10 percent, and the low rate causes only small biases in odds ratio estimates. However, this study shows that unlabeled data also affect the inferences, and we show that even a few positive cases in the negative controls can affect the power of the study. Fortunately, positive-unlabeled data appears to reduce power, making the results reported in CCLD GWAS studies conservative.
-
-# Researcher should account for 
+Table 2. Power loss using Tables 1 and 2 combined.
+| Row | N positive cases | N naive controls | nondetection proportion | Relative power loss (%) | Absolute power loss (from 0.82) |
+|:---:|:---:|:--------:|:----------:|:--------:|:--------:|
+| 1 | 100 |   100    |     0      |    0     |    0     |
+| 2 | 100 |   100    |    0.05    |   -4.3   | -0.0353  |
+| 3 | 50  |   150    |     0      |  -8.24   | -0.0676  |
+| 4 | 100 |   100    |    0.1     |   -8.8   | -0.0722  |
+| 5 | 50  |   150    |    0.05    |  -12.8   |  -0.105  |
+| 6 | 150 |    50    |     0      |  -13.4   |  -0.11   |
+| 7 | 150 |    50    |    0.05    |  -17.2   |  -0.141  |
+| 8 | 50  |   150    |    0.1     |  -17.4   |  -0.143  |
+| 9 | 150 |    50    |    0.1     |  -22.3   |  -0.183  |
 
 # Discussion
 
-There are modest power reductions even for small proportions of undetected positives in the control group. The results for absolute powers appear less dramatic by can affect the sample size. For example, with a 5 percent nondection rate and a balanced study design, the sample size in the context of this simulation would have to be XXXX, which is a zzz percent increase in sample size. 
+This study showed that under specific conditions there were modest power reductions even for small proportions of undetected positives in the control group. For example, with a 5 percent nondection rate and a balanced study design, the sample size in the context of this simulation would have to be XXXX, which is a zzz percent increase in sample size. 
 
-This was a simulation study to test the power of a single association test. The working example was the association test for a single SNP in a GWAS study, but the simulation results apply to any kind of study with univariate association tests, such as any risk factor study. That is a broad class of studies. Examples include the univariate associations between post-op surgical infections and various surgical conditions (e.g., boarded surgeon vs resident, manufactuer of bone plate). In that case, there may be subdiagnostic infections in the control group. Another example is univariate association tests in veterinary surveys, such as XXX. In that case, there may be subclinical ...
+The working example was the association test for a single SNP in a GWAS study, but the simulation results apply to any kind of study with univariate association tests, such as any risk factor study. That is a broad class of studies. Examples include the univariate associations between post-op surgical infections and various surgical conditions (e.g., boarded surgeon vs resident, manufacturer of bone plate). In that case, there may be subdiagnostic infections in the control group. Another example is univariate association tests in veterinary surveys, such as XXX. In that case, there may be subclinical ...
 
 In this simulaion, the undetected positives in the negative group were randomly sampled from the same population as the detected positives in the affected group. That's a common assumption (ref GU and others) but there are other models. For example, the undetected positives in the control group might be a subpopulation of positives defined by another variable. For example, in a CCLD GWAS study, the undetected positives in the control group might be positive dogs with low BCS only. 
 
@@ -117,6 +116,12 @@ In this simulaion, the undetected positives in the negative group were randomly 
 This was a simulation study that considered the effect on statistical power of 10 percent or fewer undetected positives in the control group. The simulation used 
 
 Other papers have discussed improved tests and power. (wang, and the pan paper )
+
+
+
+### Practical implications
+
+However, the undetected-positive rate for CCLD GWAS studies is small, certainly less that 10 percent, and the low rate causes only small biases in odds ratio estimates. However, this study shows that unlabeled data also affect the inferences, and we show that even a few positive cases in the negative controls can affect the power of the study. Fortunately, positive-unlabeled data appears to reduce power, making the results reported in CCLD GWAS studies conservative.
 
 ## References
 
@@ -157,9 +162,3 @@ Table 1. Sample sizes for four GWAS studies of CCLD. The last columns shows the 
 | Baker et al. (2021)     | 397   | 156   | 241       |  24     |
 | Cook et al. (2020)      | 333   | 190   | 143       |  14     |
 | Healy et al. (2019)     | 216   | 161   | 55        |  6      |
-
-
-
-
-
-
