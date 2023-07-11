@@ -4,7 +4,7 @@
 Richard Evans \
 Clinical and Translational Science Institute \
 University of Minnesota \
-[Richard Evans' email](evan0770@umn.edu)
+evan0770@umn.edu
 
 ## Purpose
 
