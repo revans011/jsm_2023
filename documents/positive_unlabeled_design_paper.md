@@ -1,24 +1,34 @@
-# Long abstract: Design Considerations for studies with positive-unlabeled data
+# Postitive-Unlabeled data considerations in the design of orthopaedic risk factor studies
+## Abstract
 
-2023-06-12 \
-Richard Evans \
-Clinical and Translational Science Institute \
-University of Minnesota \
-evan0770@umn.edu
+### Objective
+In risk factor studies, the positive disease status of the affected subjects is acertained with perfect sensitivity and specificity, but sometimes the disease status of control subjects is not perfectly ascertained. That means control groups may be mixtures of both unaffected cases and some unidentified affected cases. Control groups with misclassifed data are called _unlabeled_ groups. Treating (i.e., labeling) unlabeled control groups as disease-negative only is known to cause misclassification bias, but there has been little research on how the missclassification affects the statistical power of the risk association tests. In this study, we investigated the effects of these kind of datasets, called _positive-unlabeled_ (PU) data, on the power of association tests, with the intention of showing that control groups with even small misclassification rates can reduce the power of association tests.
 
-## Purpose
+### Materials and methods
+This is a simulation study based on two genome-wide association studies, XXX and YYYY, which explored genetic risk factors for canine cranial cruciate ligament disease. They had PU data: Their positive groups were dogs with spontanious CCL ruptures that were repaired, and so were certainly disease positive. However, the control groups were unlabeled because the disease state of the control dogs was not perfectly ascertained. It was possible that some of the dogs had subclinical disease, sub-diagnostic disease, or ruptured after the end dates of the studies. First, we calculated the power under the reference model, which is the case then there are no misclassifications and the model is correct. We then compared that power to the powers from PU data for different misclassification rates.
 
-In risk association studies, the affected subjects in the positive group are often identified with perfect sensitivity and specificity, but sometimes the disease status of control subjects is not perfectly ascertained. That means control groups may be mixtures of both unaffected cases and some unidentified affected cases. Those kinds of control groups are called _unlabeled_, because we are not completely sure about the disease labels (affected or unaffected). The entire dataset is referred to as _postitive-unlabeled_ (PU).
+### Results
+Treating unlabeled data as disease-negative only always reduced statistical power compared to the reference power. Power loss was greater with increasing misclassification rate.
 
- Accounting for the unlabeled aspect of the control groups is usually handled during data analysis, and there has been little investigation into PU sample size considerations. (Bekker, Hastie, Gu) In this study, we investigate the effect of PU data on the power of association tests with the intention of improving sample size calculations.
+### Conclusion
+Researchers calculating sample sizes for risk-factor studies should include adjustments for misclassification rates.
 
-## Background
+Keywords: risk-factor, positive-unlabeled, power, sample size
 
-Examples of positive-unlabeled data are well documented in human medicine, but less so in veterinary medicine. Nevertheless, there are some veterinary studies the fall into the PU framework. For example, genome-wide association studies of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The affected cases are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone knee stabilization surgery. The controls are typically five-years-old or older with no history of CCLD and pass an orthopedic veterinary exam by board-certified surgeons. However some control dogs will have spontaneous rupture in the future, and so genetically belong in the CCLD affected group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound on physical exam and enrolled in the control group, but actually have force-platform-detectable hindlimb lameness. (Waxman) Such a dog should not be in the control group because the lameness might be subclinical CCLD.
+Intro
+materials and methods
+results
+discussion
 
-There are other plausible examples of PU data in the veterinary literature, typically in risk-factor studies using case-control designs. For example, Arthur et al. (2016) used a case-control design to assess the risk of osteosarcoma following fracture repair. They noted, "There may be additional cases [in the control group] in which implant-related osteosarcoma was diagnosed in the private practice setting without referral...," suggesting that the control group may be unlabeled because control group cases were actually disease positive, but diagnosed outside the study. For another example, Wylie et al. 2013 studied risk factors for equine laminitis using controls obtained from an owner survey. The authors noted the PU aspect of their data,"Our study relied on owner-reported diagnoses of endocrinopathic conditions, and this may have introduced misclassification bias."
 
-As mentioned above, the affected cases are "labeled" positive, but the control data is "unlabeled," because dogs may be affected or unaffected. These kind of data are called positive-unlabeled data. Treating the unlabeled control group as entirely unaffected is called the _naive model_. The proportion of affected dogs in the unaffected control group is called the _nondetection_ rate or _undetected rate_.
+## Introduction
+In risk factor studies, the positive disease status of the affected subjects is acertained with perfect sensitivity and specificity, but sometimes the disease status of control subjects is not perfectly ascertained. That means control groups may be mixtures of both unaffected cases and some unidentified affected cases. Control groups with misclassifed data are called _unlabeled_ groups. Data with truly affected cases in the postitive group and an unlabeled control group is called _positive-unlabeled_ data.
+
+Examples of positive-unlabeled data are well documented in human medicine, but less so in veterinary medicine. Nevertheless, many veterinary studies the fall into the PU framework. For example, genome-wide association studies of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The affected cases are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone knee stabilization surgery. The controls are typically five-years-old or older with no history of CCLD and pass an orthopedic veterinary exam by board-certified surgeons. However some control dogs will have spontaneous rupture in the future, and so genetically belong in the CCLD affected group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound on physical exam and enrolled in the control group, but actually have force-platform-detectable hindlimb lameness. (Waxman) Such a dog should not be in the control group because the lameness might be subclinical CCLD.
+
+There are other examples of PU data in the veterinary literature, typically in risk-factor studies using case-control designs. For example, Arthur et al. (2016) used a case-control design to assess the risk of osteosarcoma following fracture repair. They noted, "There may be additional cases [in the control group] in which implant-related osteosarcoma was diagnosed in the private practice setting without referral...," suggesting that the control group may be unlabeled because some control group cases were actually disease positive, but diagnosed outside the study. For another example, Wylie et al. 2013 studied risk factors for equine laminitis using controls obtained from an owner survey. The authors noted the PU aspect of their data, "Our study relied on owner-reported diagnoses of endocrinopathic conditions, and this may have introduced misclassification bias."
+
+As mentioned above, the affected cases are "labeled" positive, but the control data is "unlabeled," because dogs may be affected or unaffected. Treating the unlabeled control group as entirely unaffected is called the _naive model_. The proportion of affected dogs in the unaffected control group is called the _nondetection_ rate or _undetected rate_.
 
 The misclassification biases are well documented in the medical literature. The biases due to misclassification can be sometimes be mitigated using models other than the naive model and with the appropriate data analysis, and there are many articles describing methods for analyzing positive-unlabeled data. Bekker provides and excellent summary of methods. Sometimes, however researchers prefer the naive model because they believe that their small nondetection rates induce misclassification biases that are too small for practical consideration. There is some suggestion that nondetection rates under 10% do have little impact on bias. (Bekker)
 
