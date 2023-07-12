@@ -1,4 +1,4 @@
-# Postitive-Unlabeled data considerations in the design of orthopaedic risk factor studies
+# Postitive-Unlabeled data considerations in the design of orthopaedic risk-factor studies
 ## Abstract
 
 ### Objective
