@@ -15,7 +15,7 @@ header-includes:
 ---
 
 
-# Postitive-Unlabeled data considerations in the design of orthopaedic risk-factor studies
+# Postitive-Unlabeled Data Considerations in the Design of Orthopaedic Risk-factor Studies
 
 ## Abstract
 
