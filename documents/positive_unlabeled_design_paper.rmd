@@ -37,6 +37,8 @@ Researchers calculating sample sizes for risk-factor studies should include adju
 
 Keywords: risk-factor, case-control, power, sample size
 
+\pagebreak
+
 ## Introduction
 
 In risk factor studies, the positive disease status of the affected subjects is ascertained with perfect sensitivity and specificity, but sometimes the disease status of control subjects is not perfectly ascertained. That means control groups may be mixtures of both unaffected cases and some unidentified affected cases. Control groups with misclassified data are called _unlabeled_. Data with truly affected cases in the positive group and an unlabeled control group is called _positive-unlabeled_ data.
@@ -54,6 +56,8 @@ During the design of a risk association study, a researcher might calculate the 
 We investigated the effect of PU data on statistical power under the naive model. The reference power is defined as the power when the naive model is correct and the group sizes are balanced. The results are described in terms power loss relative to the reference power, both percent power loss and absolute power loss. For context these two quantities are analogous to relative risk and absolute risk from epidemiology.
 
 Using a simulation, we described how statistical power changes with varying proportions of undetected positives in the naive controls, and varying the imbalance between the numbers of cases and naive controls. Our aim is to demonstrate that the naive analysis of PU data affects statistical power in risk-factor studies, even for small nondetection rates.
+
+\pagebreak
 
 ## Methods and materials
 
