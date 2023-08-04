@@ -240,8 +240,9 @@ mn_100_100 <- as.numeric(smry.otpt_100_100 %>%
     select(prp.nondet, naive.power) %>%
     reframe(mean(naive.power[prp.nondet == 0])))
 
-pandoc.table(
-rbind(
+## save this table to read into the paper
+
+.bigtable<-rbind(
 smry.otpt_100_100 %>%
     ungroup() %>%
     select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
@@ -264,6 +265,7 @@ smry.otpt_150_50 %>%
     rel.loss = 100 * (naive.power - mn_100_100) / mn_100_100,
     abs.loss = (naive.power - mn_100_100)),
 
+
 smry.otpt_50_150 %>%
     ungroup() %>%
     select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
@@ -273,7 +275,9 @@ smry.otpt_50_150 %>%
         prp.nondet = prp.nondet,
     rel.loss = 100 * (naive.power - mn_100_100) / mn_100_100,
     abs.loss = (naive.power - mn_100_100))
-) |> arrange(desc(rel.loss)), style = "rmarkdown", digits = 3, split.table = Inf)
+) |> arrange(desc(rel.loss))
+
+write.csv(.bigtable,file=here("data","derived","bigtable.csv"))
 
 ```
 
