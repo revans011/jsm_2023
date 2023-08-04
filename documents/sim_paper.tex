@@ -368,53 +368,40 @@ means increasing power loss.
 Table 1. Power loss.
 
 \begin{longtable}[]{@{}
-  >{\centering\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0962}}
-  >{\centering\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0962}}
-  >{\centering\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1923}}
-  >{\centering\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2308}}
-  >{\centering\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1923}}
-  >{\centering\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1923}}@{}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0339}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1441}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1441}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2034}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2034}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2712}}@{}}
 \toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\centering
+\begin{minipage}[b]{\linewidth}\raggedleft
 Row
-\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 N positive cases
-\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 N naive controls
-\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 nondetection proportion
-\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 Relative power loss (\%)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 Absolute power loss (from 0.82)
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-1 & 100 & 100 & 0 & 0 & 0 \\
-2 & 100 & 100 & 0.05 & -4.3 & -0.0353 \\
-3 & 50 & 150 & 0 & -8.24 & -0.0676 \\
-4 & 100 & 100 & 0.1 & -8.8 & -0.0722 \\
-5 & 50 & 150 & 0.05 & -12.8 & -0.105 \\
-6 & 150 & 50 & 0 & -13.4 & -0.11 \\
-7 & 150 & 50 & 0.05 & -17.2 & -0.141 \\
-8 & 50 & 150 & 0.1 & -17.4 & -0.143 \\
-9 & 150 & 50 & 0.1 & -22.3 & -0.183 \\
+1 & 100 & 100 & 0.00 & 0.00 & 0.00 \\
+2 & 100 & 100 & 0.05 & -4.30 & -0.04 \\
+3 & 50 & 150 & 0.00 & -8.24 & -0.07 \\
+4 & 100 & 100 & 0.10 & -8.80 & -0.07 \\
+5 & 50 & 150 & 0.05 & -12.85 & -0.11 \\
+6 & 150 & 50 & 0.00 & -13.45 & -0.11 \\
+7 & 150 & 50 & 0.05 & -17.22 & -0.14 \\
+8 & 50 & 150 & 0.10 & -17.41 & -0.14 \\
+9 & 150 & 50 & 0.10 & -22.26 & -0.18 \\
 \end{longtable}
-
-\begin{verbatim}
-##   X pos controls prp.nondet   rel.loss    abs.loss
-## 1 1 100      100       0.00   0.000000  0.00000000
-## 2 2 100      100       0.05  -4.302950 -0.03529493
-## 3 3  50      150       0.00  -8.240440 -0.06759219
-## 4 4 100      100       0.10  -8.800327 -0.07218466
-## 5 5  50      150       0.05 -12.849969 -0.10540184
-## 6 6 150       50       0.00 -13.447513 -0.11030319
-## 7 7 150       50       0.05 -17.217496 -0.14122646
-## 8 8  50      150       0.10 -17.405097 -0.14276526
-## 9 9 150       50       0.10 -22.261955 -0.18260363
-\end{verbatim}
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}

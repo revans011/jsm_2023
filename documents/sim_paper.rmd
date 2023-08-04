@@ -92,28 +92,35 @@ There were increasing nondetection rate increases reduces power. However, group 
 
 Table 1. Power loss.
 
-| Row | N positive cases | N naive controls | nondetection proportion | Relative power loss (%) | Absolute power loss (from 0.82) |
-|:---:|:---:|:--------:|:----------:|:--------:|:--------:|
-| 1 | 100 |   100    |     0      |    0     |    0     |
-| 2 | 100 |   100    |    0.05    |   -4.3   | -0.0353  |
-| 3 | 50  |   150    |     0      |  -8.24   | -0.0676  |
-| 4 | 100 |   100    |    0.1     |   -8.8   | -0.0722  |
-| 5 | 50  |   150    |    0.05    |  -12.8   |  -0.105  |
-| 6 | 150 |    50    |     0      |  -13.4   |  -0.11   |
-| 7 | 150 |    50    |    0.05    |  -17.2   |  -0.141  |
-| 8 | 50  |   150    |    0.1     |  -17.4   |  -0.143  |
-| 9 | 150 |    50    |    0.1     |  -22.3   |  -0.183  |
 
-
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
 library("here")
 library("tinytex")
+library("knitr")
+library("kableExtra")
+library("rmarkdown")
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
-read.csv(here("data","derived","bigtable.csv"))
+tab1 <- read.csv(here("data","derived","bigtable.csv"))
+
+
+kable(tab1,
+      format="markdown",
+      digits=2,
+      col.names = c("Row", 
+                    "N positive cases", 
+                    "N naive controls", 
+                    "nondetection proportion", 
+                    "Relative power loss (%)",
+                    "Absolute power loss (from 0.82)"
+                    )) |>
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F,
+                font_size = 11,
+                position = "left")
 ```
 
 # Discussion
