@@ -1,0 +1,210 @@
+---
+title: "sim"
+author: Report by Rich Evans
+date: 2023
+output:
+    html_document
+
+
+---
+
+# simulation
+
+## Algorithm
+
+Do 1000 times:
+
+1. Generate data with different sample sizes as parameters
+2. Do a test
+  -get p-value
+3. if p-value<0.05 then otpt =1 else 0
+4. Save otpt
+
+end do
+
+5. calculate proportion of 1's --> that's the power
+
+## simulate the data
+
+HOw to 
+
+
+
+```{r,include=FALSE}
+# install.packages("pacman")
+pacman::p_load(
+    data.table, # to group and clean data
+    tidyverse, # allows use of pipe (%>%) function in this chapter
+    janitor, # for clean_names and tabyl
+    broom, # tidy output, use tidy(xxx)
+    gtsummary, # nice tables
+    magrittr, # for %<>%
+    effectsize,
+    pROC,
+    rstatix,
+    pwr, # power calculations
+    pander, # to write tables as simple text for cut-and-paste
+    knitr,
+    rcompanion, # for cohen's w
+    kableExtra,
+    bindata,
+    here
+)
+
+here::i_am("README.md")
+```
+
+this version samples from a binomial
+```{r,include=FALSE}
+sim.fun <- function(
+    num.iter = NULL,
+    n.tru.cases = NULL,
+    n.neg.control = NULL,
+    n.pos.control = NULL,  #these are the pos in the control group
+    eff.sz = NULL, ...) {
+    out1 <- NULL
+    out2 <- NULL
+    out3 <- NULL
+    out4 <- NULL
+
+
+    naive.labels <- c(rep(1, n.tru.cases), rep(0, (n.neg.control+n.pos.control)))
+
+    for (i in 1:num.iter) {
+        ### sample X
+        # DATA:  this is where the stocastic part comes in
+
+        x.affected <- rbinom((n.tru.cases+n.pos.control), 1, eff.sz + .2) #0.2 is the background disease prevalence
+
+        x.unaffected <- rbinom(n.neg.control, 1, prob = .2)   #0.2 is the background disease prevalence
+      
+        naive_X <- c(x.affected, x.unaffected) #observed disease status
+   
+        naive.dat <- data.frame(
+            X = naive_X,
+            y = naive.labels
+        )
+       
+         temp.out4 <- fisher.test(naive.dat$X,naive.dat$y)$p.value<0.05
+         out4 <- c(out4, temp.out4)
+
+
+    } # loop
+
+    return(list(
+        n.cases = n.tru.cases,
+        n.neg.control = n.neg.control,
+        n.pos.control= n.pos.control,
+        eff.sz = eff.sz,
+        naive.pwr = out4
+    ))
+}
+```
+
+
+
+```{r}
+now <- Sys.time()
+
+#set.seed(124)
+
+parmlist <- list(
+    rep(500, 6), # interations; num.iter
+    c(200, 100, 150, 300, 600, 150), # n.cases
+    c(200, 100,  45, 90 , 180, 50 ), # number unlabeled
+    c(0, 0,     5, 10 , 20,   0), # number pos mislabeled
+    rep(.21,6) # eff.sz
+) # non-detection proportion
+
+big.otpt_100_100 <- bind_rows(pmap(parmlist, sim.fun),
+    .id = "column_label"
+) # unlists and binds rows
+
+smry.otpt_100_100 <- big.otpt_100_100 %>%
+    group_by(n.cases, n.neg.control, n.pos.control, eff.sz) %>%
+    dplyr::summarise(
+        effect.sz = mean(eff.sz),
+        naive.power = mean(naive.pwr)
+    )
+
+smry.otpt_100_100
+```
+
+
+
+this version samples from normals
+```{r,include=FALSE}
+sim.fun <- function(
+    num.iter = NULL,
+    n.tru.cases = NULL,
+    n.neg.control = NULL,
+    n.pos.control = NULL,  #these are the pos in the control group
+    eff.sz = NULL, ...) {
+    out1 <- NULL
+    out2 <- NULL
+    out3 <- NULL
+    out4 <- NULL
+
+
+    naive.labels <- c(rep(1, n.tru.cases), rep(0, (n.neg.control+n.pos.control)))
+
+
+
+    for (i in 1:num.iter) {
+        ### sample X
+        # DATA:  this is where the stocastic part comes in
+
+        x.affected <- rnorm((n.tru.cases+n.pos.control), eff.sz, 1) 
+
+        x.unaffected <- rnorm(n.neg.control, 0, 1)  
+        
+
+        )
+
+         # Calculate if pvalue is in correct direction.
+         # the proportion of 1's is the power
+         temp.out4 <- t.test(x.affected,x.unaffected)$p.value <0.05
+         out4 <- c(out4, temp.out4)
+
+
+    } # loop
+
+    return(list(
+        n.cases = n.tru.cases,
+        n.neg.control = n.neg.control,
+        n.pos.control= n.pos.control,
+        eff.sz = eff.sz,
+        naive.pwr = out4
+    ))
+}
+```
+
+
+
+```{r}
+now <- Sys.time()
+
+#set.seed(124)
+
+parmlist <- list(
+    rep(5000, 6), # interations; num.iter
+    c(200, 100, 150, 300, 600, 150), # n.cases
+    c(200, 100,  45, 90 , 180, 50 ), # number unlabeled
+    c(0, 0,     5, 10 , 20,   0), # number pos mislabeled
+    rep(.4,6) # eff.sz
+) # non-detection proportion
+
+big.otpt_100_100 <- bind_rows(pmap(parmlist, sim.fun),
+    .id = "column_label"
+) # unlists and binds rows
+
+smry.otpt_100_100 <- big.otpt_100_100 %>%
+    group_by(n.cases, n.neg.control, n.pos.control, eff.sz) %>%
+    dplyr::summarise(
+        effect.sz = mean(eff.sz),
+        naive.power = mean(naive.pwr)
+    )
+
+smry.otpt_100_100
+```
+

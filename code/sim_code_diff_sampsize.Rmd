@@ -128,10 +128,10 @@ now <- Sys.time()
 
 parmlist <- list(
     rep(5001, 3), # interations; num.iter
-    rep(100, 3), # n.cases
-    rep(100, 3), # number unlabeled
-    rep(.21, 3), # eff.sz for normals
-    seq(from = 0, to = 0.1, length.out = 3)
+    c(100, 110, 120), # n.cases
+    c(100, 110, 120), # number unlabeled
+    rep(.21, 3), # eff.sz 
+    c(0, 0.1, 0.1) #nondetection rate
 ) # non-detection proportion
 
 big.otpt_100_100 <- bind_rows(pmap(parmlist, sim.fun),
@@ -152,13 +152,11 @@ smry.otpt_100_100 <- big.otpt_100_100 %>%
 
 parmlist <- list(
     rep(5001, 3), # interations; num.iter
-    rep(150, 3), # n.cases
-    rep(50, 3), # number unlabeled
-    rep(.21, 3), # eff.sz for normals
-    seq(from = 0, to = 0.1, length.out = 3)
-) # non-detection proportion
-
-
+    c(150, 165, 180), # n.cases
+    c(50, 55, 60), # number unlabeled
+    rep(.21, 3), # eff.sz for 
+    c(0, 0.1, 0.1) #nondetection rate
+) 
 
 
 big.otpt_150_50 <- bind_rows(pmap(parmlist, sim.fun),
@@ -180,12 +178,11 @@ smry.otpt_150_50 <- big.otpt_150_50 %>%
 
 parmlist <- list(
     rep(5001, 3), # interations; num.iter
-    rep(50, 3), # n.cases
-    rep(150, 3), # number unlabeled
-    rep(.21, 3), # eff.sz for normals
-    seq(from = 0, to = 0.1, length.out = 3)
-) # non-detection proportion
-
+    c(50, 55, 60), 
+    c(150, 165, 180), 
+    rep(.21, 3), # eff.sz for 
+    c(0, 0.1, 0.1) #nondetection rate
+) 
 
 
 big.otpt_50_150 <- bind_rows(pmap(parmlist, sim.fun),
@@ -270,7 +267,7 @@ smry.otpt_50_150 %>%
     abs.loss = (naive.power - mn_100_100))
 ) |> arrange(desc(rel.loss))
 
-write.csv(.bigtable,file=here("data","derived","bigtable.csv"))
+write.csv(.bigtable,file=here("data","derived","bigtable_inc_ss.csv"))
 
 ```
 
@@ -305,7 +302,7 @@ df.plot3 <- smry.otpt_50_150 %>%
 
 df.plot <- bind_rows(df.plot1, df.plot2, df.plot3)
 
-tiff("powerloss_all_three_80percentb.tiff", units = "in", width = 7, height = 4, res = 600)
+tiff("increase_ss_all_three_80percentb.tiff", units = "in", width = 7, height = 4, res = 600)
 
 ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
     geom_smooth() +
