@@ -127,11 +127,11 @@ now <- Sys.time()
 
 
 parmlist <- list(
-    rep(5001, 3), # interations; num.iter
-    c(100, 110, 120), # n.cases
-    c(100, 110, 120), # number unlabeled
-    rep(.21, 3), # eff.sz 
-    c(0, 0.1, 0.1) #nondetection rate
+    rep(5001, 5), # interations; num.iter
+    c(100, 110, 120, 130, 140), # n.cases
+    c(100, 110, 120, 130, 140), # number unlabeled
+    rep(.21, 5), # eff.sz 
+    c(0.1, 0.1, 0.1, 0.1, 0.1) #nondetection rate
 ) # non-detection proportion
 
 big.otpt_100_100 <- bind_rows(pmap(parmlist, sim.fun),
@@ -151,11 +151,11 @@ smry.otpt_100_100 <- big.otpt_100_100 %>%
 
 
 parmlist <- list(
-    rep(5001, 3), # interations; num.iter
-    c(150, 165, 180), # n.cases
-    c(50, 55, 60), # number unlabeled
-    rep(.21, 3), # eff.sz for 
-    c(0, 0.1, 0.1) #nondetection rate
+    rep(5001, 5), # interations; num.iter
+    c(150, 165, 180, 195, 210), # n.cases
+    c(50, 55, 60, 79, 80), # number unlabeled
+    rep(.21, 5), # eff.sz for 
+    c(0.1, 0.1, 0.1, 0.1, 0.1) #nondetection rate
 ) 
 
 
@@ -177,11 +177,11 @@ smry.otpt_150_50 <- big.otpt_150_50 %>%
 
 
 parmlist <- list(
-    rep(5001, 3), # interations; num.iter
-    c(50, 55, 60), 
-    c(150, 165, 180), 
-    rep(.21, 3), # eff.sz for 
-    c(0, 0.1, 0.1) #nondetection rate
+    rep(5001, 5), # interations; num.iter
+    c(50, 55, 60, 70, 80), 
+    c(150, 165, 180, 195, 210), 
+    rep(.21, 5), # eff.sz for 
+    c(0.1, 0.1, 0.1, 0.1, 0.1) #nondetection rate
 ) 
 
 
@@ -233,95 +233,11 @@ mn_100_100 <- as.numeric(smry.otpt_100_100 %>%
 ## save this table to read into the paper
 
 .bigtable<-rbind(
-smry.otpt_100_100 %>%
-    ungroup() %>%
-    select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
-    reframe(
-            pos = n.cases,
-            controls = n.naiv.control,
-            prp.nondet = prp.nondet,
-            rel.loss = 100 * (naive.power - mn_100_100) / mn_100_100,
-            abs.loss = (naive.power - mn_100_100)
-            ),
+smry.otpt_100_100 %>% ungroup() %>% arrange(prp.nondet),
+smry.otpt_150_50 %>% ungroup() %>% arrange(prp.nondet),
+smry.otpt_50_150 %>% ungroup() %>% arrange(prp.nondet))
 
-
-smry.otpt_150_50 %>%
-    ungroup() %>%
-    select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
-    reframe(
-            pos = n.cases,
-            controls = n.naiv.control,
-        prp.nondet = prp.nondet,
-    rel.loss = 100 * (naive.power - mn_100_100) / mn_100_100,
-    abs.loss = (naive.power - mn_100_100)),
-
-
-smry.otpt_50_150 %>%
-    ungroup() %>%
-    select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
-    reframe(
-            pos = n.cases,
-            controls = n.naiv.control,
-        prp.nondet = prp.nondet,
-    rel.loss = 100 * (naive.power - mn_100_100) / mn_100_100,
-    abs.loss = (naive.power - mn_100_100))
-) |> arrange(desc(rel.loss))
 
 write.csv(.bigtable,file=here("data","derived","bigtable_inc_ss.csv"))
 
-```
-
-usually use this one
-The plot below is power loss normlize to the best power, which is 
-balance groups (100,100) and 0 prp.nondet.
-```{r, echo=FALSE}
-df.plot1 <- smry.otpt_100_100 %>%
-    ungroup() %>%
-    select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
-    reframe(prp.nondet = prp.nondet, zzz = naive.power /
-        mean(naive.power[prp.nondet == 0])) %>%
-    mutate(aaa = "1", prp.nondet = prp.nondet * 100, zzz = (zzz * 100) - 100)
-
-
-mn_100_100 <- as.numeric(smry.otpt_100_100 %>%
-    ungroup() %>%
-    select(prp.nondet, naive.power) %>%
-    reframe(mean(naive.power[prp.nondet == 0])))
-
-df.plot2 <- smry.otpt_150_50 %>%
-    ungroup() %>%
-    select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
-    reframe(prp.nondet = prp.nondet, zzz = naive.power / mn_100_100) %>%
-    mutate(aaa = "2", prp.nondet = prp.nondet * 100, zzz = (zzz * 100) - 100)
-
-df.plot3 <- smry.otpt_50_150 %>%
-    ungroup() %>%
-    select(n.cases, n.naiv.control, prp.nondet, naive.power) %>%
-    reframe(prp.nondet = prp.nondet, zzz = naive.power / mn_100_100) %>%
-    mutate(aaa = "3", prp.nondet = prp.nondet * 100, zzz = (zzz * 100) - 100)
-
-df.plot <- bind_rows(df.plot1, df.plot2, df.plot3)
-
-tiff("increase_ss_all_three_80percentb.tiff", units = "in", width = 7, height = 4, res = 600)
-
-ggplot(data = df.plot, aes(x = prp.nondet, zzz, color = aaa)) +
-    geom_smooth() +
-    xlab("Percent undetected postitives in the control group") +
-    ylab("Percent power loss") +
-    labs(
-        title = "Percent power loss from positive cases in the GWAS control group",
-        subtitle = "Relative to reference power: 100 cases, 100 controls with no undetected positives",
-        caption = "Reference power = 0.82, alpha = 0.05",
-        color = "Naive sample sizes"
-    ) +
-    theme(
-        plot.title = element_text(size = 14), # Center title position and size
-        plot.subtitle = element_text(size = 10), # Center subtitle
-        plot.caption = element_text(face = "italic") # move caption to the left
-    ) +
-    scale_color_discrete(labels = c("100 cases, 100 controls", "150 cases, 50 controls", "50 cases, 150 controls"))
-
-
-dev.off()
-```
 ```
