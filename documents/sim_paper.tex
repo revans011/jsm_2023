@@ -96,7 +96,7 @@ Richard Evans \({^\dagger}\)
 
 \({\dagger}\) Corresponding Author
 
-Masonic Cancer Center\\
+Clinical and Translational Science Institute\\
 University of Minnesota
 
 \href{mailto:evan0770@umn.edu}{evan0770@umn.edu}
@@ -109,18 +109,25 @@ University of Minnesota
 \hypertarget{objective}{%
 \subsubsection{Objective}\label{objective}}
 
-In orthopaedic risk-factor studies, the disease status of control
-subjects is not always perfectly ascertained. That means control groups
-may be mixtures of both unaffected cases and some unidentified affected
-cases. Control groups with misclassified data are called
-\emph{unlabeled}. Treating unlabeled groups as disease-negative control
-groups is known to cause misclassification bias, but there has been
-little research on how the misclassification affects the statistical
-power of the risk association tests. In this study, we investigated the
-effect using unlabeled groups as control groups on the power of
-association tests, with the intention of demonstrating that control
-groups with even small misclassification rates can reduce the power of
-association tests.
+Sample size calculations play a central role in study design because
+sample size affects study interpretability and costs, and hospital
+resources and staff time. For most orthopaedic risk-factor studies,
+either the sample size calculation or the post-hoc power calculation
+assumes the disease status of control subjects is perfectly ascertained,
+when it is not. That means control groups may be mixtures of both
+unaffected cases and some unidentified affected cases. Control groups
+with misclassified data are called \emph{unlabeled}. Treating unlabeled
+groups as disease-negative control groups is known to cause
+misclassification bias, but there has been little research on how the
+misclassification affects the statistical power of risk association
+tests. In this study, we demonstrate the consequences of using unlabeled
+groups as control groups on the power of risk association tests, with
+the intent of showing that control groups with even small
+misclassification rates can reduce the power of association tests. So,
+sample size calculations that ignore the unlabeled aspect of control
+groups may underpower studies. In addition, we offer a range of
+correction factors to adjust sample size calculations back to 80\%
+power.
 
 \hypertarget{materials-and-methods}{%
 \subsubsection{Materials and Methods}\label{materials-and-methods}}
@@ -129,9 +136,9 @@ This was a simulation study using study designs from published
 orthopaedic risk-factor studies. The approach was to use their designs,
 but simulate the data to include known proportions of misclassified
 affected subjects in the control group. The simulated data was used to
-calculate the power of the risk-association test. We calculated powers
-for several study designs and misclassification rates, and compared them
-to a reference model, which is the case then there are no
+calculate the power of a risk-association test. We calculated powers for
+several study designs and misclassification rates, and compared them to
+a reference model, which is the case then there are no
 misclassifications and the model is correct.
 
 \hypertarget{results}{%
@@ -140,7 +147,7 @@ misclassifications and the model is correct.
 Treating unlabeled data as disease-negative always reduced statistical
 power compared to the reference power. Power loss was greater with
 increasing misclassification rate. Increasing the sample size by a
-factor of 1.4 was adequate to regain power.
+factor of 1.2 to 1.4 was adequate to regain power for these examples.
 
 \hypertarget{conclusion}{%
 \subsubsection{Conclusion}\label{conclusion}}
@@ -155,14 +162,22 @@ Keywords: risk-factor, case-control, power, sample size
 \hypertarget{introduction}{%
 \subsection{Introduction}\label{introduction}}
 
-In risk factor studies, the positive disease status of the affected
-subjects is ascertained with perfect sensitivity and specificity, but
-sometimes the disease status of control subjects is not perfectly
-ascertained. That means control groups may be mixtures of both
+Sample size calculations play a central role in study design because
+sample size affects study costs, hospital resources and staff time for
+studies with little chance of success. Also, underpowered studies, with
+Type II errror, can be hard to interpret, and there are also serious
+ethical considerations with underpowered propsective studies
+\cite{ halpern2002continuing, hofmeister2007sample}.
+
+In orthopaedic risk factor studies, the positive disease status of the
+affected subjects is ascertained with perfect sensitivity and
+specificity, but sometimes the disease status of control subjects is not
+perfectly ascertained. That means control groups may be mixtures of both
 unaffected cases and some unidentified affected cases. Control groups
 with misclassified data are called \emph{unlabeled}. Data with truly
 affected cases in the positive group and an unlabeled control group is
-called \emph{positive-unlabeled} data by the data science community.
+called \emph{positive-unlabeled} (PU) data by the data science
+community.
 
 Examples of positive-unlabeled data are well documented in human
 medicine, but less so in veterinary medicine. Nevertheless, many
@@ -172,7 +187,7 @@ disease (CCLD) in dogs use case-control designs. The affected cases are
 truly positive CCLD cases because they are enrolled from the set of dogs
 who have undergone knee stabilization surgery. The controls are
 typically five-years-old or older with no history of CCLD and pass an
-orthopedic veterinary exam by a board-certified surgeon. However some
+orthopaedic veterinary exam by a board-certified surgeon. However some
 control dogs will have spontaneous rupture in the future, and so
 genetically belong in the CCLD affected group. Other control dogs may
 have sub-diagnostic disease. For example, a dog might appear sound on
@@ -184,11 +199,11 @@ be in the control group because the lameness might be subclinical CCLD.
 There are other examples of PU data in the veterinary literature,
 typically in risk-factor studies using case-control designs. For
 example, Arthur et al.~(2016) used a case-control design to assess the
-risk of osteosarcoma following fracture repair. \cite{aakj16} They
-noted, ``There may be additional cases {[}in the control group{]} in
-which implant-related osteosarcoma was diagnosed in the private practice
+risk of osteosarcoma following fracture repair. \cite{aakj16} They said,
+``There may be additional cases {[}in the control group{]} in which
+implant-related osteosarcoma was diagnosed in the private practice
 setting without referral\ldots,'' suggesting that the control group may
-be unlabeled because some control-group cases were actually disease
+be unlabeled because some control-group cases were actually osteosarcoma
 positive, but diagnosed outside the study. In another example, Wylie et
 al.~2013 studied risk factors for equine laminitis using controls
 obtained from an owner survey.\cite{wcvj13} The authors noted the
@@ -206,15 +221,15 @@ rate}.
 Using the naive model when the nondetection rate is positive causes
 misclassification bias (because there affected cases in the control
 group), and that bias is well documented in the data science literature.
-\cite{bd20} The biases due to misclassification can be mitigated using
+\cite{bd20} Biases due to misclassification can be mitigated using
 models other than the naive model and with the appropriate data
 analysis, and there are many articles describing methods for analyzing
-positive-unlabeled data. Bekker provides and excellent summary of
-methods. Sometimes, however, researchers prefer the naive model because
-they believe that their small nondetection rates induce
-misclassification biases that are too small for practical consideration.
-There is some suggestion that nondetection rates under 10\% do have
-little impact on bias. \cite{bd20}
+positive-unlabeled data. Bekker and Davis (2020) provides and excellent
+summary of methods. Sometimes, however, researchers prefer the naive
+model because the analysis is simpler and they believe that their small
+nondetection rates induce misclassification biases that are too small
+for practical consideration. There is some suggestion that nondetection
+rates under 10\% do have little impact on bias. \cite{bd20}
 
 But bias in estimates (e.g., bias in regression coefficients) is just
 one part of the results; the other part is inference (e.g., p-values).
@@ -225,7 +240,7 @@ Typically, 80 percent power means that if the group parameters are truly
 different, then the statistical test has an 80 percent chance of
 obtaining p\textless0.05.
 
-During the design phase phase of a risk association study, researchers
+During the design phase phase of risk association studies, researchers
 might calculate the sample size they need for 80\% power assuming the
 nondetection rate is zero. That is, the there are no misclassified
 affected subjects in the control group. However, if after collection the
@@ -246,7 +261,7 @@ varying the imbalance between the numbers of cases and naive controls.
 Our first aim was to demonstrate that the naive analysis of
 positive-unlabeled data reduces statistical power in risk-factor
 studies, even for small nondetection rates. Our second aim was to offer
-a correction factor to upward-adjust samples sizes and correct for the
+correction factors to upward-adjust samples sizes and correct for the
 power loss described in aim 1.
 
 \newpage
@@ -383,12 +398,12 @@ Table 1 describes power loss for the three sample sizes, (50, 150),
 (5\%), and 0.1 (10\%). To give these parameters context, if the group
 sizes are (50, 150) and the nondectection rate is 0.1, then the positive
 (affected) group has 50 cases, and the unlabeled control group (which we
-are treating naively) has 150 cases, 15 of which are actually affected
-cases. When the nondetection rate is zero, then the naive model is
-correct because there no affected cases in the control group. The first
-row is the reference power, so its loss of power compared to itself is
-zero. The reference power was calculated in the simulation just like all
-the other powers, and was estimated to be 0.82.
+are treating naively in the analysis) has 150 cases, 15 of which are
+actually affected cases. When the nondetection rate is zero, the naive
+model is correct because there no affected cases in the control group.
+The first row is the reference power, so its loss of power compared to
+itself is zero. The reference power was calculated in the simulation
+just like all the other powers, and was estimated to be 0.82.
 
 Columns 5 and 6 are the power loss columns and have negative entries
 because for this simulation positive-unlabeled data analyzed under the
@@ -397,13 +412,13 @@ the second row shows a -4.81\% relative power reduction when the group
 sizes are balanced but five percent of the control group is actually
 positive cases.
 
-Using Table 1, increasing nondetection rate typically reduces power.
+Using Table 1, increasing nondetection rate typically decreases power.
 However, group size imbalance can affect power loss more than relatively
 small nondetection rates. For example, consider rows 3, 4, and 5. For
 those rows, the nondetection rate is decreasing to zero, but power loss
-is increasing due to group imbalance. However, within an experimented
-with fixed group sizes (e.g., 100,100) increasing nondetection rate
-alway means decreased power.
+is increasing due to group imbalance. Nevertheless, within fixed group
+sizes (e.g., 100,100) increasing nondetection rate always decreased
+power.
 
 Table 1. Power loss.
 
@@ -448,45 +463,51 @@ sizes by about 40\% brings power back to the nominal rate. Rows 1, 6,
 and 11, show the power for when there are no false positives. The other
 rows show power when there is a 10\% nondection rate. The sixth column
 shows the percent increase in sample size.
-\begingroup\fontsize{11}{13}\selectfont
 
-\resizebox{\linewidth}{!}{
-\begin{tabular}{r|r|r|r|r|r|r}
-\hline
-Row & N positive cases & N naive controls & N false controls & N total & Percent increase & Power\\
-\hline
-\textbf{1} & \textbf{100} & \textbf{100} & \textbf{10} & \textbf{200} & \textbf{0.0} & \textbf{0.78}\\
-\hline
-2 & 110 & 110 & 11 & 220 & 10.0 & 0.83\\
-\hline
-3 & 120 & 120 & 12 & 240 & 20.0 & 0.87\\
-\hline
-4 & 130 & 130 & 13 & 260 & 30.0 & 0.89\\
-\hline
-5 & 140 & 140 & 14 & 280 & 40.0 & 0.90\\
-\hline
-6 & 150 & 50 & 5 & 200 & 0.0 & 0.67\\
-\hline
-7 & 165 & 55 & 6 & 220 & 10.0 & 0.70\\
-\hline
-8 & 180 & 60 & 6 & 240 & 20.0 & 0.77\\
-\hline
-9 & 195 & 79 & 8 & 274 & 37.0 & 0.84\\
-\hline
-10 & 210 & 80 & 8 & 290 & 45.0 & 0.87\\
-\hline
-11 & 50 & 150 & 15 & 200 & 0.0 & 0.69\\
-\hline
-12 & 55 & 165 & 16 & 220 & 10.0 & 0.73\\
-\hline
-13 & 60 & 180 & 18 & 240 & 20.0 & 0.78\\
-\hline
-14 & 70 & 195 & 20 & 265 & 32.5 & 0.83\\
-\hline
-15 & 80 & 210 & 21 & 290 & 45.0 & 0.85\\
-\hline
-\end{tabular}}
-\endgroup{}
+\begin{longtable}[]{@{}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.0440}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1868}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1868}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1868}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.0879}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.2418}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.0659}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+Row
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+N positive cases
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+N naive controls
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+N false controls
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+N total
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+percent increase in N
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Power
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 100 & 100 & 10 & 200 & 0.0 & 0.78 \\
+2 & 110 & 110 & 11 & 220 & 10.0 & 0.83 \\
+3 & 120 & 120 & 12 & 240 & 20.0 & 0.87 \\
+4 & 130 & 130 & 13 & 260 & 30.0 & 0.89 \\
+5 & 140 & 140 & 14 & 280 & 40.0 & 0.90 \\
+6 & 150 & 50 & 5 & 200 & 0.0 & 0.67 \\
+7 & 165 & 55 & 6 & 220 & 10.0 & 0.70 \\
+8 & 180 & 60 & 6 & 240 & 20.0 & 0.77 \\
+9 & 195 & 79 & 8 & 274 & 37.0 & 0.84 \\
+10 & 210 & 80 & 8 & 290 & 45.0 & 0.87 \\
+11 & 50 & 150 & 15 & 200 & 0.0 & 0.69 \\
+12 & 55 & 165 & 16 & 220 & 10.0 & 0.73 \\
+13 & 60 & 180 & 18 & 240 & 20.0 & 0.78 \\
+14 & 70 & 195 & 20 & 265 & 32.5 & 0.83 \\
+15 & 80 & 210 & 21 & 290 & 45.0 & 0.85 \\
+\end{longtable}
 
 \pagebreak
 
@@ -495,88 +516,34 @@ Row & N positive cases & N naive controls & N false controls & N total & Percent
 
 This study showed that under specific conditions there was modest power
 loss even for small proportions of undetected positives in the control
-group. For example, with a 10 percent nondection rate and a balanced
-study design, the sample size in the context of this simulation would
-have to be XXXX, which is a zzz percent increase in sample size.
+group. That means that risk-factor studies may have lower than expected
+power, and therefore increased chance of Type II error. That makes
+interpreting such studies difficult, because a reader, based on his or
+her experience, might be satisfied that 100 cases and 100 controls is a
+sufficiently large sample size for accurate inferences, it would not be
+for positive-unlabeled data.
 
-The working example was the association test for a single SNP in a GWAS
-study, but the simulation results apply to any kind of study with
+The working examples were the association tests for a single SNP in a
+GWAS studies, but the simulation results apply to any kind of study with
 univariate association tests, such as any risk factor study. That is a
 broad class of studies. Examples include the univariate associations
 between post-op surgical infections and various surgical conditions
-(e.g., boarded surgeon vs resident, manufacturer of bone plate). In that
-case, there may be subdiagnostic infections in the control group.
-Another example is univariate association tests in veterinary surveys,
-such as XXX. In that case, there may be subclinical \ldots{}
+(e.g., boarded surgeon vs resident, manufacturer of bone plates). In
+that case, there may be subdiagnostic infections in the control group.
+Another example is univariate association tests in veterinary surveys.
 
-In this simulaion, the undetected positives in the negative group were
+In this simulation, the undetected positives in the negative group were
 randomly sampled from the same population as the detected positives in
 the affected group. That's a common assumption (ref GU and others) but
-there are other models. For example, the undetected positives in the
-control group might be a subpopulation of positives defined by another
-variable. For example, in a CCLD GWAS study, the undetected positives in
-the control group might be positive dogs with low BCS only.
-
-it does not apply to the situation where binary ``affectedness'' changes
-as the function of a scaled risk factor variable. Using risk factors for
-CCLD example, BCS may affect spontaneous rupture.
-
-This was a simulation study that considered the effect on statistical
-power of 10 percent or fewer undetected positives in the control group.
-The simulation used
-
-Other papers have discussed improved tests and power. (wang, and the pan
-paper )
+there are other models.\cite{gr04} In one such model, the undetected
+positives in the control group might be a subpopulation of positives
+defined by another variable. For example, in a CCLD GWAS study, the
+undetected positives in the control group might be positive dogs with
+low body condition score.
 
 \newpage
 
-\hypertarget{practical-implications}{%
-\subsubsection{Practical implications}\label{practical-implications}}
-
-However, the undetected-positive rate for CCLD GWAS studies is small,
-certainly less that 10 percent, and the low rate causes only small
-biases in odds ratio estimates. However, this study shows that unlabeled
-data also affect the inferences, and we show that even a few positive
-cases in the negative controls can affect the power of the study.
-Fortunately, positive-unlabeled data appears to reduce power, making the
-results reported in CCLD GWAS studies conservative.
-
 \bibliography{references}
 \bibliographystyle{plain}
-
-\hypertarget{appendix-1.}{%
-\subsection{Appendix 1.}\label{appendix-1.}}
-
-Table 1. Sample sizes for four GWAS studies of CCLD. The last columns
-shows the number of affected cases in the control group assuming 10
-percent non-detection rate.
-
-\begin{longtable}[]{@{}
-  >{\centering\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.3182}}
-  >{\centering\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1061}}
-  >{\centering\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1061}}
-  >{\centering\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2424}}
-  >{\centering\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2273}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\centering
-Study
-\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
-N
-\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
-Cases
-\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
-Naive controls
-\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
-Max No.~undetected positives (10\%)
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Baird et al.~(2014) & 217 & 91 & 126 & 13 \\
-Baker et al.~(2021) & 397 & 156 & 241 & 24 \\
-Cook et al.~(2020) & 333 & 190 & 143 & 14 \\
-Healy et al.~(2019) & 216 & 161 & 55 & 6 \\
-\end{longtable}
 
 \end{document}
