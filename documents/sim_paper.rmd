@@ -21,13 +21,14 @@ header-includes:
 library("here")
 library("tinytex")
 library("knitr")
-library("kableExtra")
+#library("kableExtra")
 library("rmarkdown")
 library("dplyr")
-library("kableExtra")
 library("knitr")
 
 tab1 <- read.csv(here("data","derived","bigtable.csv"))
+
+tab1 <- tab1 %>% arrange()
 
 # render(here("documents/sim_paper.rmd"), output_format = "all")
 ```
@@ -217,8 +218,8 @@ In this simulation, the undetected positives in the negative group were randomly
 
 \newpage
 
+\bibliographystyle{unsrt}\bibliographystyle{ieeetr}
 \bibliography{references}
-\bibliographystyle{plain}
 
 
 
