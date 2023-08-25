@@ -51,19 +51,19 @@ University of Minnesota
 
 ### Objective
 
-Sample size calculations play a pivotal role in study design, as they influence study interpretability, costs, and the allocation of hospital resources and staff time. In the context of most orthopedic risk-factor studies, either the sample size calculation or the post-hoc power calculation assumes the precise ascertainment of disease status among control subjects, which might not always hold true. Consequently, control groups might consist of a mixture of both unaffected cases and some unidentified affected cases. Negative control groups containing misclassified positive data are denoted as "unlabeled." Treating unlabeled groups as disease-negative control groups is recognized to introduce misclassification bias. However, scant research has been conducted on the impact of such misclassification on the statistical power of risk association tests. In this study, we elucidate the repercussions of employing unlabeled groups as control groups on the power of risk association tests. Our aim is to demonstrate that even minor misclassification rates within control groups can substantially diminish the power of association tests. Consequently, disregarding the unlabeled aspect of control groups in sample size calculations may lead to underpowered studies. Additionally, we present a range of correction factors to recalibrate sample size calculations to achieve 80% power.
+Sample size calculations play a pivotal role in study design, as they influence study interpretability, costs, and the allocation of hospital resources and staff time. For most orthopedic risk-factor studies, either the sample size calculation or the post-hoc power calculation assumes the negative disease status of the control subjects, which might not always hold true; it is often easier to show positive disease than to rule out a disease. So, control groups might consist of a mixture of both unaffected cases and some unidentified affected cases. Negative control groups containing misclassified positive data are called "unlabeled." Treating unlabeled groups as disease-negative control groups is known to introduce misclassification bias. However, there is little research on the impact of such misclassification on the statistical power of risk association tests. In this study, we show the effects of using unlabeled groups as control groups on the power of risk association tests. Our aim is to demonstrate that even minor misclassification rates within control groups can substantially diminish the power of association tests. Consequently, disregarding the unlabeled aspect of control groups in sample size calculations may lead to underpowered studies. Additionally, we present a range of correction factors to recalibrate sample size calculations to achieve 80% power.
 
 ### Materials and Methods
 
-This study employed a simulation approach, utilizing study designs from published orthopedic risk-factor studies. The methodology involved adopting these designs and subsequently simulating the data to incorporate predetermined proportions of misclassified affected subjects within the control group. The simulated dataset was then employed to compute the power of a risk-association test. We calculated the statistical power for various study designs and misclassification rates, subsequently comparing these results against a reference model.
+This study employed a simulation approach, utilizing study designs from published orthopedic risk-factor studies. The methodology involved using these designs and simulating the data to incorporate predetermined proportions of misclassified affected subjects in the control group. The simulated dataset was then used to compute the power of a risk-association test. We calculated the statistical power for various study designs and misclassification rates, subsequently comparing these results against a reference model.
 
 ### Results
 
-Treating unlabeled data as disease-negative consistently resulted in a reduction of statistical power in comparison to the reference power. Moreover, the extent of power loss increased as the misclassification rate escalated. In the context of this study, restoring the statistical power to 80% was attainable by increasing the sample size by a factor ranging from 1.1 to 1.4.
+Treating unlabeled data as disease-negative consistently resulted in a reduction of statistical power in comparison to the reference power. Moreover, the extent of power loss increased as the misclassification rate increased. In the context of this study, increasing the sample size by a factor ranging from 1.1 to 1.4 restored the statistical power to 80%.
 
 ### Conclusion
 
-Researchers should exercise caution when calculating sample sizes for risk-factor studies and should incorporate adjustments for estimated misclassification rates.
+Researchers should exercise caution when calculating sample sizes for risk-factor studies and should incorporate sample size adjustments for estimated misclassification rates.
 
 Keywords: risk-factor, case-control, power, sample size
 
@@ -72,7 +72,7 @@ Keywords: risk-factor, case-control, power, sample size
 
 ## Introduction
 
-Sample size calculations are pivotal in study design, influencing study costs, allocation of hospital resources, and staff time. Underpowered studies, fraught with Type II errors, can be challenging to interpret and pose ethical concerns with minimal prospects of success. \cite{ halpern2002continuing, hofmeister2007sample}.
+Sample size calculations are pivotal in study design, influencing study costs, the allocation of hospital resources, and staff time. Underpowered studies, with Type II errors, can be challenging to interpret and pose ethical concerns with minimal prospects of success. \cite{ halpern2002continuing, hofmeister2007sample}.
 
 In orthopedic risk factor studies, while the positive disease status of affected subjects is ascertained with perfect sensitivity and specificity, control subjects' disease status is sometimes uncertain. This results in control groups comprising a blend of unaffected and unidentified affected cases. Control groups with misclassified data are termed "unlabeled." Such data scenarios, featuring truly affected cases in the positive group and an unlabeled control group, are referred to as "positive-unlabeled" (PU) data within the data science community.
 
