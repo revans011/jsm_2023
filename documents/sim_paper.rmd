@@ -1,6 +1,5 @@
 ---
 output:
-    word_document:
     pdf_document:
       keep_tex: true
 geometry: margin=1.0in
