@@ -1,6 +1,5 @@
 ---
 output:
-    word_document:
     pdf_document:
       keep_tex: true
 geometry: margin=1.0in
@@ -37,7 +36,7 @@ tab1 <- read.csv(here("data","derived","bigtable.csv"))
 **Running title:** Sample Size Considerations
 
 
-Richard Evans ${^\dagger}$
+Richard Evans ${^\dagger}$ and Antonio Pozzi
 
 ${\dagger}$ Corresponding Author
 
@@ -64,7 +63,7 @@ Treating unlabeled data as disease-negative only always reduced statistical powe
 
 ### Conclusion
 
-Researchers should use caution in calculating sample sizes for risk-factor studies and should include adjustments for estimated misclassification rates.
+Researchers should use caution in calculating sample sizes for risk-factor studies and consider adjustments for estimated misclassification rates.
 
 Keywords: risk-factor, case-control, power, sample size
 
