@@ -1,7 +1,8 @@
 ---
+title: "**Sample Size Considerations in the Design of Orthopaedic Risk-factor Studies**"
 output:
-    pdf_document:
-geometry: margin=1.0in
+  pdf_document:
+   keep_tex: yes
 font-size: 12pt
 
 ---
@@ -24,37 +25,34 @@ tab1 <- read.csv(here("data","derived","bigtable.csv"))
 # render(here("documents/sim_paper.rmd"), output_format = "all")
 ```
 
-# Sample Size Considerations in the Design of Orthopaedic Risk-factor Studies
-
-**Running title:** Sample Size Considerations
-
-
-Richard Evans ${^\dagger}$ and Antonio Pozzi
+Richard Evans ${^\dagger}$ and Antonio Pozzi ${^*}$
 
 ${\dagger}$ Corresponding Author
 
-Clinical and Translational Science Institute  
-University of Minnesota  
-
+${\dagger}$ Clinical and Translational Science Institute  
+University of Minnesota \
+Minneapolis, Minnesota, USA \
 \href{mailto:evan0770@umn.edu}{evan0770@umn.edu}
 
-\newpage
+${^*}$ Small Animal Clinic \
+University of Zurich \
+Zurich, Switzerland
 
-## Abstract
+# Abstract
 
-### Objective
+## Objective
 
 Sample size calculations play a central role in study design because sample size affects study interpretability and costs, hospital resources, and staff time. For most orthopaedic risk-factor studies, either the sample size calculation or the post-hoc power calculation assumes the disease status of control subjects is perfectly ascertained, when it may not be. That means control groups may be mixtures of both unaffected cases and some unidentified affected cases. Negative control groups with misclassified positive data are called unlabeled. Treating unlabeled groups as disease-negative control groups is known to cause misclassification bias, but there has been little research on how misclassification affects the statistical power of risk association tests. In this study, we demonstrate the consequences of using unlabeled groups as control groups on the power of risk association tests, with the intent of showing that control groups with even small misclassification rates can reduce the power of association tests. So, sample size calculations that ignore the unlabeled aspect of control groups may underpower studies. In addition, we offer a range of correction factors to adjust sample size calculations back to 80% power.
 
-### Materials and Methods
+## Materials and Methods
 
 This was a simulation study using study designs from published orthopaedic risk-factor studies. The approach was to use their designs but simulate the data to include known proportions of misclassified affected subjects in the control group. The simulated data was used to calculate the power of a risk-association test. We calculated powers for several study designs and misclassification rates and compared them to a reference model.
 
-### Results
+## Results
 
 Treating unlabeled data as disease-negative only always reduced statistical power compared to the reference power, and power loss increased with increasing misclassification rate. For this study, power could be improved back to 80% by increasing the sample size by a factor of 1.1 to 1.4.
 
-### Conclusion
+## Conclusion
 
 Researchers should use caution in calculating sample sizes for risk-factor studies and consider adjustments for estimated misclassification rates.
 
@@ -63,19 +61,19 @@ Keywords: risk-factor, case-control, power, sample size
 
 \newpage
 
-## Introduction
+# Introduction
 
-Sample size calculations play a central role in study design because sample size affects study costs, hospital resources, and staff time. Also, underpowered studies with Type II error, can be hard to interpret, and there are also serious ethical considerations that have little chance of success. \cite{ halpern2002continuing, hofmeister2007sample}.
+Sample size calculations play a central role in study design because sample size affects study costs, hospital resources, and staff time. Also, underpowered studies with Type II error, can be hard to interpret, and there are also serious ethical considerations that have little chance of success.\cite{ halpern2002continuing, hofmeister2007sample}.
 
 In orthopaedic risk factor studies, the positive disease status of the affected subjects is ascertained with perfect sensitivity and specificity, but sometimes the disease status of control subjects is not perfectly ascertained. That means control groups may be mixtures of both unaffected cases and some unidentified affected cases. Control groups with misclassified data are called unlabeled. Data with truly affected cases in the positive group and an unlabeled control group is called positive-unlabeled (PU) data by the data science community.
 
-Examples of positive-unlabeled data are well documented in human medicine, but less so in veterinary medicine. Nevertheless, many veterinary studies fall into the positive-unlabeled framework. For example, genome-wide association studies of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The affected cases are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone knee stabilization surgery. The control cases are typically five years old or older with no history of CCLD and pass an orthopaedic veterinary exam by a board-certified surgeon. However some control dogs will have spontaneous rupture in the future, and so genetically belong in the CCLD affected group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound on physical exam and be enrolled in the control group, but may actually have force-platform-detectable hindlimb lameness. Such a dog should not be in the control group because the lameness might be subclinical CCLD. \cite{wrehim08}
+Examples of positive-unlabeled data are well documented in human medicine, but less so in veterinary medicine. Nevertheless, many veterinary studies fall into the positive-unlabeled framework. For example, genome-wide association studies of cranial cruciate ligament disease (CCLD) in dogs use case-control designs. The affected cases are truly positive CCLD cases because they are enrolled from the set of dogs who have undergone knee stabilization surgery. The control cases are typically five years old or older with no history of CCLD and pass an orthopaedic veterinary exam by a board-certified surgeon. However some control dogs will have spontaneous rupture in the future, and so genetically belong in the CCLD affected group. Other control dogs may have sub-diagnostic disease. For example, a dog might appear sound on physical exam and be enrolled in the control group, but may actually have force-platform-detectable hindlimb lameness. Such a dog should not be in the control group because the lameness might be subclinical CCLD.\cite{wrehim08}
 
-There are other examples of PU data in the veterinary literature, typically in risk-factor studies using case-control designs. For example, Arthur et al. (2016) used a case-control design to assess the risk of osteosarcoma following fracture repair. \cite{aakj16} They said, "There may be additional cases [in the control group] in which implant-related osteosarcoma was diagnosed in the private practice setting without referral…," suggesting that the control group may be unlabeled because some control-group cases were actually osteosarcoma positive, but diagnosed outside the study. In another example, Wylie et al. 2013 studied risk factors for equine laminitis using controls obtained from an owner survey. \cite{wcvj13} The authors noted the positive-unlabeled aspect of their data, "Our study relied on owner-reported diagnoses of endocrinopathic conditions, and this may have introduced misclassification bias."
+There are other examples of PU data in the veterinary literature, typically in risk-factor studies using case-control designs. For example, Arthur et al. (2016) used a case-control design to assess the risk of osteosarcoma following fracture repair.\cite{aakj16} They said, "There may be additional cases [in the control group] in which implant-related osteosarcoma was diagnosed in the private practice setting without referral…," suggesting that the control group may be unlabeled because some control-group cases were actually osteosarcoma positive, but diagnosed outside the study. In another example, Wylie et al. 2013 studied risk factors for equine laminitis using controls obtained from an owner survey.\cite{wcvj13} The authors noted the positive-unlabeled aspect of their data, "Our study relied on owner-reported diagnoses of endocrinopathic conditions, and this may have introduced misclassification bias."
 
 As mentioned above, the affected cases are "labeled" positive, but the control data is "unlabeled," because dogs may be affected or unaffected. Treating the unlabeled control group as entirely unaffected is called the naive model. The proportion of affected dogs in the control group is called the nondetection rate or undetected rate.
 
-Using the naive model when the nondetection rate is positive causes misclassification bias (because there are affected cases in the control group), and that bias is well documented in the data science literature. \cite{bd20} Biases due to misclassification can be mitigated using models other than the naive model and with the appropriate data analysis, and there are many articles describing methods for analyzing positive-unlabeled data. Bekker and Davis (2020) provide an excellent summary of methods. \cite{bd20} Sometimes, however, researchers prefer the naive model because the analysis is simpler and they believe their small nondetection rates induce misclassification biases that are too small for practical consideration. There is some suggestion that nondetection rates under 10% do have little impact on bias. \cite{bd20}
+Using the naive model when the nondetection rate is positive causes misclassification bias (because there are affected cases in the control group), and that bias is well documented in the data science literature.\cite{bd20} Biases due to misclassification can be mitigated using models other than the naive model and with the appropriate data analysis, and there are many articles describing methods for analyzing positive-unlabeled data. Bekker and Davis (2020) provide an excellent summary of methods.\cite{bd20} Sometimes, however, researchers prefer the naive model because the analysis is simpler and they believe their small nondetection rates induce misclassification biases that are too small for practical consideration. There is some suggestion that nondetection rates under 10% do have little impact on bias.\cite{bd20}
 
 But bias in estimates (e.g., bias in regression coefficients) is just one part of the results; the other part is inference (e.g., p-values). Central to inference is the power of statistical tests. Power is used in planning a study as a measure of the ability of the study to make the correct decisions. That is, finding P<0.05 when it should. Typically, 80 percent power means that if the group parameters are truly different, then the statistical test has an 80 percent chance of obtaining p<0.05.
 
@@ -84,29 +82,23 @@ We investigated the effect of positive-unlabeled data on loss of statistical pow
 
 Using a simulation, we described how statistical power changes with varying proportions of undetected positives in the naive controls, and varying the imbalance between the numbers of cases and naive controls. Our first aim was to demonstrate that the naive analysis of positive-unlabeled data reduces statistical power in risk-factor studies, even for small nondetection rates. Our second aim was to offer correction factors to upward-adjust sample sizes and correct for the power loss described in Aim 1.
 
+# Methods and materials
 
-\newpage
-
-## Methods and materials
-
-### The Test of Association
+## The Test of Association
 
 This was a simulation study assessing the changes in the power of a univariate association test under different PU conditions. There are many statistical tests of association, but we calculated the power for one of the most common tests, the Fisher exact test, which is used to test the statistical significance of a binary risk factor. More generally, this test can be used to assess the significance of any risk factor using the predicted values from a univariate logistic regression.
 
 In the context of risk association studies, and all else being equal, the Fisher exact test would achieve its maximum power for a balanced study design when the naive model is correct (i.e., no undetected positives in the control group). We call that maximum power the reference power and reported our results as both percent power loss relative to the reference power and as absolute power loss from reference power. In other words, we are using the Fisher exact test to show how much statistical power is lost by ignoring the nondetection rate.
 
-### The Sample Size and Group Imbalance
+## The Sample Size and Group Imbalance
 
-The total sample size for the simulation was fixed at N=200, which is consistent with Healey et al. 2019 (N=216), and Baird et al. 2014 (N=217). \cite{bcioa14, hmhcbhkr19} The effect size, 0.21, was chosen because, with N=200, the reference power was close to 80 percent, which is a value that is commonly used in study design. That way, the reference model is the one with a standard power of 80 percent. Note that the sample size and effect size are not key parameters for the simulation because for any sample size an effect size can be chosen so that power is 80 percent. Also, effect size and sample size are not features of PU data, per se.
+The total sample size for the simulation was fixed at N=200, which is consistent with Healey et al. 2019 (N=216), and Baird et al. 2014 (N=217).\cite{bcioa14, hmhcbhkr19} The effect size, 0.21, was chosen because, with N=200, the reference power was close to 80 percent, which is a value that is commonly used in study design. That way, the reference model is the one with a standard power of 80 percent. Note that the sample size and effect size are not key parameters for the simulation because for any sample size an effect size can be chosen so that power is 80 percent. Also, effect size and sample size are not features of PU data, per se.
 
-The simulation study varied two study design parameters: the nondetection rate and group-size imbalance. The proportion of undetected positives in the control group ranged from 0 (the value for reference power) to 10 percent. We used 10 percent as the upper limit because researchers are generally willing to accept nondetection rates below 10 percent and use the naive model, but change to a PU analysis for rates greater than 10 percent. \cite{bd20}  
+The simulation study varied two study design parameters: the nondetection rate and group-size imbalance. The proportion of undetected positives in the control group ranged from 0 (the value for reference power) to 10 percent. We used 10 percent as the upper limit because researchers are generally willing to accept nondetection rates below 10 percent and use the naive model, but change to a PU analysis for rates greater than 10 percent.\cite{bd20}  
 
-We modeled group imbalance using Healey et al. (2019), which used 161 dogs affected with CCLD and 55 unlabeled dogs as controls, and Baird et al. (2014) which used 91 dogs affected with CCLD, and 126 unlabeled dogs as controls, so that imbalance ratios were about 3:1 and 1:3. \cite{bcioa14} \cite{hmhcbhkr19} We only used two imbalance proportions (1:3 and 3:1) and no imbalance (1:1) because the key parameter for this study was the nondetection proportion. That gave simulation sample sizes of (50, 150), (150, 50), and (100, 100).
+We modeled group imbalance using Healey et al. (2019), which used 161 dogs affected with CCLD and 55 unlabeled dogs as controls, and Baird et al. (2014) which used 91 dogs affected with CCLD, and 126 unlabeled dogs as controls, so that imbalance ratios were about 3:1 and 1:3.\cite{bcioa14, hmhcbhkr19} We only used two imbalance proportions (1:3 and 3:1) and no imbalance (1:1) because the key parameter for this study was the nondetection proportion. That gave simulation sample sizes of (50, 150), (150, 50), and (100, 100).
 
-
-\pagebreak
-
-### The Simulation Algorithm
+## The Simulation Algorithm
 
 The overall approach is to simulate data, and then use that data to calculate the p-value of the Fisher exact test. The process is repeated 5000 times for each combination of sample size and nondetection rate, and then the 5000 p-values are compared to 0.05. The proportion of p-values less than 0.05 is the estimated power.
 
@@ -118,13 +110,11 @@ Now, the 200 cases are pairs of binary data, one representing the group and the 
 
 For the second example, we calculate the power for a positive-unlabeled example. Suppose that in a 100-patient control group, 10 percent are in fact undetected positives. So the dataset is 10 affected cases in the control group, 90 unaffected cases in the control group, and 100 affected cases in the positive group. As in the previous example, the risk factor is simulated by sampling from binomial distributions. Now, 90 controls are sampled from the binomial distribution with $Pr(X=1) = 0.2$, the 10 affected controls are sampled from the binomial distribution with $Pr(X=1) = 0.2+ 0.21$, and 100 cases are sampled from the same binomial distribution with $Pr(X=1) = 0.2 + 0.21$. The 10 mislabeled affected cases remain in the control group, so as to measure the effect of treating PU data naively. As before, the simulated data were treated like pilot data, and p-values were calculated. This process is repeated 5000 times and the was estimated as described in the previous example.
 
-### The Correction Factor
+## The Correction Factor
 
 For aim 2, the sample-size correction factor estimation, we used the same simulation algorithm and effect size (0.21) but multiplied the group sample sizes by possible correction factors, 1.1, 1.2, and so on, increasing sample size and therefore the power, until it reached the 80%.  
 
-\pagebreak
-
-## Results
+# Results
 
 Table 1 describes power loss for the three study designs with three different group sizes, (50, 150), (150, 50), and (100, 100), and for three nondetection rates, 0, 0.05 (5%), and 0.1 (10%). To give these parameters context, if the group sizes are (50, 150) and the nondetection rate is 0.1, then the positive (affected) group has 50 cases, and the unlabeled control group (which we are treating naively in the analysis) has 150 cases, 15 of which are actually affected cases. When the nondetection rate is zero, the naive model is correct because there are no affected cases in the control group. The first row is the reference power, so its loss of power compared to itself is zero. The reference power was calculated in the simulation just like all the other powers and was estimated to be 0.82.
 
@@ -134,8 +124,6 @@ Rows one, four, and seven are correct models (i.e., no positives in the control 
 
 Using Table 1, increasing the nondetection rate within a study design decreased power. For example, for the (100, 100) study design, power decreased by more than 10% as the non-detection rate increased (rows one to three). For the (50, 150) design, in rows seven to nine, power decreased by 12.02% (22.47 - 10.45) from the correct model (row seven), but 22.47% from the reference model.
 Finally, note that for this simulation, the absolute power losses are marked, but not extreme. For example, in the (100, 100) design, (rows 1 to 3) the power dropped to 0.73 (0.82 - 0.09) for row 3.
-
-\pagebreak
 
 Table 1. Power loss. This table orders sample sizes by relative power loss (%). The first row is the reference power, which had an absolute power of 0.82 (82%). The last two columns represent power loss relative to 0.82, both as a percentage and an absolute difference. Note that some inconsistencies in the table are due to rounding. For example, in rows 3 to 5, the absolute power is constant at 0.09, but the relative power changes. 
 
@@ -155,10 +143,6 @@ kable(tab1,
                 font_size = 11,
                 position = "left")
 ```
-
-
-
-\pagebreak
 
 Table 2 shows how many additional subjects are required to regain power when the non-detection rate is 10%. Rows 1 to 5 are for the (100, 100) design, rows 6 to 10 are for the (150, 50) design, and rows 11 to 15 are for the (50, 150) design. The sample size was increased by 10% for each row within a study design. As one might expect, lower positive-unlabeled power needs more subjects to bring the power up to 80%. For the unbalanced designs, the increased sample size also fixes the power loss due to imbalance. For example, in row one, the power is 0.69 for the original (50, 150) design with 10% nondetection rate. Row 14 shows that an additional 65 subjects, or 32.5% more subjects are required to bring the power above 80%. However, for the (100, 100) design, only 10% more subjects are required (rows one and two).
 
@@ -193,10 +177,6 @@ kable(tab2,
                 position = "left")
 
 ```
-
-
-
-\pagebreak
 
 # Discussion
 

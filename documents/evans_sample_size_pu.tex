@@ -36,7 +36,7 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
-\usepackage[margin=1.0in]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -64,12 +64,20 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-\usepackage{helvet}
-\renewcommand*\familydefault{\sfdefault}
-\usepackage{setspace}
-\doublespacing
-\usepackage[left]{lineno}
-\linenumbers
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -77,37 +85,36 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
+  pdftitle={Sample Size Considerations in the Design of Orthopaedic Risk-factor Studies},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 
+\title{\textbf{Sample Size Considerations in the Design of Orthopaedic
+Risk-factor Studies}}
 \author{}
 \date{\vspace{-2.5em}}
 
 \begin{document}
+\maketitle
 
-\hypertarget{sample-size-considerations-in-the-design-of-orthopaedic-risk-factor-studies}{%
-\section{Sample Size Considerations in the Design of Orthopaedic
-Risk-factor
-Studies}\label{sample-size-considerations-in-the-design-of-orthopaedic-risk-factor-studies}}
-
-\textbf{Running title:} Sample Size Considerations
-
-Richard Evans \({^\dagger}\) and Antonio Pozzi
+Richard Evans \({^\dagger}\) and Antonio Pozzi \({^*}\)
 
 \({\dagger}\) Corresponding Author
 
-Clinical and Translational Science Institute\\
-University of Minnesota
-
+\({\dagger}\) Clinical and Translational Science Institute\\
+University of Minnesota\\
+Minneapolis, Minnesota, USA\\
 \href{mailto:evan0770@umn.edu}{evan0770@umn.edu}
 
-\newpage
+\({^*}\) Small Animal Clinic\\
+University of Zurich\\
+Zurich, Switzerland
 
 \hypertarget{abstract}{%
-\subsection{Abstract}\label{abstract}}
+\section{Abstract}\label{abstract}}
 
 \hypertarget{objective}{%
-\subsubsection{Objective}\label{objective}}
+\subsection{Objective}\label{objective}}
 
 Sample size calculations play a central role in study design because
 sample size affects study interpretability and costs, hospital
@@ -130,7 +137,7 @@ correction factors to adjust sample size calculations back to 80\%
 power.
 
 \hypertarget{materials-and-methods}{%
-\subsubsection{Materials and Methods}\label{materials-and-methods}}
+\subsection{Materials and Methods}\label{materials-and-methods}}
 
 This was a simulation study using study designs from published
 orthopaedic risk-factor studies. The approach was to use their designs
@@ -141,7 +148,7 @@ several study designs and misclassification rates and compared them to a
 reference model.
 
 \hypertarget{results}{%
-\subsubsection{Results}\label{results}}
+\subsection{Results}\label{results}}
 
 Treating unlabeled data as disease-negative only always reduced
 statistical power compared to the reference power, and power loss
@@ -150,7 +157,7 @@ could be improved back to 80\% by increasing the sample size by a factor
 of 1.1 to 1.4.
 
 \hypertarget{conclusion}{%
-\subsubsection{Conclusion}\label{conclusion}}
+\subsection{Conclusion}\label{conclusion}}
 
 Researchers should use caution in calculating sample sizes for
 risk-factor studies and consider adjustments for estimated
@@ -161,13 +168,13 @@ Keywords: risk-factor, case-control, power, sample size
 \newpage
 
 \hypertarget{introduction}{%
-\subsection{Introduction}\label{introduction}}
+\section{Introduction}\label{introduction}}
 
 Sample size calculations play a central role in study design because
 sample size affects study costs, hospital resources, and staff time.
 Also, underpowered studies with Type II error, can be hard to interpret,
 and there are also serious ethical considerations that have little
-chance of success. \cite{ halpern2002continuing, hofmeister2007sample}.
+chance of success.\cite{ halpern2002continuing, hofmeister2007sample}.
 
 In orthopaedic risk factor studies, the positive disease status of the
 affected subjects is ascertained with perfect sensitivity and
@@ -192,20 +199,20 @@ genetically belong in the CCLD affected group. Other control dogs may
 have sub-diagnostic disease. For example, a dog might appear sound on
 physical exam and be enrolled in the control group, but may actually
 have force-platform-detectable hindlimb lameness. Such a dog should not
-be in the control group because the lameness might be subclinical CCLD.
-\cite{wrehim08}
+be in the control group because the lameness might be subclinical
+CCLD.\cite{wrehim08}
 
 There are other examples of PU data in the veterinary literature,
 typically in risk-factor studies using case-control designs. For
 example, Arthur et al.~(2016) used a case-control design to assess the
-risk of osteosarcoma following fracture repair. \cite{aakj16} They said,
+risk of osteosarcoma following fracture repair.\cite{aakj16} They said,
 ``There may be additional cases {[}in the control group{]} in which
 implant-related osteosarcoma was diagnosed in the private practice
 setting without referral\ldots,'' suggesting that the control group may
 be unlabeled because some control-group cases were actually osteosarcoma
 positive, but diagnosed outside the study. In another example, Wylie et
 al.~2013 studied risk factors for equine laminitis using controls
-obtained from an owner survey. \cite{wcvj13} The authors noted the
+obtained from an owner survey.\cite{wcvj13} The authors noted the
 positive-unlabeled aspect of their data, ``Our study relied on
 owner-reported diagnoses of endocrinopathic conditions, and this may
 have introduced misclassification bias.''
@@ -218,16 +225,16 @@ control group is called the nondetection rate or undetected rate.
 
 Using the naive model when the nondetection rate is positive causes
 misclassification bias (because there are affected cases in the control
-group), and that bias is well documented in the data science literature.
-\cite{bd20} Biases due to misclassification can be mitigated using
-models other than the naive model and with the appropriate data
+group), and that bias is well documented in the data science
+literature.\cite{bd20} Biases due to misclassification can be mitigated
+using models other than the naive model and with the appropriate data
 analysis, and there are many articles describing methods for analyzing
 positive-unlabeled data. Bekker and Davis (2020) provide an excellent
-summary of methods. \cite{bd20} Sometimes, however, researchers prefer
+summary of methods.\cite{bd20} Sometimes, however, researchers prefer
 the naive model because the analysis is simpler and they believe their
 small nondetection rates induce misclassification biases that are too
 small for practical consideration. There is some suggestion that
-nondetection rates under 10\% do have little impact on bias. \cite{bd20}
+nondetection rates under 10\% do have little impact on bias.\cite{bd20}
 
 But bias in estimates (e.g., bias in regression coefficients) is just
 one part of the results; the other part is inference (e.g., p-values).
@@ -261,13 +268,11 @@ studies, even for small nondetection rates. Our second aim was to offer
 correction factors to upward-adjust sample sizes and correct for the
 power loss described in Aim 1.
 
-\newpage
-
 \hypertarget{methods-and-materials}{%
-\subsection{Methods and materials}\label{methods-and-materials}}
+\section{Methods and materials}\label{methods-and-materials}}
 
 \hypertarget{the-test-of-association}{%
-\subsubsection{The Test of Association}\label{the-test-of-association}}
+\subsection{The Test of Association}\label{the-test-of-association}}
 
 This was a simulation study assessing the changes in the power of a
 univariate association test under different PU conditions. There are
@@ -288,12 +293,12 @@ show how much statistical power is lost by ignoring the nondetection
 rate.
 
 \hypertarget{the-sample-size-and-group-imbalance}{%
-\subsubsection{The Sample Size and Group
+\subsection{The Sample Size and Group
 Imbalance}\label{the-sample-size-and-group-imbalance}}
 
 The total sample size for the simulation was fixed at N=200, which is
 consistent with Healey et al.~2019 (N=216), and Baird et al.~2014
-(N=217). \cite{bcioa14, hmhcbhkr19} The effect size, 0.21, was chosen
+(N=217).\cite{bcioa14, hmhcbhkr19} The effect size, 0.21, was chosen
 because, with N=200, the reference power was close to 80 percent, which
 is a value that is commonly used in study design. That way, the
 reference model is the one with a standard power of 80 percent. Note
@@ -308,22 +313,19 @@ positives in the control group ranged from 0 (the value for reference
 power) to 10 percent. We used 10 percent as the upper limit because
 researchers are generally willing to accept nondetection rates below 10
 percent and use the naive model, but change to a PU analysis for rates
-greater than 10 percent. \cite{bd20}
+greater than 10 percent.\cite{bd20}
 
 We modeled group imbalance using Healey et al.~(2019), which used 161
 dogs affected with CCLD and 55 unlabeled dogs as controls, and Baird et
 al.~(2014) which used 91 dogs affected with CCLD, and 126 unlabeled dogs
-as controls, so that imbalance ratios were about 3:1 and 1:3.
-\cite{bcioa14} \cite{hmhcbhkr19} We only used two imbalance proportions
+as controls, so that imbalance ratios were about 3:1 and
+1:3.\cite{bcioa14, hmhcbhkr19} We only used two imbalance proportions
 (1:3 and 3:1) and no imbalance (1:1) because the key parameter for this
 study was the nondetection proportion. That gave simulation sample sizes
 of (50, 150), (150, 50), and (100, 100).
 
-\pagebreak
-
 \hypertarget{the-simulation-algorithm}{%
-\subsubsection{The Simulation
-Algorithm}\label{the-simulation-algorithm}}
+\subsection{The Simulation Algorithm}\label{the-simulation-algorithm}}
 
 The overall approach is to simulate data, and then use that data to
 calculate the p-value of the Fisher exact test. The process is repeated
@@ -380,7 +382,7 @@ were calculated. This process is repeated 5000 times and the was
 estimated as described in the previous example.
 
 \hypertarget{the-correction-factor}{%
-\subsubsection{The Correction Factor}\label{the-correction-factor}}
+\subsection{The Correction Factor}\label{the-correction-factor}}
 
 For aim 2, the sample-size correction factor estimation, we used the
 same simulation algorithm and effect size (0.21) but multiplied the
@@ -388,10 +390,8 @@ group sample sizes by possible correction factors, 1.1, 1.2, and so on,
 increasing sample size and therefore the power, until it reached the
 80\%.
 
-\pagebreak
-
 \hypertarget{results-1}{%
-\subsection{Results}\label{results-1}}
+\section{Results}\label{results-1}}
 
 Table 1 describes power loss for the three study designs with three
 different group sizes, (50, 150), (150, 50), and (100, 100), and for
@@ -433,8 +433,6 @@ but 22.47\% from the reference model. Finally, note that for this
 simulation, the absolute power losses are marked, but not extreme. For
 example, in the (100, 100) design, (rows 1 to 3) the power dropped to
 0.73 (0.82 - 0.09) for row 3.
-
-\pagebreak
 
 Table 1. Power loss. This table orders sample sizes by relative power
 loss (\%). The first row is the reference power, which had an absolute
@@ -479,8 +477,6 @@ Absolute power loss (from 0.82)
 8 & 50 & 150 & 0.05 & -15.26 & -0.13 \\
 9 & 50 & 150 & 0.10 & -22.47 & -0.20 \\
 \end{longtable}
-
-\pagebreak
 
 Table 2 shows how many additional subjects are required to regain power
 when the non-detection rate is 10\%. Rows 1 to 5 are for the (100, 100)
@@ -544,8 +540,6 @@ Power
 14 & 70 & 195 & 20 & 265 & 32.5 & 0.83 \\
 15 & 80 & 210 & 21 & 290 & 45.0 & 0.85 \\
 \end{longtable}
-
-\pagebreak
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
