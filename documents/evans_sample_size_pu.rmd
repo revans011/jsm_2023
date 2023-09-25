@@ -1,8 +1,7 @@
 ---
 title: "**Sample Size Considerations in the Design of Orthopaedic Risk-factor Studies**"
 output:
-  pdf_document:
-   keep_tex: yes
+  word_document:
 font-size: 12pt
 
 ---
@@ -38,13 +37,22 @@ ${^*}$ Small Animal Clinic \
 University of Zurich \
 Zurich, Switzerland
 
+Keywords: Orthopaedics, risk factor, statistics, sample size
+
+No funding was received for this research, and there are no conflicts of interest.
+
+Richard Evans contributed to the concept, writing, and simulations in this manuscript. Antonio Pozzi contributed to the concept and writing of this manuscript.
+
+
+\newpage
+
 # Abstract
 
 ## Objective
 
-Sample size calculations play a central role in study design because sample size affects study interpretability and costs, hospital resources, and staff time. For most orthopaedic risk-factor studies, either the sample size calculation or the post-hoc power calculation assumes the disease status of control subjects is perfectly ascertained, when it may not be. That means control groups may be mixtures of both unaffected cases and some unidentified affected cases. Negative control groups with misclassified positive data are called unlabeled. Treating unlabeled groups as disease-negative control groups is known to cause misclassification bias, but there has been little research on how misclassification affects the statistical power of risk association tests. In this study, we demonstrate the consequences of using unlabeled groups as control groups on the power of risk association tests, with the intent of showing that control groups with even small misclassification rates can reduce the power of association tests. So, sample size calculations that ignore the unlabeled aspect of control groups may underpower studies. In addition, we offer a range of correction factors to adjust sample size calculations back to 80% power.
+Sample size calculations play a central role in study design because sample size affects study interpretability, costs, hospital resources, and staff time. For most orthopaedic risk-factor studies, either the sample size calculation or the post-hoc power calculation assumes the disease status of control subjects is perfectly ascertained, when it may not be. That means control groups may be mixtures of both unaffected cases and some unidentified affected cases. Negative control groups with misclassified positive data are called unlabeled. Treating unlabeled groups as disease-negative control groups is known to cause misclassification bias, but there has been little research on how misclassification affects the statistical power of risk association tests. In this study, we demonstrate the consequences of using unlabeled groups as control groups on the power of risk association tests, with the intent of showing that control groups with even small misclassification rates can reduce the power of association tests. So, sample size calculations that ignore the unlabeled aspect of control groups may underpower studies. In addition, we offer a range of correction factors to adjust sample size calculations back to 80% power.
 
-## Materials and Methods
+## Study Design
 
 This was a simulation study using study designs from published orthopaedic risk-factor studies. The approach was to use their designs but simulate the data to include known proportions of misclassified affected subjects in the control group. The simulated data was used to calculate the power of a risk-association test. We calculated powers for several study designs and misclassification rates and compared them to a reference model.
 
@@ -63,7 +71,7 @@ Keywords: risk-factor, case-control, power, sample size
 
 # Introduction
 
-Sample size calculations play a central role in study design because sample size affects study costs, hospital resources, and staff time. Also, underpowered studies with Type II error, can be hard to interpret, and there are also serious ethical considerations that have little chance of success.\cite{ halpern2002continuing, hofmeister2007sample}.
+Sample size calculations play a central role in study design because sample size affects study costs, hospital resources, and staff time. Also, underpowered studies with Type II errors can be hard to interpret and there are also serious ethical considerations for studies that have little chance of success.\cite{ halpern2002continuing, hofmeister2007sample}.
 
 In orthopaedic risk factor studies, the positive disease status of the affected subjects is ascertained with perfect sensitivity and specificity, but sometimes the disease status of control subjects is not perfectly ascertained. That means control groups may be mixtures of both unaffected cases and some unidentified affected cases. Control groups with misclassified data are called unlabeled. Data with truly affected cases in the positive group and an unlabeled control group is called positive-unlabeled (PU) data by the data science community.
 
@@ -86,9 +94,9 @@ Using a simulation, we described how statistical power changes with varying prop
 
 ## The Test of Association
 
-This was a simulation study assessing the changes in the power of a univariate association test under different PU conditions. There are many statistical tests of association, but we calculated the power for one of the most common tests, the Fisher exact test, which is used to test the statistical significance of a binary risk factor. More generally, this test can be used to assess the significance of any risk factor using the predicted values from a univariate logistic regression.
+This was a simulation study assessing the changes in the power of a univariate association test under different PU conditions. There are many statistical tests of association, but we calculated the power for one of the most common tests, Fisher's exact test, which is used to test the statistical significance of a binary risk factor. More generally, this test can be used to assess the significance of any risk factor using the predicted values from a univariate logistic regression.
 
-In the context of risk association studies, and all else being equal, the Fisher exact test would achieve its maximum power for a balanced study design when the naive model is correct (i.e., no undetected positives in the control group). We call that maximum power the reference power and reported our results as both percent power loss relative to the reference power and as absolute power loss from reference power. In other words, we are using the Fisher exact test to show how much statistical power is lost by ignoring the nondetection rate.
+In the context of risk association studies, and all else being equal, Fisher's exact test would achieve its maximum power for a balanced study design when the naive model is correct (i.e., no undetected positives in the control group). We call that maximum power the reference power and reported our results as both percent power loss relative to the reference power and as absolute power loss from reference power. In other words, we are using Fisher's exact test to show how much statistical power might be lost by ignoring the nondetection rate.
 
 ## The Sample Size and Group Imbalance
 
@@ -100,13 +108,13 @@ We modeled group imbalance using Healey et al. (2019), which used 161 dogs affec
 
 ## The Simulation Algorithm
 
-The overall approach is to simulate data, and then use that data to calculate the p-value of the Fisher exact test. The process is repeated 5000 times for each combination of sample size and nondetection rate, and then the 5000 p-values are compared to 0.05. The proportion of p-values less than 0.05 is the estimated power.
+The overall approach is to simulate data, and then use that data to calculate the p-value of Fisher's exact test. The process is repeated 5000 times for each combination of sample size and nondetection rate, and then the 5000 p-values are compared to 0.05. The proportion of p-values less than 0.05 is the estimated power.
 
 Simulating the data works backward from what might be expected. Instead of starting with values for a risk factor (e.g., 200 0's and 1's representing sex) and then simulating their disease status, we start with the disease status (e.g., 50 affected cases and 150 controls with 135 unaffected and 15 affected) and then assign binary values for the risk factor. It was done that way to control the nondetection rate and group sizes.
 
-The simulation algorithm is most easily described using examples, and we begin with calculating power for the Fisher exact test under the reference model, which is 100 cases and 100 correctly labeled (i.e., 100 truly unaffected) controls. That is, there are no affected cases in the control group, so this is not positive-unlabeled data, and the naive model is the correct model. Next, we associate a binary risk factor variable, $X$ (e.g., sex), with the cases and controls.The negative controls were simulated by sampling 100 negative cases from a binomial distribution with $Pr(X=1) = 0.2$. That probability means the the baseline risk for the disease in the population is 0.2. It it was chosen arbitrarily, because the baseline risk isn't central to power, the effect size is. As mentioned above, the effect size was 0.21, so the 100 positive cases were sampled from a binomial distribution with $Pr(X=1) = 0.2 + 0.21$. Using the sex example, that means that having sex=1 predisposes the animals to about double the baseline risk of disease (the baseline is 0.2, and with sex = 1, the risk is double, 0.2 + 0.21 = 0.41.).
+The simulation algorithm is most easily described using examples, and we begin with calculating power for Fisher's exact test under the reference model, which is 100 cases and 100 correctly labeled (i.e., 100 truly unaffected) controls. That is, there are no affected cases in the control group, so this is not positive-unlabeled data, and the naive model is the correct model. Next, we associate a binary risk factor variable, $X$ (e.g., sex), with the cases and controls.The negative controls were simulated by sampling 100 negative cases from a binomial distribution with $Pr(X=1) = 0.2$. That probability means the the baseline risk for the disease in the population is 0.2. It it was chosen arbitrarily, because the baseline risk isn't central to power, the effect size is. As mentioned above, the effect size was 0.21, so the 100 positive cases were sampled from a binomial distribution with $Pr(X=1) = 0.2 + 0.21$. Using the sex example, that means that having sex=1 predisposes the animals to about double the baseline risk of disease (the baseline is 0.2, and with sex = 1, the risk is double, 0.2 + 0.21 = 0.41.).
 
-Now, the 200 cases are pairs of binary data, one representing the group and the other representing the risk factor. These simulated data were tested with the Fisher exact test. As mentioned above, this process was repeated 5000 times, and the resulting 5000 p-values used to estimate power.
+Now, the 200 cases are pairs of binary data, one representing the group and the other representing the risk factor. These simulated data were tested with Fisher's exact test. As mentioned above, this process was repeated 5000 times, and the resulting 5000 p-values used to estimate power.
 
 For the second example, we calculate the power for a positive-unlabeled example. Suppose that in a 100-patient control group, 10 percent are in fact undetected positives. So the dataset is 10 affected cases in the control group, 90 unaffected cases in the control group, and 100 affected cases in the positive group. As in the previous example, the risk factor is simulated by sampling from binomial distributions. Now, 90 controls are sampled from the binomial distribution with $Pr(X=1) = 0.2$, the 10 affected controls are sampled from the binomial distribution with $Pr(X=1) = 0.2+ 0.21$, and 100 cases are sampled from the same binomial distribution with $Pr(X=1) = 0.2 + 0.21$. The 10 mislabeled affected cases remain in the control group, so as to measure the effect of treating PU data naively. As before, the simulated data were treated like pilot data, and p-values were calculated. This process is repeated 5000 times and the was estimated as described in the previous example.
 
@@ -190,7 +198,7 @@ In this simulation, the undetected positives in the negative group were randomly
 
 \newpage
 
-\bibliographystyle{unsrt}
+\bibliographystyle{vancouver}
 
 \bibliography{references}
 
