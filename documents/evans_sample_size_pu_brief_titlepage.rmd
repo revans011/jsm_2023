@@ -1,0 +1,50 @@
+---
+title: "**Sample Size Considerations in the Design of Orthopaedic Risk-factor Studies**"
+output:
+  pdf_document:
+font-size: 12pt
+
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+## Install these libraries before knitting
+
+library("here")
+library("tinytex")
+library("knitr")
+library("kableExtra")
+library("rmarkdown")
+library("dplyr")
+library("knitr")
+
+tab1 <- read.csv(here("data","derived","bigtable.csv"))
+
+
+# render(here("documents/sim_paper.rmd"), output_format = "all")
+```
+
+Richard Evans ${^\dagger}$ and Antonio Pozzi ${^*}$
+
+${\dagger}$ Corresponding Author
+
+${\dagger}$ Clinical and Translational Science Institute  
+University of Minnesota \
+Minneapolis, Minnesota, USA \
+\href{mailto:evan0770@umn.edu}{evan0770@umn.edu}
+
+${^*}$ Small Animal Clinic \
+University of Zurich \
+Zurich, Switzerland
+
+Keywords: Orthopaedics, risk factor, statistics, sample size
+
+No funding was received for this research, and there are no conflicts of interest.
+
+Richard Evans contributed to the concept, writing, and simulations in this manuscript. Antonio Pozzi contributed to the concept and writing of this manuscript.
+
+Introduction: 1,398 characters with spaces
+
+Body of text: 18,557 characters with spaces
+
+
